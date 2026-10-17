@@ -3,6 +3,8 @@
 # Without a mode: read-only check. --run: check, then torque on after you type GO.
 cd "$(dirname "$0")/.." || exit 1
 source scripts/ports.sh
+source scripts/reset_leaders.sh
+reset_leaders "$LEFT_LEADER" "$RIGHT_LEADER"
 LEFT=(--left "$LEFT_LEADER:$LEFT_CAN")
 RIGHT=(--right "$RIGHT_LEADER:$RIGHT_CAN")
 case "$1" in
