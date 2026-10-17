@@ -18,9 +18,17 @@ Bimanual OpenArm (Enactic, v10) that grasps a bottle and a glass, stops in a fix
 - Environment: `uv sync` (Python 3.12, LeRobot pinned to a tested commit in `pyproject.toml`).
   Run tools with `uv run`, e.g. `uv run lerobot-calibrate ...`.
 - `hardware/damiao.py`: minimal Damiao protocol (ported from enactic/openarm_can) over python-can.
-- `scripts/read_joints.py`: read-only state dump, never enables torque.
-- `scripts/calibrate_zero.py`: zero calibration without torque (needs typed confirmation).
-- Preferred stack for real use: LeRobot `openarm_follower` / `bi_openarm_follower` with socketcan.
+- `scripts/read_joints.py`, `scripts/calibrate_zero.py`: macOS PCAN versions (read-only dump,
+  zero calibration with typed confirmation); not ported to socketcan yet.
+- `scripts/teleop_safe.py`: socketcan teleop with read-only check/watch/direction test; `--run`
+  ramps gains, approaches slowly, caps speed. Its `Teleop` loop is shared by:
+  `scripts/record.py` (LeRobotDataset v3) and `scripts/run_policy.py` (ACT grasp, then `--then`
+  hands over with torque kept on). `scripts/rig.py`: shared setup and `--sim` fakes.
+- Wrappers read `scripts/ports.sh` (leaders by USB serial, CAN channels, cameras):
+  `setup_can.sh`, `teleop.sh`, `watch.sh`, `record.sh`, `grasp.sh`; `train_act.sh` on a GPU box.
+  Full flow in `docs/PIPELINE.md`.
+- LeRobot's own `openarm_follower` enables torque on connect and goes straight to the target with
+  full gains (and calibrates by zeroing the motors if no file): not used for motion here.
 
 ## Safety rules (from the user)
 - Never command motion or enable torque without the user's explicit go for that specific step.

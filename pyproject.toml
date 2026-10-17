@@ -5,7 +5,7 @@ description = "Cocktail Robotics — OpenArm + OpenArm Mini teleoperation (HackZ
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "lerobot[feetech,damiao]",
+    "lerobot[feetech,damiao,training]",
     "mujoco>=3.3",
 ]
 
