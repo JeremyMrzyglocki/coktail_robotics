@@ -24,7 +24,8 @@ and stops in a fixed handoff pose; then `skills/pour` pours (closed loop on visi
 - CAN: PEAK PCAN-USB Pro FD, CAN FD 1 Mbps / 5 Mbps, sample point 0.75, in an Ubuntu ARM64 VM
   (VMware Fusion on a Mac, 2 cores). `./scripts/setup_can.sh` after every reboot or replug.
 - **Sides on this robot: right follower = `can1`, left follower = `can0`.** This is the opposite of
-  the OpenArm SDK default (`right_arm` = can0) used by `skills/pour/robot_io.py`: pass
+  the OpenArm SDK default (`right_arm` = can0). `skills/pour/robot_io.py` reads it from
+  `skills/pour/config/openarm_cocktail.yaml`; other SDK code must pass
   `can_interfaces={"right_arm": "can1", "left_arm": "can0"}` or it drives the wrong arm.
 - Leaders: OpenArm Mini (Feetech STS3215), by USB serial in `scripts/ports.sh`:
   right = `...58FA101582`, left = `...5876042927`. Their calibration files
@@ -44,8 +45,10 @@ and stops in a fixed handoff pose; then `skills/pour` pours (closed loop on visi
   (about 8-10 deg). All 16 motors read within ~5 deg of 0 in the reference pose.
 - `skills/pour` uses `openarm_driver`, whose default config `openarm_cell.yaml` subtracts Enactic
   jig offsets (J3 +90 deg, J4 -100 deg, ...). They do not match this robot (offsets are 0 here):
-  use a zero-offset config (`openarm_cell_higher_pd_zero_offset.yaml`, `openarm_pedestal.yaml`)
-  or the poses and its limit checks are wrong.
+  or the poses and its limit checks are wrong. `skills/pour/config/openarm_cocktail.yaml` is this
+  robot's config (zero offsets, can1 = right, the joint limits of `teleop_safe.py` in rad: keep it
+  in sync with `calibration/joint_limits.json`); `robot_io.py` loads it for the driver and its own
+  clipping.
 
 ## Leader -> follower mapping (teleop)
 
@@ -89,6 +92,11 @@ Tools (read-only): `./scripts/teleop.sh both --directions` (fixes flips), `--ali
 - `--sim` (in `record.py`, `run_policy.py`) fakes arms and cameras for tests without hardware.
 
 ## Handover to `skills/pour`
+
+`./scripts/cocktail.sh MODEL_LINK --container red --grams 60` (Claude Code: `/cocktail <link>`,
+`.claude/skills/cocktail/`) = `grasp.sh MODEL --then` the pour skill, after checking that the pour
+environment (`~/venvs/pour`, `POUR_PYTHON`) imports `openarm_driver`. Cameras are released before
+the pour starts.
 
 - `openarm_driver.SingleArmDriver.start()` enables and holds the measured pose (no disable first)
   and `robot_io` skips the start trajectory, so taking over a holding arm is possible. Only the

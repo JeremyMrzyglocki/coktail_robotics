@@ -187,6 +187,9 @@ def main():
             teleop.hold()
             for arm in arms:
                 arm.disconnect(keep_torque=True)
+            for cam in cameras.values():  # free them: the next script may use the same camera
+                cam.disconnect()
+            cameras.clear()
             handed_over = True
             print(f"Torque kept ON at the handoff pose. Running: {args.then}")
             result = subprocess.run(shlex.split(args.then))

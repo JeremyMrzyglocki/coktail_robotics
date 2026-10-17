@@ -18,8 +18,8 @@ Before the robot comes back:
 ```
 If a leader drives the wrong column, swap `LEFT_LEADER` / `RIGHT_LEADER` in `scripts/ports.sh`.
 Also check the sides: on this robot the right follower is on `can1` and the left on `can0`, the
-opposite of the OpenArm SDK default used by `skills/pour` (it must pass
-`can_interfaces={"right_arm": "can1", "left_arm": "can0"}`). Leader sides come from their gripper
+opposite of the OpenArm SDK default; `skills/pour` gets it from
+`skills/pour/config/openarm_cocktail.yaml`. Leader sides come from their gripper
 calibration (closed reads 0 only with the leader's own file). The side picks the joint limits and
 the leader's joint flips: a wrong side shows up as joints moving the mirrored way.
 
@@ -96,16 +96,21 @@ tmux new -s train                    # survives an SSH disconnect
 
 ```bash
 ./scripts/grasp.sh antonin-leroy/act-cocktail-grasp                     # grasp only
-./scripts/grasp.sh antonin-leroy/act-cocktail-grasp --then "uv run --with-requirements \
-    skills/pour/requirements.txt python skills/pour/pour_skill.py --backend openarm \
-    --container red --grams 60 --i-understand-motors-will-be-armed"     # grasp, then pour
+./scripts/cocktail.sh https://huggingface.co/antonin-leroy/act-cocktail-grasp \
+    --container red --grams 60                                          # grasp, then pour
 ```
+`cocktail.sh` takes the model's Hub link (or repo id, or a local dir), checks the pour environment
+(`~/venvs/pour`, `POUR_PYTHON`) before anything moves, then runs `grasp.sh MODEL --then` with
+`skills/pour/pour_skill.py --backend openarm` and the arguments after the link. In Claude Code,
+`/cocktail <link> [colour] [grams]` runs the read-only checks (model inputs vs `CAMERAS`, CAN,
+motors, SDK) and gives you that command.
 1. Loads the policy and refuses to start if it was trained with other arms or cameras.
 2. Preflight against the policy's first action, `GO`, gain ramp, slow move to that first action.
 3. The policy drives both arms with the teleop's speed cap, joint limits and safety stops.
 4. Done when its targets stay still for 2 s (`--settle-time`), on Enter, or after `--max-time` (60 s).
 5. With `--then`: the follower keeps holding the handoff pose with torque ON, our CAN sockets close
-   without disabling the motors, and the command runs and takes over the motors.
+   without disabling the motors, the cameras are released, and the command runs and takes over
+   the motors.
    Without `--then`: it holds until Enter, then releases torque (take the objects first).
 
 On the VM CPU, ACT replans every 100 steps and that cycle takes ~0.2 s: the arm pauses briefly
@@ -116,11 +121,12 @@ Handover to `skills/pour` (read from openarm-driver 0.5.1, not tried on the robo
   measured pose (no disable first); `robot_io` skips the start trajectory. Only the pouring arm
   (`PourConfig.arm`, right by default) is taken over; the other arm keeps holding our last command.
 - The motors hold that last command only while their Damiao CAN timeout allows it (0 = forever).
+- `skills/pour/robot_io.py` uses `skills/pour/config/openarm_cocktail.yaml` (SDK's
+  `openarm_cell_higher_pd_zero_offset.yaml` with right arm = can1, zero offsets, and the joint
+  limits of `teleop_safe.py`): the SDK default `openarm_cell.yaml` has Enactic jig offsets
+  (J3 +90 deg, J4 -100 deg, ...) and limits of +-90 deg on J3/J5, which would clip this robot's
+  poses (both the SDK and `robot_io` clip the whole target vector to them).
 - To settle before chaining them on the robot:
-  - `openarm_driver` defaults to `openarm_cell.yaml`, whose joint offsets come from Enactic's
-    calibration jig (J3 +90 deg, J4 -100 deg, ...). This robot's zero is "arm hanging" (offsets 0),
-    so the absolute poses of the pour skill and the SDK's limit check need a zero-offset config
-    (`openarm_cell_higher_pd_zero_offset.yaml` or `openarm_pedestal.yaml`) or measured offsets.
   - The SDK drives the gripper in POS_FORCE mode with a torque limit: check on the robot that the
     takeover does not loosen the grip on the bottle.
   - `openarm_can` + `openarm-driver` must be installed in this VM (see
