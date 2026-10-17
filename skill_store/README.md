@@ -220,12 +220,21 @@ videos are AV1 and need an ffmpeg built with libdav1d), it borrows a representat
 frame and records that in `data/thumb_sources.json`, which the UI prints under the
 card. Set `HF_TOKEN` to reach the gated Build AI sets.
 
-`data/datasets.json` is the registry behind the **Data** section: 12 sources,
-~112,000 hours, with licence, access and size for each. Verified reachable:
+`data/datasets.json` is the registry behind the **Data** section: 138 sources,
+with licence, access and size for each. The first 12 are the broad ones
+(~112,000 hours). Verified reachable:
 `Voxel51/Egocentric_10K_subset` (open, H.264, the one to start with),
 `builddotai/Egocentric-10K` / `-100K` (Apache-2.0, gated-auto),
 `lerobot/*` teleop sets. EgoDex is GitHub-only. `spirit-ai/pickplace` is private —
 ask the organizers on day one.
+
+The other 126 are single-task robot datasets from the Hugging Face hub, all in
+LeRobot format, open, and Apache-2.0 or MIT: the Unitree G1, RoboCOIN, ALOHA and
+AgileX collections (3 of them simulation), including a cocktail-making series. `data/skill_datasets.json` links them to skills, 2–4 per skill, each with
+the dataset's own task text as the reason. Every skill now has robot data. These
+are extra sources: a skill's primary `dataset` (what it was trained on) is
+unchanged, and the extras are merged in as `datasets` when the catalog is seeded.
+The skill popup lists them, and missing skills can point at them as candidate data.
 
 ## Editing the catalog
 

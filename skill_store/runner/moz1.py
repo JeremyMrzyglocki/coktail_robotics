@@ -201,7 +201,8 @@ class Moz1Executor:
         return Outcome(True, dur, f"sent {frames_sent} frames @ {CONTROL_HZ}Hz")
 
     def home(self) -> None:
-        if self.robot is None:
+        # After an operator stop the arm stays where it is: homing is motion.
+        if self.robot is None or self._stopped:
             return
         self.robot.reset_robot_positions(**RESET_POSE)
         # Returns when the command is SENT, not when motion completes.

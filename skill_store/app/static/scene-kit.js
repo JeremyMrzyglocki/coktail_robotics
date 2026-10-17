@@ -321,8 +321,14 @@
     ['table',   /^$|table|counter|surface|desk|worktop/],
     ['station', /shelf|sink|bin|trash|fridge|cabinet|cupboard|drawer|rack|tray|coaster|dishwasher|station|plate|board/]
   ];
+  // A part of a known thing ("blender lid", "banana peel", "lid of the jar") is
+  // not that thing: it is drawn as a stand-in, like any other unknown name.
+  var PART = '(?:lid|cap|cover|button|switch|knob|dial|lever|handle|peel|skin|rind|shell|pit|core|stem|seed|' +
+             'cork|spout|nozzle|plug|cord|blade|label|sticker|wrapper)(?:s|es)?';
+  var PART_RE = new RegExp('(?:^|\\s)' + PART + '$|^' + PART + ' of\\b');
   function propKind(name) {
     var n = String(name || '').toLowerCase().trim();
+    if (PART_RE.test(n)) return 'box';
     for (var i = 0; i < PROP_KINDS.length; i++) if (PROP_KINDS[i][1].test(n)) return PROP_KINDS[i][0];
     return 'box';
   }
@@ -481,6 +487,31 @@
     P.height = 0.05;
     P.hold = { mode: 'side', y: 0.025, reach: -0.088, tilt: 0.1, curl: 0.72 };
   };
+  // A model-designed stand-in: a list of primitives (see app/props.py). Data
+  // only -- shapes, sizes, positions, grey shades -- assembled here.
+  PROPS.generated = function (P) {
+    var spec = P.spec || { parts: [], hold: { mode: 'side', y: 0.025 }, height_m: 0.05 };
+    spec.parts.forEach(function (q) {
+      var s = q.size, geo;
+      if (q.shape === 'cylinder') geo = new THREE.CylinderGeometry(s[0], s[1], s[2], 24);
+      else if (q.shape === 'sphere') geo = new THREE.SphereGeometry(s[0], 18, 14);
+      else if (q.shape === 'cone') geo = new THREE.ConeGeometry(s[0], s[1], 20);
+      else if (q.shape === 'torus') geo = new THREE.TorusGeometry(s[0], s[1], 8, 24);
+      else geo = new THREE.BoxGeometry(s[0], s[1], s[2]);
+      var g = Math.round(q.shade * 255);
+      var m = new THREE.Mesh(geo, plainMat((g << 16) | (g << 8) | g, { roughness: 0.7 }));
+      m.position.set(q.pos[0], q.pos[1], q.pos[2]);
+      m.rotation.set(q.rot[0], q.rot[1], q.rot[2]);
+      m.castShadow = true;
+      P.group.add(m);
+    });
+    P.height = spec.height_m;
+    P.fixed = !!spec.fixed;
+    var mode = spec.hold.mode;
+    P.hold = mode === 'top' ? { mode: 'top', y: spec.hold.y, curl: 0.62 }
+           : mode === 'flat' ? { mode: 'flat', y: spec.hold.y, curl: 0.42 }
+           : { mode: 'side', y: spec.hold.y, reach: -0.1, tilt: 0.1, curl: 0.72 };
+  };
   PROPS.patch = function (P) {
     P.mat = plainMat(0x4c4c4c, { transparent: true, opacity: 0.6, depthWrite: false });
     var m = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.12), P.mat);
@@ -507,7 +538,10 @@
       for (var i = a.idx + 1; i < acts.length; i++) if (acts[i].hand === a.hand) return acts[i];
       return null;
     }
-    var onStation = {};
+    var onStation = {}, onTop = {}, onSide = {};
+    // A step that fixes the held thing where it is: the hand lets go of it there.
+    var FASTEN = /(^|[^a-z])(attach|affix|fasten|fix|mount|screw|bolt|clip|snap|join|connect|insert|plug|glue|stick|tape|install|assembl|fit|hook|hang|weld|nail)/i;
+    function fastens(a) { return !!a && (a.kind === 'gap' || a.kind === 'unknown') && FASTEN.test(a.label || ''); }
 
     /* --- props --- */
     var props = {}, list = [], used = {}, ghosts = [];
@@ -530,11 +564,14 @@
     function addProp(name, kind, side, at) {
       var P = { id: 'p' + list.length, name: name, kind: kind, group: new THREE.Group(),
                 fill0: 0, cap: 0.5, lift: 0, height: 0.05 };
+      if (kind === 'generated') P.spec = (plan.specs || {})[norm(name)];
       (PROPS[kind] || PROPS.box)(P, scene, mats);
       var xz = at || slotFor(kind, side);
       P.home = { pos: new V3(xz[0], P.homeY !== undefined ? P.homeY : P.lift, xz[1]),
                  quat: P.homeQuat || new QT() };
       if (P.base) P.base.position.set(xz[0], 0, xz[1]);
+      P.box = new THREE.Box3().setFromObject(P.group);     // its bounds, about its own origin
+      if (P.box.isEmpty()) P.box.set(new V3(-0.025, 0, -0.025), new V3(0.025, P.height || 0.05, 0.025));
       P.group.traverse(function (o) { if (o.isMesh && !(o.material.transparent && o.material.opacity < 0.5)) o.castShadow = true; });
       scene.add(P.group);
       sim[P.id] = St(P); init[P.id] = St(P); W[P.id] = St(P);
@@ -561,6 +598,12 @@
       var n = norm(a.target);
       if (!n || props[n] || a.kind === 'gap') return;
       var kind = propKind(n);
+      // A kitchen has one blender: "blender", "blender jar" and "blender base"
+      // are all that one prop (its parts were made stand-ins above).
+      var B = kind === 'blender' && list.filter(function (p) { return p.kind === 'blender'; })[0];
+      if (B) { props[n] = props[B.name]; return; }
+      // No builder for this name: use the model's design when the page fetched one.
+      if (kind === 'box' && plan.specs && plan.specs[n]) kind = 'generated';
       if (kind !== 'table') addProp(n, kind, a.hand);
     });
     var spoon = null;
@@ -596,6 +639,14 @@
       return { pos: rel.p.clone().applyQuaternion(st.quat).add(st.pos), quat: st.quat.clone().multiply(rel.q), curl: rel.curl };
     }
     function topOf(P, st) { return st.pos.clone().add(new V3(0, P.height, 0)); }
+    // P's bounds turned by quat, still about its origin, on world axes.
+    function boundsOf(P, quat) {
+      var b = P.box, out = new THREE.Box3();
+      for (var i = 0; i < 8; i++)
+        out.expandByPoint(new V3(i & 1 ? b.max.x : b.min.x, i & 2 ? b.max.y : b.min.y, i & 4 ? b.max.z : b.min.z)
+                            .applyQuaternion(quat));
+      return out;
+    }
     function withCurl(pose, c) { return { pos: pose.pos, quat: pose.quat, curl: c }; }
 
     /* --- world state --- */
@@ -606,6 +657,36 @@
       dst.blend = src.blend; dst.swirl = src.swirl; dst.fold = src.fold; dst.hidden = src.hidden; return dst;
     }
     function clone(s) { return cp({ pos: new V3(), quat: new QT() }, s); }
+    // Things fastened to a prop ride along with it from then on: D.id -> [{ D, P, p, q }],
+    // P's place and turn in D's frame. Picking P up again takes it off.
+    var riders = {};
+    function detach(P) {
+      for (var id in riders) riders[id] = riders[id].filter(function (r) { return r.P !== P; });
+    }
+    function attach(P, D) {
+      detach(P);
+      var ds = sim[D.id], ps = sim[P.id], inv = ds.quat.clone().invert();
+      (riders[D.id] = riders[D.id] || []).push({ D: D, P: P,
+        p: ps.pos.clone().sub(ds.pos).applyQuaternion(inv), q: inv.multiply(ps.quat) });
+    }
+    // The riders of the props in `moved`, and theirs, parents first.
+    function ridersOf(moved) {
+      var out = [];
+      (function walk(ps) {
+        ps.forEach(function (D) {
+          (riders[D.id] || []).forEach(function (r) {
+            if (out.indexOf(r) >= 0 || moved.indexOf(r.P) >= 0) return;
+            out.push(r); walk([r.P]);
+          });
+        });
+      })(moved);
+      return out;
+    }
+    function ride(r, ds, rs) {     // rs: where r.P is when its parent is at ds
+      rs.pos.copy(r.p).applyQuaternion(ds.quat).add(ds.pos);
+      rs.quat.copy(ds.quat).multiply(r.q);
+      if (ds.hidden) rs.hidden = true;
+    }
     var hs = {
       left:  { pose: K.restPose('left'),  hold: null, rel: null, over: null, spot: 0 },
       right: { pose: K.restPose('right'), hold: null, rel: null, over: null, spot: 0 }
@@ -678,7 +759,7 @@
         else if (u < 0.8) T[a.hand] = K.lerpPose(pre, open, ease(seg(u, 0.55, 0.8)));
         else { T[a.hand] = withCurl(gp, M.lerp(0.15, gp.curl, ease(seg(u, 0.8, 1)))); snap[a.hand] = true; }
       };
-      h.hold = P; h.rel = relOf(st, gp); h.over = null;
+      h.hold = P; h.rel = relOf(st, gp); h.over = null; detach(P);
       a.handEnd = gp;
     };
 
@@ -691,9 +772,9 @@
         return;
       }
       var H = h.hold, rel = h.rel, from = clone(sim[H.id]), to = clone(from), s = sgn(a.hand);
-      var next = nextOf(a), pourNext = !!next && next.kind === 'pour';
+      var next = nextOf(a), pourNext = !!next && next.kind === 'pour', fastenNext = fastens(next);
       to.quat.copy(H.home.quat);
-      h.over = null; h.overY = null;
+      h.over = null; h.overY = null; h.atD = null;
       if (D && D === H) {                                   // the jug back onto its own base
         to.pos.copy(H.home.pos); h.over = 'floor';
       } else if (D && D.kind === H.kind && (H.kind === 'glass' || H.kind === 'box') && !pourNext) {
@@ -712,6 +793,33 @@
         var off = [0, -0.065, 0.065, -0.035, 0.035][(n - 1) % 5];
         to.pos.set(dst.pos.x + off, dst.pos.y + D.height + 0.05, dst.pos.z + ((n - 1) % 5 > 2 ? 0.035 : 0));
         h.overY = dst.pos.y + D.height;
+      } else if (D && D.kind === 'generated' && (fastenNext || (next && next.kind === 'release'))) {
+        var dg = sim[D.id], db = boundsOf(D, dg.quat), dc0 = db.getCenter(new V3()), dh = db.getSize(new V3()).multiplyScalar(0.5);
+        var hb = boundsOf(H, to.quat), hh = hb.getSize(new V3()).multiplyScalar(0.5);
+        var L = dh.x >= dh.z ? 'x' : 'z', N = L === 'x' ? 'z' : 'x';     // D's long side, and across it
+        // A fastened thing goes against D's side unless it is big enough to cover D's top (a lid).
+        if (fastenNext && Math.max(hh.x, hh.z) < 0.7*Math.min(dh.x, dh.z)) {
+          var j = onSide[D.id] = (onSide[D.id] || 0) + 1;
+          var slot = [[1, 1], [1, -1], [-1, 1], [-1, -1], [1, 0], [-1, 0]][(j - 1) % 6];
+          // turn it so its broadest face meets D's side
+          var thin = hh.x <= hh.y && hh.x <= hh.z ? 'x' : hh.y <= hh.z ? 'y' : 'z';
+          if (thin !== N && hh[thin] < 0.85*hh[N]) {
+            var axis = thin === 'y' ? (L === 'x' ? new V3(1, 0, 0) : new V3(0, 0, 1)) : UP;
+            to.quat.premultiply(new QT().setFromAxisAngle(axis, Math.PI/2));
+            hb = boundsOf(H, to.quat); hh = hb.getSize(new V3()).multiplyScalar(0.5);
+          }
+          to.pos.y = dg.pos.y + db.min.y - hb.min.y;
+          to.pos[N] = dg.pos[N] + (slot[0] > 0 ? db.max[N] + 0.002 - hb.min[N] : db.min[N] - 0.002 - hb.max[N]);
+          to.pos[L] = dg.pos[L] + dc0[L] + slot[1]*Math.max(0, dh[L] - 1.4*hh[L]) - (hb.min[L] + hb.max[L])/2;
+        } else {                                            // set on top, side by side if several
+          var k = onTop[D.id] = (onTop[D.id] || 0) + 1;
+          var room = Math.max(0, dh[L] - hh[L]), off2 = [0, -1, 1, -0.5, 0.5][(k - 1) % 5]*Math.min(room, 2.2*hh[L]);
+          var top2 = dg.pos.y + db.max.y - hb.min.y;
+          to.pos.set(dg.pos.x + dc0.x - (hb.min.x + hb.max.x)/2, top2, dg.pos.z + dc0.z - (hb.min.z + hb.max.z)/2);
+          to.pos[L] += off2;
+          if (!fastenNext) { to.pos.y += 0.05; h.overY = top2; }   // release lowers it the last bit
+        }
+        if (fastenNext) h.atD = D;
       } else if (D) {                                       // next to another thing
         to.pos.copy(sim[D.id].pos).add(new V3(0.1*s, 0.04, 0.04));
       } else {                                              // a free spot on the counter
@@ -816,7 +924,7 @@
         cp(sim[H.id], down);
         a.touch = [H];
       }
-      h.hold = null; h.rel = null; h.over = null; h.overY = null;
+      h.hold = null; h.rel = null; h.over = null; h.overY = null; h.atD = null;
       a.handEnd = rest;
     };
 
@@ -959,14 +1067,23 @@
       var at = P && !sim[P.id].hidden ? topOf(P, sim[P.id]).add(new V3(0, 0.07, 0))
              : h.pose.pos.clone().add(new V3(0, 0.06, -0.12));
       var start = h.pose, holding = !!h.hold;
+      // Fastening what the hand just put against something: it stays there, the hand lets go.
+      var letGo = holding && h.atD && fastens(a) && (!a.target || P === h.atD);
+      var rest = K.restPose(a.hand), rel = h.rel;
       a.play = function (u, T, snap) {
         box.visible = true; box.position.copy(at);
         box.rotation.y = u*2.4;
         var k = 1 + Math.sin(u*Math.PI*4)*0.08; box.scale.set(k, k, k);
+        if (letGo) {
+          if (u < 0.6) { T[a.hand] = withCurl(start, M.lerp(rel.curl, 0.15, ease(seg(u, 0.35, 0.6)))); snap[a.hand] = true; }
+          else T[a.hand] = K.lerpPose(withCurl(start, 0.15), rest, ease(seg(u, 0.6, 1)));
+          return;
+        }
         if (holding) snap[a.hand] = true;
         if (a.hand) T[a.hand] = start;
       };
       a.handEnd = start;
+      if (letGo) { attach(h.hold, h.atD); h.hold = null; h.rel = null; h.atD = null; a.handEnd = rest; }
     };
     DO.gap = DO.unknown;
 
@@ -983,7 +1100,10 @@
         if (a.handEnd) h.pose = a.handEnd;
         a.holdEnd = !!h.hold;
       }
-      a.end = a.touch.map(function (P) { return { id: P.id, st: clone(sim[P.id]) }; });
+      // whatever is fastened to a moved prop moves with it
+      a.riders = ridersOf(a.touch);
+      a.riders.forEach(function (r) { ride(r, sim[r.D.id], sim[r.P.id]); a.touch.push(r.P); });
+      a.end =a.touch.map(function (P) { return { id: P.id, st: clone(sim[P.id]) }; });
     });
 
     /* --- per frame --- */
@@ -1004,6 +1124,7 @@
         }
         if (a.hand) snap[a.hand] = false;
         a.play((t - a.t0)/(a.t1 - a.t0), T, snap);
+        for (var r = 0; r < a.riders.length; r++) ride(a.riders[r], W[a.riders[r].D.id], W[a.riders[r].P.id]);
         api.active.push(a.step);
         if (a.kind === 'gap' || a.gap) api.gap = true;
       }

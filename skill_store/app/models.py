@@ -38,6 +38,9 @@ class PlanObject(BaseModel):
     """A thing the request involves, classified before any skill is chosen."""
     name: str
     kind: str
+    size_cm: float | None = None
+    """Approximate largest dimension, judged with the whole request in view (a
+    toy's parts are toy-sized). None on plans compiled before sizes existed."""
 
 
 class CompiledPlan(BaseModel):
@@ -57,7 +60,7 @@ class ValidationIssue(BaseModel):
     step_index: int | None
     kind: Literal["unknown_skill", "unmet_precondition", "embodiment_mismatch",
                   "not_executable", "empty_plan", "loose_end",
-                  "wrong_object"]
+                  "wrong_object", "wrong_flow", "pointless_move"]
     detail: str
 
 
@@ -82,6 +85,8 @@ class PricedStep(Step):
     """skill_and_data | data_only | none"""
     dataset_name: str = ""
     dataset_id: str = ""
+    dataset_count: int = 0
+    """How many open datasets cover this skill, the primary one included."""
     preconditions: list[str] = Field(default_factory=list)
     postconditions: list[str] = Field(default_factory=list)
 
@@ -98,8 +103,14 @@ class PlanResponse(BaseModel):
     depth: int = 0
     max_parallel: int = 1
     missing: list[MissingSkill]
+    objects: list[PlanObject] = Field(default_factory=list)
+    """The plan's objects, sizes already fitted so nothing put onto or into
+    another thing is bigger than it (app/props.py: fit_sizes)."""
     issues: list[ValidationIssue]
     valid: bool
+    installable: bool = False
+    """valid, no gaps, and every step has a trained checkpoint."""
+    install_blockers: list[str] = Field(default_factory=list)
     total_price_eur: float
     executable_steps: int
     cached: bool = False

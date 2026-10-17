@@ -14,3 +14,7 @@ API.txt
 data/*.db-shm
 data/*.db-wal
 .DS_Store
+key.txt
+
+# local API keys
+claude_key.txt

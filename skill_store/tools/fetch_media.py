@@ -33,6 +33,16 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def ffmpeg_bin() -> str | None:
+    """The ffmpeg to use: $FFMPEG, else Homebrew's (built with libdav1d, so it
+    decodes the AV1 that LeRobot v3 datasets ship), else whatever is on PATH --
+    Anaconda's, typically, which cannot."""
+    for cand in (os.environ.get("FFMPEG"), "/opt/homebrew/bin/ffmpeg", "/usr/local/bin/ffmpeg"):
+        if cand and Path(cand).exists():
+            return cand
+    return shutil.which("ffmpeg")
 THUMBS = ROOT / "app" / "static" / "thumbs"
 VIEWER = "https://datasets-server.huggingface.co/first-rows"
 TIMEOUT = 40
@@ -95,9 +105,9 @@ THUMB_FALLBACK = {
 
 def grab_frame(video_url: str, dest: Path, offset: float) -> bool:
     """Extract one frame. ffmpeg range-reads the URL rather than downloading it all."""
-    if not shutil.which("ffmpeg"):
+    if not ffmpeg_bin():
         return False
-    cmd = ["ffmpeg", "-nostdin", "-loglevel", "error", "-ss", f"{offset:.1f}",
+    cmd = [ffmpeg_bin(), "-nostdin", "-loglevel", "error", "-ss", f"{offset:.1f}",
            "-i", video_url, "-frames:v", "1", "-q:v", "4",
            "-vf", "scale=480:-2", str(dest), "-y"]
     try:

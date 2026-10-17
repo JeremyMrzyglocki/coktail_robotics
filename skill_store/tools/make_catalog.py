@@ -285,6 +285,17 @@ ACTS_ON = {
     "pick_up_floor": ["bottle", "glass", "cloth", "item"],
 }
 
+# Skills that move contents between objects. "held->target": what the hand holds
+# empties into the target (a pour); "object->target": the held object itself
+# ends up inside the target (fruit dropped into a blender). The validator keeps
+# a contents ledger from these, so pouring from an empty glass, or pouring into
+# the thing being held, is caught as wrong_flow.
+FLOW = {
+    "pour_into": "held->target", "measure_pour": "held->target", "top_up": "held->target",
+    "scoop_pour": "held->target",
+    "release_object": "object->target", "place_in_bin": "object->target",
+}
+
 # Episodes actually collected, for skills with a checkpoint. Edit as you record.
 EPISODES = {
     "locate_object": 40, "grasp_bottle": 52, "grasp_glass": 44, "grasp_cloth": 38,
@@ -336,6 +347,76 @@ WHOLEBODY = {"pick_up_floor", "open_fridge", "place_in_fridge", "close_fridge",
              "align_chair", "serve_to_guest", "clear_table", "set_place"}
 
 
+# Other ways people describe each motion. The binder sees these next to the
+# description, so "drag the cloth along the table" lands on wipe_surface instead
+# of becoming a gap; the Demand page uses them to spot gaps the catalog covers.
+ALIASES = {
+    "locate_object": ["look for", "find", "search for", "spot"],
+    "grasp_bottle": ["pick up the bottle", "take the bottle", "grab the bottle", "lift the bottle",
+                     "grasp the bottle", "grasp the can", "grasp the carton"],
+    "grasp_bottle_lite": ["pick up the bottle"],
+    "grasp_glass": ["pick up the glass", "take the glass", "grab the cup", "lift the glass",
+                    "grasp the glass", "grasp the cup", "grasp the mug"],
+    "grasp_object": ["pick up", "take", "grab", "lift", "hold"],
+    "grasp_cloth": ["pick up the cloth", "take the towel", "grab the sponge", "grab the rag",
+                    "grasp the cloth", "grasp the towel"],
+    "grasp_scoop": ["pick up the scoop", "take the spoon"],
+    "grasp_shaker": ["pick up the shaker", "take the shaker"],
+    "release_object": ["let go", "set down", "put down", "drop it in", "place", "leave it", "release"],
+    "move_to_station": ["carry", "bring", "move it over", "hold it above", "take it to", "transport"],
+    "pour_into": ["pour", "tilt into", "tip into", "empty into", "fill from", "decant"],
+    "measure_pour": ["pour a measure", "measured pour", "pour exactly"],
+    "scoop_pour": ["scoop into", "spoon into", "ladle into", "add a scoop"],
+    "top_up": ["top up", "fill to the line"],
+    "stir": ["stir", "mix with a spoon", "swirl the spoon", "agitate", "whisk"],
+    "swirl_glass": ["swirl", "swish"],
+    "shake_shaker": ["shake", "shake it up"],
+    "seal_shaker": ["close the shaker", "cap the shaker", "put the lid on", "seal"],
+    "run_blender": ["blend", "turn on the blender", "operate the blender", "press the blender button",
+                    "start the blender", "run the mixer", "switch on", "press start"],
+    "wipe_surface": ["wipe", "drag the cloth over", "rub the surface", "scrub", "wipe down",
+                     "clean the table", "sweep the cloth across", "polish the surface"],
+    "wipe_spill": ["wipe up the spill", "mop up", "dab the spill"],
+    "wipe_window": ["wipe the window", "clean the glass pane"],
+    "wipe_handle": ["wipe the handle", "clean the rail"],
+    "verify_surface_clean": ["check it is clean", "inspect the surface"],
+    "detect_fill_level": ["check how full", "see the level"],
+    "polish_glass": ["polish", "buff the glass", "dry the glass"],
+    "rinse_vessel": ["rinse", "wash out", "hold under the tap"],
+    "twist_cap": ["unscrew", "twist open", "open the bottle", "remove the cap", "uncap"],
+    "press_dispenser": ["press the pump", "push the dispenser", "press down"],
+    "open_drawer": ["open the drawer", "pull the drawer"],
+    "close_drawer": ["close the drawer", "push the drawer shut"],
+    "open_fridge": ["open the fridge", "open the refrigerator", "pull the fridge door"],
+    "close_fridge": ["close the fridge", "shut the fridge door"],
+    "place_in_fridge": ["put in the fridge", "store in the fridge"],
+    "place_on_coaster": ["put the glass on the coaster", "set the glass down"],
+    "place_in_bin": ["throw away", "bin it", "drop in the bin", "discard", "put in the trash"],
+    "return_to_shelf": ["put the bottle back", "return to the shelf", "put it back on the shelf"],
+    "load_tray": ["put on the tray", "load the tray"],
+    "garnish": ["add a garnish", "put a slice on the rim", "decorate the drink", "add the cherry"],
+    "add_straw": ["add a straw", "put a straw in"],
+    "add_umbrella": ["add an umbrella", "put a parasol in"],
+    "serve_to_guest": ["serve", "hand to the guest", "give it to the person", "hand me", "pass me",
+                       "present the drink", "slide it across"],
+    "handover": ["hand over", "pass to the other hand", "switch hands", "transfer between hands"],
+    "slide_coaster": ["slide the coaster", "position the coaster"],
+    "fold_towel": ["fold", "fold the cloth", "fold the laundry", "fold in half"],
+    "hang_cloth": ["hang the cloth", "drape over the rail", "hang up"],
+    "sort_cutlery": ["sort the cutlery", "sort the forks and knives"],
+    "load_dishwasher": ["load the dishwasher", "put the dishes in the dishwasher"],
+    "water_plant": ["water the plant", "pour onto the soil"],
+    "pick_up_floor": ["pick up from the floor", "lift off the floor", "reach down"],
+    "sweep_crumbs": ["sweep", "brush the crumbs", "sweep into the dustpan"],
+    "align_chair": ["push the chair in", "straighten the chair"],
+    "pour_cereal": ["pour cereal", "pour into the bowl", "fill the bowl"],
+    "set_place": ["set the table", "lay a place setting"],
+    "collect_bottles": ["collect the bottles", "gather the bottles", "pick up the empties"],
+    "clear_table": ["clear the table", "clear away", "tidy the table"],
+    "stack_glasses": ["stack", "nest the glasses", "pile the cups"],
+}
+
+
 def build() -> list[dict]:
     out = []
     for (sid, name, cat, status, price, vendor, pre, adds, dels, desc,
@@ -365,6 +446,8 @@ def build() -> list[dict]:
             "deletes": dels,
             "embodiment": emb,
             "acts_on": ACTS_ON.get(sid, []),
+            "aliases": ALIASES.get(sid, []),
+            "flow": FLOW.get(sid),
             "checkpoint": ckpt,
             "prompt": prompt,
             "est_duration_s": 6.0 if cat == "perception" else 12.0,
@@ -376,6 +459,8 @@ if __name__ == "__main__":
     skills = build()
     ids = [s["id"] for s in skills]
     assert len(ids) == len(set(ids)), "duplicate skill id"
+    unknown = set(ALIASES) - set(ids)
+    assert not unknown, f"aliases for unknown skills: {sorted(unknown)}"
     dest = Path(__file__).resolve().parent.parent / "data" / "seed_skills.json"
     dest.write_text(json.dumps(skills, indent=2) + "\n")
     unknown = {k for kinds in ACTS_ON.values() for k in kinds} - set(OBJECT_KINDS)

@@ -7,6 +7,7 @@ types these numbers in.
 from __future__ import annotations
 
 import json
+import re
 import math
 from typing import Any
 
@@ -122,30 +123,31 @@ def rates_by_robot() -> dict[str, list[dict[str, Any]]]:
     return out
 
 
-_DATASETS: dict[str, dict[str, Any]] | None = None
+_FILES: dict[str, tuple[float, Any]] = {}
+
+
+def _data_file(name: str, parse, default):
+    """A file under data/, parsed once per change: edits show up without a
+    restart (uvicorn --reload only watches .py files)."""
+    from pathlib import Path as _Path
+    path = _Path(__file__).resolve().parent.parent / "data" / name
+    try:
+        mtime = path.stat().st_mtime
+    except FileNotFoundError:
+        return default
+    cached = _FILES.get(name)
+    if cached is None or cached[0] != mtime:
+        _FILES[name] = (mtime, parse(json.loads(path.read_text())))
+    return _FILES[name][1]
 
 
 def datasets() -> dict[str, dict[str, Any]]:
-    global _DATASETS
-    if _DATASETS is None:
-        import json as _json
-        from pathlib import Path as _Path
-        path = _Path(__file__).resolve().parent.parent / "data" / "datasets.json"
-        _DATASETS = {d["id"]: d for d in _json.loads(path.read_text())}
-    return _DATASETS
-
-
-_KINDS: dict[str, str] | None = None
+    return _data_file("datasets.json", lambda rows: {d["id"]: d for d in rows}, {})
 
 
 def object_kinds() -> dict[str, str]:
     """{kind: description} -- what the compiler may call an object. See make_catalog."""
-    global _KINDS
-    if _KINDS is None:
-        from pathlib import Path as _Path
-        path = _Path(__file__).resolve().parent.parent / "data" / "object_kinds.json"
-        _KINDS = json.loads(path.read_text()) if path.exists() else {}
-    return _KINDS
+    return _data_file("object_kinds.json", dict, {})
 
 
 OPEN_ACCESS = {"open", "gated-auto", "github", "agreement"}
@@ -155,6 +157,21 @@ def open_datasets() -> dict[str, dict[str, Any]]:
     """Datasets anyone can get, by click-through at most. Private data is not a
     source a customer's gap can point at."""
     return {k: d for k, d in datasets().items() if d.get("access") in OPEN_ACCESS}
+
+
+def skill_datasets(skill: dict[str, Any]) -> list[dict[str, Any]]:
+    """Every known dataset for a skill: the primary one first, then the extras
+    from data/skill_datasets.json. Each item is the skill's reference to it
+    ({id, episodes, status|match}) plus `detail`, the datasets.json entry."""
+    out, seen = [], set()
+    refs = [skill.get("dataset") or {}] + list(skill.get("datasets") or [])
+    for ref in refs:
+        ds = datasets().get(ref.get("id") or "")
+        if not ds or ds["id"] in seen:
+            continue
+        seen.add(ds["id"])
+        out.append({**ref, "detail": ds})
+    return out
 
 
 def availability(skill: dict[str, Any]) -> tuple[str, dict[str, Any] | None]:
@@ -172,6 +189,11 @@ def availability(skill: dict[str, Any]) -> tuple[str, dict[str, Any] | None]:
         return "skill_and_data", ds
     if has_data:
         return "data_only", ds
+    # No primary source, but an extra open dataset covers the motion.
+    extra = next((x["detail"] for x in skill_datasets(skill)
+                  if x["detail"].get("access") in OPEN_ACCESS), None)
+    if extra:
+        return "data_only", extra
     return "none", ds
 
 
@@ -220,6 +242,7 @@ def price_steps(
             availability=avail,
             dataset_name=(ds or {}).get("name", ""),
             dataset_id=(ds or {}).get("id", ""),
+            dataset_count=len(skill_datasets(skill)) if skill else 0,
             preconditions=skill.get("preconditions", []),
             postconditions=skill.get("postconditions", []),
         ))
@@ -232,6 +255,82 @@ def record_demand(prompt: str, robot_model: str, plan_id: int,
         "INSERT INTO requests (prompt, robot_model, plan_id, missing_json) VALUES (?,?,?,?)",
         (prompt, robot_model, plan_id, json.dumps([m.model_dump() for m in missing])),
     )
+
+
+_STOP = {"a", "an", "the", "it", "its", "to", "into", "onto", "on", "in", "of", "with",
+         "and", "or", "from", "up", "down", "off", "out", "over", "at", "for", "by", "held",
+         "hand", "item", "object", "thing", "surface", "container", "vessel", "substance"}
+
+
+def _words(text: str) -> set[str]:
+    out = set()
+    for w in re.findall(r"[a-z]+", text.lower().replace("_", " ")):
+        if w in _STOP:
+            continue
+        # crude stemming so "wiping" meets "wipe" and "drags" meets "drag",
+        # without turning "press" into "pre" or "glass" into "glas"
+        if w.endswith("ing") and len(w) > 5:
+            w = w[:-3]
+        elif w.endswith("ed") and len(w) > 4:
+            w = w[:-2]
+        elif w.endswith(("ses", "xes", "zes", "ches", "shes")):
+            w = w[:-2]
+        elif w.endswith("s") and not w.endswith("ss") and len(w) > 3:
+            w = w[:-1]
+        out.add(w)
+    return out
+
+
+def _first_word(phrase: str) -> str | None:
+    """The stemmed first content word of an alias -- its verb, by convention."""
+    for w in phrase.lower().replace("_", " ").split():
+        got = _words(w)
+        if got:
+            return got.pop()
+    return None
+
+
+def covering_skill(gap: dict[str, Any], catalog: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
+    """The catalog skill a proposed gap restates, if any, judged by its aliases.
+
+    A gap matches when the content words of one alias (or of the skill's id) all
+    appear in the gap's id, name and description. "drag_over_surface -- Drag the
+    cloth over the table" contains {drag, cloth} from wipe_surface's alias "drag
+    the cloth over", so it is not a gap. Matching is on motion words only; the
+    stop list keeps "the item into the container" from matching everything.
+    """
+    # A one-word alias ("hold", "take") is too common to match on a description
+    # -- "peel the banana while holding it" is not a grasp -- so single words
+    # must appear in the gap's own id or name; longer phrases may match anywhere.
+    generic = {"press", "push", "pick", "take", "grab", "hold", "lift", "place", "put",
+               "set", "drop", "leave", "move", "carry", "bring", "turn", "open", "close",
+               "add", "remove", "fill", "empty", "check", "find", "look", "release"}
+    head = _words(f"{gap.get('proposed_id', '')} {gap.get('name', '')}")
+    have = head | _words(str(gap.get("description", "")))
+    best: tuple[int, dict[str, Any]] | None = None
+    for sid in sorted(catalog):
+        s = catalog[sid]
+        if s.get("category") == "composite":
+            continue
+        for phrase in list(s.get("aliases", [])) + [sid]:
+            need = _words(phrase)
+            if not need:
+                continue
+            if len(need) == 1 and need & generic:
+                continue                    # "press", "take": says nothing on its own
+            # The phrase's verb (its first content word) must be in the gap's own
+            # name: "water the plant" is not what "locate the next plant pot to
+            # water" asks for, even though every word is in the description.
+            verb = _first_word(phrase)
+            pool = head if len(need) == 1 else have
+            if need <= pool and (verb is None or verb in head) and \
+                    (best is None or len(need) > best[0]):
+                best = (len(need), s)
+    if best is None:
+        return None
+    s = best[1]
+    return {"id": s["id"], "name": s["name"], "status": s.get("status", "catalog"),
+            "trained": bool(s.get("checkpoint")) and s.get("status") != "catalog"}
 
 
 def gap_report(limit: int = 20) -> dict[str, Any]:
@@ -252,9 +351,17 @@ def gap_report(limit: int = 20) -> dict[str, Any]:
             if len(entry["example_prompts"]) < 3 and r["prompt"] not in entry["example_prompts"]:
                 entry["example_prompts"].append(r["prompt"])
 
+    # Gaps the catalog already covers stay in the list -- they are still demand
+    # -- but say which skill answers them, so a binder miss is not mistaken for a
+    # new skill to record.
+    catalog = load_catalog()
+    for entry in tally.values():
+        entry["covered_by"] = covering_skill(entry, catalog)
+
     ranked = sorted(tally.values(), key=lambda e: -e["requests"])[:limit]
     return {
         "total_requests": len(rows),
         "distinct_gaps": len(tally),
+        "covered_gaps": sum(1 for e in tally.values() if e["covered_by"]),
         "gaps": ranked,
     }

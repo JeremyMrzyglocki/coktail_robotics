@@ -84,21 +84,33 @@ def _openai(system: str, user: str, schema: dict, name: str, model: str) -> dict
 def _anthropic(system: str, user: str, schema: dict, model: str) -> dict:
     import anthropic  # noqa: PLC0415
 
+    request = dict(
+        model=model,
+        max_tokens=16000,
+        system=[{"type": "text", "text": system,
+                 "cache_control": {"type": "ephemeral"}}],
+        messages=[{"role": "user", "content": user}],
+        output_config={
+            "effort": os.environ.get("COMPILER_EFFORT", "medium"),
+            "format": {"type": "json_schema", "schema": schema},
+        },
+        betas=["server-side-fallback-2026-07-01"],
+        fallbacks="default",
+    )
+    # COMPILER_SPEED=fast: the same model, generating faster at a higher price.
+    # The wait is almost all output tokens, so this is the latency knob.
+    fast = os.environ.get("COMPILER_SPEED", "").strip().lower() == "fast"
     try:
         client = anthropic.Anthropic()
-        resp = client.beta.messages.create(
-            model=model,
-            max_tokens=16000,
-            system=[{"type": "text", "text": system,
-                     "cache_control": {"type": "ephemeral"}}],
-            messages=[{"role": "user", "content": user}],
-            output_config={
-                "effort": os.environ.get("COMPILER_EFFORT", "medium"),
-                "format": {"type": "json_schema", "schema": schema},
-            },
-            betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default",
-        )
+        if fast:
+            try:
+                resp = client.beta.messages.create(
+                    **{**request, "betas": request["betas"] + ["fast-mode-2026-02-01"]},
+                    speed="fast")
+            except anthropic.RateLimitError:
+                resp = client.beta.messages.create(**request)  # fast mode has its own limit
+        else:
+            resp = client.beta.messages.create(**request)
     except anthropic.AuthenticationError as exc:
         raise LLMError("Anthropic rejected the key in .env") from exc
     except anthropic.APIError as exc:
@@ -110,6 +122,8 @@ def _anthropic(system: str, user: str, schema: dict, model: str) -> dict:
 
     if resp.stop_reason == "refusal":
         raise LLMError("model declined this request")
+    if resp.stop_reason == "max_tokens":
+        raise LLMError("model hit the token limit before finishing the plan")
     text = next((b.text for b in resp.content if b.type == "text"), "")
     if not text:
         raise LLMError("model returned no text")

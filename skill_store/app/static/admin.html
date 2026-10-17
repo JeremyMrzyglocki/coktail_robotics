@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skill Store Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Archivo+Black&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/admin.css">
+</head>
+<body class="admin">
+
+<header class="bar">
+  <div class="logo"><span class="mark"></span><span class="wordmark">SKILL STORE</span>
+    <span class="admin-tag">ADMIN</span></div>
+  <nav>
+    <a href="/store" class="navlink">Store</a>
+    <a href="#bids" class="navlink">Bids</a>
+    <a href="#how" class="navlink">How it bids</a>
+  </nav>
+</header>
+
+<section class="sheet dark admin-hero">
+  <div class="sheet-head">
+    <h2>UNSERVED DEMAND</h2>
+    <span id="meta" class="meta"></span>
+  </div>
+  <p class="admin-lede">Every request a customer made that the robot could not carry
+    out, grouped by the skill that stopped it, and what Daidai Labs should pay for
+    the data to train that skill. More unmet demand, higher bid.</p>
+  <div id="kpis" class="kpis"></div>
+</section>
+
+<section id="bids" class="sheet admin-body">
+  <div class="admin-grid">
+    <aside class="controls" aria-label="Bid parameters">
+      <h3>BID PARAMETERS</h3>
+      <div id="sliders"></div>
+      <button id="reset" class="reset">Reset to defaults</button>
+    </aside>
+
+    <div class="bids-panel">
+      <div class="bids-head">
+        <h3>BIDS PER SKILL</h3>
+        <span id="pacing" class="pacing"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="bids">
+          <thead><tr>
+            <th>#</th><th>Skill</th><th class="num">Demand</th>
+            <th class="num">Sales blocked</th><th>Open data</th>
+            <th class="num">Episodes</th><th class="num">Bid / episode</th>
+            <th class="num" id="batch-head">Bid / 10 ep.</th><th class="num">Spend</th>
+          </tr></thead>
+          <tbody id="rows"><tr><td colspan="9" class="empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="sheet dark">
+  <div class="sheet-head"><h2>HOW IT BIDS</h2></div>
+  <ol class="how">
+    <li><b>Demand.</b> Each request whose plan could not run counts toward every skill
+      that blocked it: a <i>gap</i> (no catalog skill does the motion) or an
+      <i>untrained</i> skill (listed, no trained model). The k-th repeat of the same
+      prompt counts 1/k, so one person retrying cannot buy a dataset; distinct
+      requests count fully. Old requests fade with the half-life.</li>
+    <li><b>Value.</b> A blocked request is a lost sale worth its whole plan, each
+      gap priced like a typical skill. Every
+      blocker in that plan has to be filled, so each gets an equal share. Each
+      logged request stands for <i>future sales per request</i> sales once the
+      skill exists.</li>
+    <li><b>Bid.</b> Spend at most value ÷ target ROI on the skill's data, spread over
+      the episodes it needs. A matching open dataset cuts the episodes needed: it
+      covers pretraining, paid episodes only cover this robot. Capped per episode.</li>
+    <li><b>Pacing.</b> If all bids together exceed the monthly budget, every bid is
+      scaled by the same factor, so the order holds: more unmet demand, higher bid.</li>
+  </ol>
+</section>
+
+<script src="/static/admin.js"></script>
+</body>
+</html>
