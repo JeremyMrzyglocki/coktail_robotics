@@ -69,6 +69,8 @@ def main():
     p.add_argument("--push", action="store_true", help="push the dataset to the Hugging Face Hub at the end")
     p.add_argument("--private", action="store_true")
     p.add_argument("--vcodec", choices=sorted(ENCODERS), default="h264", help="video codec (default h264)")
+    p.add_argument("--show", action="store_true",
+                   help="live camera window (10 Hz, half size) while recording and resetting")
     args = p.parse_args()
     stop_on_signals()
 
@@ -111,6 +113,24 @@ def main():
             arm.connect()
         for cam in cameras.values():
             cam.connect()
+        last_show = [0.0]
+
+        def show(images=None):
+            """Live view, at most 10 Hz so the control loop keeps its budget."""
+            if not args.show or time.monotonic() - last_show[0] < 0.1:
+                return
+            last_show[0] = time.monotonic()
+            import cv2
+
+            if images is None:
+                images = read_images(cameras, args.camera)
+            tiles = [cv2.resize(cv2.cvtColor(img, cv2.COLOR_RGB2BGR), (320, 240))
+                     for name, img in images.items() if not name.endswith("_depth")]
+            if tiles:
+                cv2.imshow("record: " + " | ".join(spec.name for spec in args.camera), np.hstack(tiles))
+                cv2.waitKey(1)
+
+        show()  # open the window now: its first draw (~40 ms) happens before torque is on
         if not args.sim and not confirm_start(arms, args.approach_speed):
             return
         started = True
@@ -141,6 +161,7 @@ def main():
                 start = tick()
                 if cycle_i % record_every == 0:  # control runs faster than the dataset fps
                     images = read_images(cameras, args.camera)
+                    show(images)
                     state = {f"{a.side}_{n}.pos": teleop.measured[a.side][n] for a in arms for n in NAMES}
                     action = {f"{a.side}_{n}.pos": teleop.cmd[a.side][n] for a in arms for n in NAMES}
                     dataset.add_frame({
@@ -172,6 +193,7 @@ def main():
             t0 = time.monotonic()
             while True:
                 start = tick()
+                show()
                 key = next_key(keys)
                 if key == "q":
                     stop = True
