@@ -1,19 +1,19 @@
 {
   "left": {
-    "joint_5": 265.2,
+    "joint_5": 281.0,
     "joint_1": 5.7,
     "joint_2": 0.2,
-    "joint_3": -1.6,
+    "joint_3": -83.8,
     "joint_4": 2.6,
     "joint_6": -16.0,
     "joint_7": -1.1
   },
   "right": {
-    "joint_5": 12.5,
+    "joint_5": -4.2,
     "joint_1": 0.2,
     "joint_2": -0.6,
-    "joint_3": 86.2,
-    "joint_4": 5.5,
+    "joint_3": 87.0,
+    "joint_4": -5.5,
     "joint_6": 0.3,
     "joint_7": -8.7
   }
