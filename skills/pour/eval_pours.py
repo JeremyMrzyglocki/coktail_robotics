@@ -27,7 +27,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from bar_state import ALL, BarState, PourRequestError, load_bar_config
+from bar_state import ALL, HERE, BarState, PourRequestError, load_bar_config
 from pour_skill import PourConfig, pour
 from robot_io import Robot
 
@@ -120,7 +120,7 @@ class Bench:
 
 
 def save(rows, prefix) -> Path:
-    out = Path("data") / f"{prefix}_{datetime.now():%Y%m%d_%H%M%S}.csv"
+    out = HERE / "data" / f"{prefix}_{datetime.now():%Y%m%d_%H%M%S}.csv"
     out.parent.mkdir(exist_ok=True)
     pd.DataFrame(rows).to_csv(out, index=False)
     print(f">>> {out}")
@@ -245,7 +245,7 @@ def main() -> int:
         s = sub.add_parser(name)
         s.add_argument("--backend", choices=["mock", "openarm"], default="mock")
         s.add_argument("--camera", default="0")
-        s.add_argument("--plots", type=Path, default=Path("plots"))
+        s.add_argument("--plots", type=Path, default=HERE / "plots")
         s.add_argument("--i-understand-motors-will-be-armed", dest="confirm", action="store_true")
     sub.choices["run"].add_argument("--container", default="red")
     sub.choices["run"].add_argument("--targets", nargs="+", default=["30", "60", "90", "all"])
@@ -253,7 +253,7 @@ def main() -> int:
     sub.choices["cocktails"].add_argument("--names", nargs="+", default=["mojito", "lagon_bleu", "sunset"])
     r = sub.add_parser("report")
     r.add_argument("files", nargs="+", type=Path)
-    r.add_argument("--plots", type=Path, default=Path("plots"))
+    r.add_argument("--plots", type=Path, default=HERE / "plots")
     a = p.parse_args()
     logging.basicConfig(level=logging.WARNING, format="%(name)s %(levelname)s %(message)s")
     if a.cmd == "report":

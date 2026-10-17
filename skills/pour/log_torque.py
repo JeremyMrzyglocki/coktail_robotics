@@ -34,6 +34,8 @@ import numpy as np
 
 from robot_io import JOINT_NAMES, Robot
 
+HERE = Path(__file__).resolve().parent   # sorties dans la skill, quel que soit le dossier courant
+
 
 def parse_args():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -96,7 +98,7 @@ def main() -> int:
         time.sleep(0.5)
         print(">>> pose atteinte par le même côté (aller-retour J2/J4 de 0.05 rad)")
 
-    out = Path(a.out or f"data/torque_{datetime.now():%Y%m%d_%H%M%S}.csv")
+    out = Path(a.out) if a.out else HERE / f"data/torque_{datetime.now():%Y%m%d_%H%M%S}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     cols = ["t", "t_rel", "label", "mass_g"] + [f"{k}_{j}" for k in ("q", "dq", "tau") for j in JOINT_NAMES]
 

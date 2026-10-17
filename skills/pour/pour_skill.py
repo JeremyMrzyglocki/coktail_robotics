@@ -51,7 +51,7 @@ from pathlib import Path
 
 import numpy as np
 
-from bar_state import ALL, BarConfig, BarState, Container, PourRequestError, load_bar_config
+from bar_state import ALL, HERE, BarConfig, BarState, Container, PourRequestError, load_bar_config
 from robot_io import GRIPPER, JOINT_LIMITS, JOINT_NAMES, TAU_LSB, Robot, SafetyStop
 
 log = logging.getLogger("pour")
@@ -84,7 +84,7 @@ class PourConfig:
     weigh_joint: int = 1             # J2 ; remplacé par config/torque_calib.json s'il existe
     weigh_s: float = 1.5
     weigh_bump_rad: float = 0.03     # arrivée à la pose de pesée toujours par le même côté
-    torque_calib: str = "config/torque_calib.json"
+    torque_calib: str = "config/torque_calib.json"   # chemins relatifs au dossier de la skill
     torque_flow_k: float = 4.0       # décrochage du couple > k·sigma ...
     torque_flow_hold_s: float = 0.3  # ... pendant au moins 0.3 s
     # Impulsions (sans caméra)
@@ -174,7 +174,7 @@ class _PourRun:
         self.calib = self._load_calib()
 
     def _load_calib(self):
-        p = Path(self.cfg.torque_calib)
+        p = HERE / self.cfg.torque_calib
         if not p.exists():
             return None
         c = json.loads(p.read_text())
@@ -523,7 +523,7 @@ def _save_trace(run: _PourRun) -> str | None:
         return None
     import pandas as pd
 
-    p = Path(run.cfg.log_dir) / f"pour_{run.ctn.name}_{datetime.now():%Y%m%d_%H%M%S}.csv"
+    p = HERE / run.cfg.log_dir / f"pour_{run.ctn.name}_{datetime.now():%Y%m%d_%H%M%S}.csv"
     p.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(run.trace).to_csv(p, index=False)
     return str(p)

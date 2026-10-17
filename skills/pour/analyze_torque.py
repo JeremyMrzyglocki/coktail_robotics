@@ -35,6 +35,8 @@ import pandas as pd  # noqa: E402
 
 from robot_io import JOINT_NAMES, TAU_LSB  # noqa: E402
 
+HERE = Path(__file__).resolve().parent   # sorties dans la skill, quel que soit le dossier courant
+
 ARM_JOINTS = JOINT_NAMES[:7]
 
 # Palette de référence (skill dataviz) : texte en encre neutre, séries par rôle.
@@ -257,8 +259,8 @@ def main() -> int:
     p.add_argument("--demo", action="store_true", help="génère des pesées mock puis analyse")
     p.add_argument("--demo-random-side", action="store_true", help="démo avec côté d'arrivée aléatoire (hystérésis)")
     p.add_argument("--pour", type=Path, default=None, help="trace CSV d'un versement à tracer")
-    p.add_argument("--plots", type=Path, default=Path("plots"))
-    p.add_argument("--calib-out", type=Path, default=Path("config/torque_calib.json"))
+    p.add_argument("--plots", type=Path, default=HERE / "plots")
+    p.add_argument("--calib-out", type=Path, default=HERE / "config/torque_calib.json")
     a = p.parse_args()
     a.plots.mkdir(exist_ok=True, parents=True)
 
@@ -271,7 +273,7 @@ def main() -> int:
 
     files = a.files
     if a.demo:
-        files = make_demo_data(Path("data"), same_side=not a.demo_random_side)
+        files = make_demo_data(HERE / "data", same_side=not a.demo_random_side)
     if not files:
         p.print_help()
         return 1

@@ -16,8 +16,9 @@ from pathlib import Path
 
 import yaml
 
-CONFIG_PATH = Path(__file__).with_name("containers.yaml")
-STATE_PATH = Path("state/bar_state.json")
+HERE = Path(__file__).resolve().parent
+CONFIG_PATH = HERE / "containers.yaml"
+STATE_PATH = HERE / "state/bar_state.json"
 ALL = "all"
 
 

@@ -1,4 +1,8 @@
-# pour_skill : skill « barman » pour OpenArm (ERH Physical AI Hackathon, track Daidai)
+# skills/pour : skill « barman » pour OpenArm (ERH Physical AI Hackathon, track Daidai)
+
+Importée depuis `Nailec101/pour-skill` avec `git subtree` (historique conservé).
+Tous les chemins (`config/`, `data/`, `plots/`, `state/`) sont relatifs à ce dossier,
+quel que soit le dossier courant.
 
 Un bras tient le grand verre. L'autre prend une bouteille de M&M's (une couleur = une
 « boisson ») et verse en boucle fermée **30, 60 ou 90 g, ou toute la bouteille**. Un cocktail,
@@ -7,6 +11,7 @@ c'est plusieurs couleurs versées l'une après l'autre dans le même verre (moji
 bouteille et détecte le début de l'écoulement.
 
 ```
+__init__.py             from skills.pour import pour, Robot, BarState (depuis la racine du repo)
 containers.yaml         profils des bouteilles (couleur, masse à vide, goulot, vitesses) + cocktails
 bar_state.py            état : grammes restants par bouteille, verre, contrôles, résumé pour le LLM
 pour_skill.py           pour(robot, target_grams | "all", container, sensor, state)
@@ -22,16 +27,30 @@ VM_SETUP.md / setup_robot_vm.sh   VM Ubuntu ARM64 dans Parallels, PPA OpenArm, S
 
 ## Démarrage
 
-```bash
-source .venv/bin/activate                       # Mac, simulation
-python pour_skill.py --container red --grams 60
-python pour_skill.py --container yellow --grams all
-python orchestrator_example.py --prompt "un mojito s'il te plaît"
-python orchestrator_example.py --context        # le JSON donné au LLM
-python eval_pours.py run --targets 30 60 --n 3  # mini-évaluation simulée
-python tests/test_basics.py
+Depuis la racine du repo, avec l'environnement uv de l'équipe. Les dépendances de la skill
+(`requirements.txt`) sont ajoutées à la volée, sans toucher à `pyproject.toml` ni à `uv.lock` :
 
-./run_on_vm.sh log_torque.py --backend sniff --duration 20   # dans la VM robot, depuis le Mac
+```bash
+alias pour-py='uv run --with-requirements skills/pour/requirements.txt python'
+pour-py skills/pour/pour_skill.py --container red --grams 60        # simulation (mock)
+pour-py skills/pour/pour_skill.py --container yellow --grams all
+pour-py skills/pour/orchestrator_example.py --prompt "un mojito s'il te plaît"
+pour-py skills/pour/orchestrator_example.py --context   # le JSON donné au LLM
+pour-py skills/pour/eval_pours.py run --targets 30 60 --n 3   # mini-évaluation simulée
+pour-py skills/pour/tests/test_basics.py
+```
+
+Depuis l'orchestrateur (racine du repo) :
+
+```python
+from skills.pour import BarState, Robot, load_bar_config, pour
+```
+
+Les scripts se lancent aussi depuis ce dossier (`cd skills/pour && python pour_skill.py ...`).
+Pilotage de la VM robot depuis le Mac (`ssh robotvm`, voir VM_SETUP.md) :
+
+```bash
+skills/pour/run_on_vm.sh log_torque.py --backend sniff --duration 20   # écoute passive
 ```
 
 ## Comment `pour` fonctionne

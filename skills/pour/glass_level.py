@@ -34,8 +34,10 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-DEFAULT_CALIB = Path("config/glass_calib.json")         # zone + seuils
-DEFAULT_GRAMS = Path("config/glass_grams_calib.json")   # hauteur -> grammes
+# Chemins relatifs au dossier de la skill, pas au dossier courant (lancement depuis la racine du repo).
+HERE = Path(__file__).resolve().parent
+DEFAULT_CALIB = HERE / "config/glass_calib.json"         # zone + seuils
+DEFAULT_GRAMS = HERE / "config/glass_grams_calib.json"   # hauteur -> grammes
 
 
 @dataclass
@@ -43,7 +45,11 @@ class GlassCalib:
     roi: list[int] = field(default_factory=lambda: [0, 0, 0, 0])  # x, y, w, h
     diff_thresh: int = 35
     row_frac: float = 0.35      # une ligne est "remplie" si >= 35 % de ses pixels ont changé
-    empty_ref_path: str = "config/glass_empty.png"
+    empty_ref_path: str = "config/glass_empty.png"   # relatif à la skill (portable Mac <-> VM)
+
+    @property
+    def empty_ref_file(self) -> Path:
+        return HERE / self.empty_ref_path
 
     @classmethod
     def load(cls, path=DEFAULT_CALIB) -> "GlassCalib":
@@ -153,7 +159,7 @@ class GlassScale:
             self.cap = cv2.VideoCapture(camera, api)
             if not self.cap.isOpened():
                 raise RuntimeError(f"caméra {camera} indisponible (permission caméra ?)")
-        p = Path(self.calib.empty_ref_path)
+        p = self.calib.empty_ref_file
         self.empty_ref = cv2.imread(str(p)) if p.exists() else None
         self.ref = None
         self.h0 = self.h1 = 0.0
@@ -303,7 +309,7 @@ def calibrate(camera, path: Path):
     if not calib.roi[2]:
         hh, ww = frame.shape[:2]
         calib.roi = [ww // 3, hh // 4, ww // 3, hh // 2]
-    empty = cv2.imread(calib.empty_ref_path) if Path(calib.empty_ref_path).exists() else None
+    empty = cv2.imread(str(calib.empty_ref_file)) if calib.empty_ref_file.exists() else None
     win = "calib"
     cv2.namedWindow(win)
     cv2.createTrackbar("diff", win, calib.diff_thresh, 255, lambda _: None)
@@ -328,10 +334,10 @@ def calibrate(camera, path: Path):
             if r[2] and r[3]:
                 calib.roi = [int(v) for v in r]
         elif k == ord("b"):
-            Path(calib.empty_ref_path).parent.mkdir(parents=True, exist_ok=True)
-            cv2.imwrite(calib.empty_ref_path, frame)
+            calib.empty_ref_file.parent.mkdir(parents=True, exist_ok=True)
+            cv2.imwrite(str(calib.empty_ref_file), frame)
             empty = frame.copy()
-            print(f"référence verre vide -> {calib.empty_ref_path}")
+            print(f"référence verre vide -> {calib.empty_ref_file}")
         elif k == ord("s"):
             calib.save(path)
             print(f"calibration -> {path}")
@@ -346,9 +352,9 @@ def set_empty(camera, path: Path):
     calib = GlassCalib.load(path)
     s = GlassScale(calib, camera=camera)
     ref = s.grab_median(10)
-    Path(calib.empty_ref_path).parent.mkdir(parents=True, exist_ok=True)
-    cv2.imwrite(calib.empty_ref_path, ref)
-    print(f"référence verre vide -> {calib.empty_ref_path}")
+    calib.empty_ref_file.parent.mkdir(parents=True, exist_ok=True)
+    cv2.imwrite(str(calib.empty_ref_file), ref)
+    print(f"référence verre vide -> {calib.empty_ref_file}")
     return 0
 
 
