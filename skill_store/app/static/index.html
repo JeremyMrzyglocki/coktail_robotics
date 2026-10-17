@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skill Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Archivo+Black&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="bar">
+  <div class="logo"><span class="mark"></span><span class="wordmark">SKILL STORE</span></div>
+  <nav>
+    <a href="#build" class="navlink">Build</a>
+    <a href="#catalog" class="navlink">Skills</a>
+    <a href="#data" class="navlink">Data</a>
+    <a href="#bench" class="navlink">Benchmark</a>
+    <a href="#demand" class="navlink">Demand</a>
+  </nav>
+  <div class="robotsel">
+    <select id="robot" aria-label="Robot">
+      <option value="Spirit AI Moz1">Spirit AI Moz1</option>
+      <option value="Spirit AI Moz1 #2">Spirit AI Moz1 #2</option>
+      <option value="Unitree G1">Unitree G1</option>
+      <option value="AgiBot A2">AgiBot A2</option>
+    </select>
+  </div>
+</header>
+
+<section id="build" class="hero">
+  <div class="hero-copy">
+    <h1>LEVEL&nbsp;UP<br>YOUR ROBOT<span class="dot">.</span></h1>
+    <p class="tagline">One skill at a time.</p>
+  </div>
+  <div class="hero-form">
+    <p class="lede">Describe a multi-skill process. We break it into the skills your robot needs or find the right data sources</p>
+    <div class="composer">
+      <input id="prompt" type="text" placeholder="mix me a smoothie" autocomplete="off">
+      <button id="go" class="cta">Break it into skills <span class="arrow">&rarr;</span></button>
+    </div>
+    <div class="chips">
+      <button class="chip" data-ex="mix me a smoothie">mixing a smoothie</button>
+      <button class="chip" data-ex="wipe my table clean after dinner">wiping the table</button>
+      <button class="chip" data-ex="pour me a glass of juice">pouring a drink</button>
+      <button class="chip" data-ex="clear the table and put the bottles away">clearing up</button>
+    </div>
+    <div id="status" class="status"></div>
+  </div>
+</section>
+
+<!-- THE SEQUENCE -->
+<section class="stage">
+  <div class="panel">
+    <div class="panel-head hidden" id="panel-head">
+      <span id="panel-meta"></span>
+    </div>
+
+    <div class="legend">
+      <span><i class="sw a2"></i>skill trained + data</span>
+      <span><i class="sw a1"></i>data only, no skill yet</span>
+      <span><i class="sw a0"></i>no skill, no data</span>
+      <button id="balance" class="balance-btn" title="Search hand assignments for the shortest schedule">AUTO-BALANCE HANDS</button>
+    </div>
+
+    <div class="viewtabs">
+      <button class="vt active" data-view="list">LIST</button>
+      <button class="vt" data-view="flow3d">FLOWCHART</button>
+      <button class="vt" data-view="anim">ANIMATION</button>
+      <span class="git-key hidden" id="gitkey">
+        <i class="sc"></i>a state between two steps
+        <i class="lk left"></i>left hand <i class="lk right"></i>right hand
+        <i class="lk state"></i>world &middot; hover a row or a state to trace it
+      </span>
+    </div>
+
+    <div id="flow3d" class="flow3d hidden">
+      <div class="flow-tools">
+        <button id="flowplay" class="vt">&#9654; PLAY SCHEDULE</button>
+        <span class="flow-hint">hover a card to trace what it needs and unlocks &middot; L / R on a card switches its hand</span>
+      </div>
+      <div id="flowstage" class="flow-stage"></div>
+      <div id="flowstats" class="flow-stats"></div>
+    </div>
+
+    <div id="anim" class="anim hidden">
+      <div id="animstage" class="anim-stage"></div>
+      <div class="anim-bar">
+        <button id="animplay" class="anim-btn" aria-label="Pause">&#10074;&#10074;</button>
+        <input id="animscrub" type="range" min="0" step="0.01" value="0" aria-label="Timeline">
+        <span id="animtime" class="anim-time"></span>
+      </div>
+      <div id="animlanes" class="anim-lanes"></div>
+      <div id="animnow" class="anim-now"></div>
+      <div id="animstats" class="flow-stats"></div>
+    </div>
+
+    <div class="cols">
+      <span>#</span><span>Skill</span><span>Description</span><span>Start &rarr; Target</span>
+      <span>Hand</span><span>Availability</span><span>Dataset</span><span>Price</span>
+      <span>Preview</span><span>Why this step</span>
+    </div>
+
+    <div id="handwarn" class="handwarn hidden"></div>
+    <div id="seq" class="seq">
+      <div class="empty">Nothing yet.</div>
+    </div>
+
+    <div class="panel-foot">
+      <span id="foot-note"></span>
+      <span id="foot-total" class="total"></span>
+    </div>
+    <div id="combo" class="combo hidden">
+      <button id="compose" class="combo-btn">
+        <span id="combo-label"></span>
+        <span id="combo-price" class="combo-price"></span>
+      </button>
+    </div>
+  </div>
+
+  <div id="issues" class="issues"></div>
+  <button id="install" class="cta install hidden"><span>Install &amp; run</span> <span class="arrow">&rarr;</span></button>
+  <div id="runlog" class="runlog hidden"></div>
+</section>
+
+<section id="catalog" class="sheet">
+  <div class="sheet-head">
+    <h2>SKILLS</h2>
+    <input id="filter" placeholder="Filter">
+    <span id="catalog-count" class="meta"></span>
+  </div>
+  <div id="grid" class="grid"></div>
+</section>
+
+<section id="data" class="sheet dark">
+  <div class="sheet-head"><h2>DATA</h2><span id="data-meta" class="meta"></span></div>
+  <div id="datasets" class="grid"></div>
+</section>
+
+<section id="bench" class="sheet dark">
+  <div class="sheet-head">
+    <h2>BENCHMARK</h2>
+    <span id="bench-meta" class="meta"></span>
+  </div>
+  <p class="bench-lede">Measured, not claimed. Every attempt is logged — failures
+     included — and shown with a 95% Wilson interval, because a rate from twenty
+     trials is a range, not a number. Produced by
+     <code>tools/run_eval.py</code>.</p>
+  <div id="bench-table"></div>
+</section>
+
+<section id="demand" class="sheet">
+  <div class="sheet-head">
+    <h2>DEMAND</h2>
+    <span id="demand-meta" class="meta"></span>
+  </div>
+  <p class="demand-lede">Every request that hit a gap, ranked by how often customers
+     asked for it. This is the collection queue: what to record next, in order,
+     decided by demand rather than by guesswork.</p>
+  <div id="gaps" class="grid"></div>
+</section>
+
+<!-- detail popup -->
+<div id="modal" class="modal hidden">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <button id="modal-close" class="modal-close" aria-label="Close">&times;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- skill picker for the + buttons -->
+<div id="picker" class="modal hidden">
+  <div class="modal-card picker-card" role="dialog" aria-modal="true">
+    <button id="picker-close" class="modal-close" aria-label="Close">&times;</button>
+    <h3>ADD A SKILL</h3>
+    <p class="picker-sub" id="picker-where"></p>
+    <input id="picker-filter" placeholder="Search the catalog">
+    <div id="picker-list" class="picker-list"></div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+<script src="/static/plan-anim.js"></script>
+</body>
+</html>

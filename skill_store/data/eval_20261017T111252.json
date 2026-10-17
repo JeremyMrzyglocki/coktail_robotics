@@ -1,0 +1,2042 @@
+{
+  "protocol": {
+    "started": "2026-10-17T11:12:52+00:00",
+    "finished": "2026-10-17T11:14:15+00:00",
+    "executor": "MockExecutor(speed=40.0)",
+    "robot_model": "Spirit AI Moz1",
+    "trials": 20,
+    "seed": 1000,
+    "host": "MacBook-Air-3.local",
+    "wall_s": 82.6
+  },
+  "skills": [
+    {
+      "skill_id": "locate_object",
+      "name": "Locate Object",
+      "status": "trained",
+      "episodes": 40,
+      "dataset": "egocentric-10k-subset",
+      "trials": 20,
+      "successes": 20,
+      "rate": 1.0,
+      "ci_low": 0.8388698745050667,
+      "ci_high": 1.0,
+      "mean_duration_s": 0.16,
+      "plan_id": 26,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.17,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.16,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.17,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "grasp_bottle",
+      "name": "Grasp Bottle",
+      "status": "trained",
+      "episodes": 52,
+      "dataset": "svla_so101_pickplace",
+      "trials": 20,
+      "successes": 20,
+      "rate": 1.0,
+      "ci_low": 0.8388698745050667,
+      "ci_high": 1.0,
+      "mean_duration_s": 0.32,
+      "plan_id": 27,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.31,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "grasp_bottle_lite",
+      "name": "Grasp Bottle (Lite)",
+      "status": "beta",
+      "episodes": 18,
+      "dataset": "svla_so101_pickplace",
+      "trials": 20,
+      "successes": 16,
+      "rate": 0.8,
+      "ci_low": 0.5839782779742401,
+      "ci_high": 0.9193436467288,
+      "mean_duration_s": 0.32,
+      "plan_id": 28,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": false,
+          "duration_s": 0.32,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": false,
+          "duration_s": 0.32,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": false,
+          "duration_s": 0.33,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": false,
+          "duration_s": 0.32,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "grasp_glass",
+      "name": "Grasp Glass",
+      "status": "trained",
+      "episodes": 44,
+      "dataset": "svla_so101_pickplace",
+      "trials": 20,
+      "successes": 20,
+      "rate": 1.0,
+      "ci_low": 0.8388698745050667,
+      "ci_high": 1.0,
+      "mean_duration_s": 0.32,
+      "plan_id": 29,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "grasp_cloth",
+      "name": "Grasp Cloth",
+      "status": "trained",
+      "episodes": 38,
+      "dataset": "svla_so101_pickplace",
+      "trials": 20,
+      "successes": 20,
+      "rate": 1.0,
+      "ci_low": 0.8388698745050667,
+      "ci_high": 1.0,
+      "mean_duration_s": 0.32,
+      "plan_id": 30,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.31,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.31,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.31,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "release_object",
+      "name": "Release Object",
+      "status": "trained",
+      "episodes": 52,
+      "dataset": "svla_so101_pickplace",
+      "trials": 20,
+      "successes": 20,
+      "rate": 1.0,
+      "ci_low": 0.8388698745050667,
+      "ci_high": 1.0,
+      "mean_duration_s": 0.32,
+      "plan_id": 31,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.31,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.31,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "move_to_station",
+      "name": "Move To Station",
+      "status": "trained",
+      "episodes": 36,
+      "dataset": "svla_so101_pickplace",
+      "trials": 20,
+      "successes": 20,
+      "rate": 1.0,
+      "ci_low": 0.8388698745050667,
+      "ci_high": 1.0,
+      "mean_duration_s": 0.32,
+      "plan_id": 32,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.31,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "place_on_coaster",
+      "name": "Place On Coaster",
+      "status": "trained",
+      "episodes": 47,
+      "dataset": "svla_so101_pickplace",
+      "trials": 20,
+      "successes": 19,
+      "rate": 0.95,
+      "ci_low": 0.7638641064874331,
+      "ci_high": 0.9911187805671268,
+      "mean_duration_s": 0.32,
+      "plan_id": 33,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": false,
+          "duration_s": 0.32,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "place_in_bin",
+      "name": "Place In Bin",
+      "status": "beta",
+      "episodes": 19,
+      "dataset": "svla_so101_pickplace",
+      "trials": 20,
+      "successes": 18,
+      "rate": 0.9,
+      "ci_low": 0.6989617935882066,
+      "ci_high": 0.9721341060158468,
+      "mean_duration_s": 0.32,
+      "plan_id": 34,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.31,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": false,
+          "duration_s": 0.32,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": false,
+          "duration_s": 0.32,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.31,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "pour_into",
+      "name": "Pour Into",
+      "status": "trained",
+      "episodes": 61,
+      "dataset": "egodex",
+      "trials": 20,
+      "successes": 18,
+      "rate": 0.9,
+      "ci_low": 0.6989617935882066,
+      "ci_high": 0.9721341060158468,
+      "mean_duration_s": 0.32,
+      "plan_id": 35,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": false,
+          "duration_s": 0.32,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": false,
+          "duration_s": 0.32,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.31,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "stir",
+      "name": "Stir",
+      "status": "trained",
+      "episodes": 43,
+      "dataset": "egodex",
+      "trials": 20,
+      "successes": 20,
+      "rate": 1.0,
+      "ci_low": 0.8388698745050667,
+      "ci_high": 1.0,
+      "mean_duration_s": 0.32,
+      "plan_id": 36,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "wipe_surface",
+      "name": "Wipe Surface",
+      "status": "trained",
+      "episodes": 58,
+      "dataset": "egocentric-10k-subset",
+      "trials": 20,
+      "successes": 19,
+      "rate": 0.95,
+      "ci_low": 0.7638641064874331,
+      "ci_high": 0.9911187805671268,
+      "mean_duration_s": 0.32,
+      "plan_id": 37,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": false,
+          "duration_s": 0.32,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        }
+      ]
+    },
+    {
+      "skill_id": "wipe_spill",
+      "name": "Wipe Spill",
+      "status": "beta",
+      "episodes": 22,
+      "dataset": "egocentric-10k-subset",
+      "trials": 20,
+      "successes": 18,
+      "rate": 0.9,
+      "ci_low": 0.6989617935882066,
+      "ci_high": 0.9721341060158468,
+      "mean_duration_s": 0.32,
+      "plan_id": 38,
+      "attempts": [
+        {
+          "trial": 0,
+          "seed": 1000,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 1,
+          "seed": 1001,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 2,
+          "seed": 1002,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 3,
+          "seed": 1003,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 4,
+          "seed": 1004,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 5,
+          "seed": 1005,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 6,
+          "seed": 1006,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 7,
+          "seed": 1007,
+          "success": false,
+          "duration_s": 0.32,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 8,
+          "seed": 1008,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 9,
+          "seed": 1009,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 10,
+          "seed": 1010,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 11,
+          "seed": 1011,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 12,
+          "seed": 1012,
+          "success": true,
+          "duration_s": 0.31,
+          "note": "mock/left"
+        },
+        {
+          "trial": 13,
+          "seed": 1013,
+          "success": false,
+          "duration_s": 0.33,
+          "note": "mock/left: postcondition not reached"
+        },
+        {
+          "trial": 14,
+          "seed": 1014,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 15,
+          "seed": 1015,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 16,
+          "seed": 1016,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 17,
+          "seed": 1017,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        },
+        {
+          "trial": 18,
+          "seed": 1018,
+          "success": true,
+          "duration_s": 0.33,
+          "note": "mock/left"
+        },
+        {
+          "trial": 19,
+          "seed": 1019,
+          "success": true,
+          "duration_s": 0.32,
+          "note": "mock/left"
+        }
+      ]
+    }
+  ]
+}

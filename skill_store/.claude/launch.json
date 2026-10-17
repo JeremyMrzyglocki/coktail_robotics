@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "skillstore",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": [
+        "-c",
+        "set -a && . ./.env && set +a && exec .venv/bin/uvicorn app.api:app --reload --port 8077"
+      ],
+      "port": 8077
+    },
+    {
+      "name": "skillstore-8078",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": [
+        "-c",
+        "set -a && . ./.env && set +a && exec .venv/bin/uvicorn app.api:app --reload --port 8078"
+      ],
+      "port": 8078
+    }
+  ]
+}

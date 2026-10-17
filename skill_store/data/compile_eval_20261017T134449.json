@@ -1,0 +1,1187 @@
+[
+  {
+    "prompt": "You have a paint bucket and brush. draw an image on the table",
+    "seconds": 5.5,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(paint brush)",
+      "grasp_object(paint brush)",
+      "move_to_station(paint bucket)",
+      "move_to_station(table)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "dip_item_into_container",
+        "after": 2,
+        "dataset": "epic-kitchens-100",
+        "description": "Dip a held item into a container to load it with liquid or paint."
+      },
+      {
+        "id": "drag_item_along_surface",
+        "after": 3,
+        "dataset": "epic-kitchens-100",
+        "description": "Drag a held item along a surface to apply paint or create marks."
+      }
+    ],
+    "objects": {
+      "paint bucket": "item",
+      "paint brush": "item",
+      "table": "fixed"
+    },
+    "goal": "an image is drawn on the table in paint and both hands are empty."
+  },
+  {
+    "prompt": "You have a paint bucket and brush. draw an image on the table",
+    "seconds": 6.0,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(paint brush)",
+      "grasp_object(paint brush)",
+      "locate_object(paint bucket)",
+      "grasp_object(paint bucket)",
+      "move_to_station(table)",
+      "move_to_station(table)",
+      "release_object",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "dip_item_into_item",
+        "after": 3,
+        "dataset": "epic-kitchens-100",
+        "description": "Dip the paint brush into the paint bucket to load paint onto the brush."
+      },
+      {
+        "id": "drag_item_on_surface",
+        "after": 4,
+        "dataset": "epic-kitchens-100",
+        "description": "Drag the paint brush on the table surface to draw an image."
+      }
+    ],
+    "objects": {
+      "paint bucket": "item",
+      "paint brush": "item",
+      "table": "fixed"
+    },
+    "goal": "an image is drawn on the table with paint, and both hands are empty."
+  },
+  {
+    "prompt": "build a small sandcastle on the tray with the bucket and shovel",
+    "seconds": 7.7,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(sand bucket)",
+      "grasp_object(sand bucket)",
+      "locate_object(sand shovel)",
+      "grasp_object(sand shovel)",
+      "move_to_station(table)",
+      "release_object",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "scoop_sand",
+        "after": 3,
+        "dataset": "epic-kitchens-100",
+        "description": "Scoop sand with the shovel to fill the bucket."
+      },
+      {
+        "id": "tilt_scoop_into_bucket",
+        "after": 3,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt the shovel to pour sand into the bucket."
+      },
+      {
+        "id": "carry_bucket_to_tray",
+        "after": 3,
+        "dataset": "svla_so101_pickplace",
+        "description": "Carry the sand bucket over to the tray."
+      },
+      {
+        "id": "invert_bucket_on_tray",
+        "after": 3,
+        "dataset": "epic-kitchens-100",
+        "description": "Invert the sand bucket on the tray to shape the sandcastle."
+      },
+      {
+        "id": "lift_bucket_off_tray",
+        "after": 3,
+        "dataset": "epic-kitchens-100",
+        "description": "Lift the sand bucket off the tray, leaving the sandcastle."
+      }
+    ],
+    "objects": {
+      "sand bucket": "item",
+      "sand shovel": "item",
+      "tray": "fixed",
+      "sand": "substance"
+    },
+    "goal": "A small sandcastle stands on the tray and both hands are empty."
+  },
+  {
+    "prompt": "build a small sandcastle on the tray with the bucket and shovel",
+    "seconds": 7.6,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(sand bucket)",
+      "grasp_object(sand bucket)",
+      "locate_object(sand shovel)",
+      "grasp_object(sand shovel)",
+      "move_to_station(tray)",
+      "move_to_station(table)",
+      "release_object",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "scoop_item",
+        "after": 3,
+        "dataset": "epic-kitchens-100",
+        "description": "Scoop sand with the shovel to fill the bucket."
+      },
+      {
+        "id": "tilt_out",
+        "after": 3,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt the shovel to pour sand into the bucket."
+      },
+      {
+        "id": "flip_item",
+        "after": 4,
+        "dataset": "epic-kitchens-100",
+        "description": "Flip the sand bucket over the tray to release the sand and form the sandcastle."
+      },
+      {
+        "id": "lift_item",
+        "after": 4,
+        "dataset": "epic-kitchens-100",
+        "description": "Lift the sand bucket slightly after flipping to complete the sandcastle formation."
+      }
+    ],
+    "objects": {
+      "sand bucket": "item",
+      "sand shovel": "item",
+      "tray": "fixed",
+      "sand": "substance",
+      "table": "fixed"
+    },
+    "goal": "A small sandcastle stands on the tray and both hands are empty."
+  },
+  {
+    "prompt": "do a simple card trick with the deck on the table",
+    "seconds": 5.0,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(deck of cards)",
+      "grasp_object(deck of cards)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [
+      {
+        "id": "shuffle_item",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Shuffle a deck of cards held in hand."
+      },
+      {
+        "id": "draw_card",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Draw a card from the deck held in hand."
+      }
+    ],
+    "objects": {
+      "deck of cards": "item",
+      "table": "fixed"
+    },
+    "goal": "the deck of cards has been shuffled, a card has been drawn, and the deck is back on the table with both hands empty."
+  },
+  {
+    "prompt": "do a simple card trick with the deck on the table",
+    "seconds": 4.8,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(deck of cards)",
+      "grasp_object(deck of cards)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [
+      {
+        "id": "shuffle_item",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Shuffle a deck of cards held in hand."
+      },
+      {
+        "id": "draw_card",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Draw a card from the deck held in hand."
+      }
+    ],
+    "objects": {
+      "deck of cards": "item",
+      "table": "fixed"
+    },
+    "goal": "the deck of cards has been shuffled, a card has been drawn, and the deck is back on the table with both hands empty."
+  },
+  {
+    "prompt": "water the two plants on the shelf",
+    "seconds": 6.0,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(watering can)",
+      "grasp_object(watering can)",
+      "move_to_station(sink)",
+      "move_to_station(shelf)",
+      "move_to_station(plant 2)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "fill_container",
+        "after": 2,
+        "dataset": "epic-kitchens-100",
+        "description": "Fill the watering can with water at the sink."
+      },
+      {
+        "id": "tilt_out",
+        "after": 3,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt the watering can to pour water onto the plant."
+      },
+      {
+        "id": "tilt_out",
+        "after": 4,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt the watering can to pour water onto the plant."
+      }
+    ],
+    "objects": {
+      "watering can": "item",
+      "sink": "fixed",
+      "water": "substance",
+      "shelf": "fixed",
+      "plant 1": "fixed",
+      "plant 2": "fixed",
+      "table": "fixed"
+    },
+    "goal": "both plants on the shelf have been watered and both hands are empty."
+  },
+  {
+    "prompt": "water the two plants on the shelf",
+    "seconds": 5.9,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(watering can)",
+      "grasp_object(watering can)",
+      "move_to_station(sink)",
+      "move_to_station(shelf)",
+      "move_to_station(plant 2)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [
+      {
+        "id": "fill_container",
+        "after": 2,
+        "dataset": "epic-kitchens-100",
+        "description": "Fill a container with liquid from a fixed source by tilting or positioning it under a tap."
+      },
+      {
+        "id": "tilt_out",
+        "after": 3,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt a held container to pour out its contents onto a target."
+      },
+      {
+        "id": "tilt_out",
+        "after": 4,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt a held container to pour out its contents onto a target."
+      }
+    ],
+    "objects": {
+      "watering can": "item",
+      "sink": "fixed",
+      "water": "substance",
+      "shelf": "fixed",
+      "plant 1": "fixed",
+      "plant 2": "fixed",
+      "table": "fixed"
+    },
+    "goal": "both plants on the shelf have been watered and both hands are empty."
+  },
+  {
+    "prompt": "write my name on the whiteboard with the marker",
+    "seconds": 7.9,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(marker)",
+      "grasp_object(marker)",
+      "move_to_station(whiteboard)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [
+      {
+        "id": "press_to_surface",
+        "after": 2,
+        "dataset": "epic-kitchens-100",
+        "description": "Press the held marker onto the whiteboard surface."
+      },
+      {
+        "id": "drag_along_surface",
+        "after": 2,
+        "dataset": "epic-kitchens-100",
+        "description": "Drag the held marker along the whiteboard surface to write the name."
+      }
+    ],
+    "objects": {
+      "marker": "item",
+      "whiteboard": "fixed",
+      "table": "fixed"
+    },
+    "goal": "the name is written on the whiteboard and both hands are empty."
+  },
+  {
+    "prompt": "write my name on the whiteboard with the marker",
+    "seconds": 5.3,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(marker)",
+      "grasp_object(marker)",
+      "move_to_station(whiteboard)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [
+      {
+        "id": "press_to_surface",
+        "after": 2,
+        "dataset": "epic-kitchens-100",
+        "description": "Press the marker tip onto the whiteboard surface to start writing."
+      },
+      {
+        "id": "drag_along_surface",
+        "after": 2,
+        "dataset": "epic-kitchens-100",
+        "description": "Drag the marker tip along the whiteboard surface to write."
+      },
+      {
+        "id": "lift_off_surface",
+        "after": 2,
+        "dataset": "epic-kitchens-100",
+        "description": "Lift the marker tip off the whiteboard surface to stop writing."
+      }
+    ],
+    "objects": {
+      "marker": "item",
+      "whiteboard": "fixed",
+      "table": "fixed"
+    },
+    "goal": "the name is written on the whiteboard and both hands are empty."
+  },
+  {
+    "prompt": "make me a jam sandwich",
+    "seconds": 16.8,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(bread bag)",
+      "grasp_object(bread bag)",
+      "move_to_station(plate)",
+      "release_object",
+      "move_to_station(plate)",
+      "release_object",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(jam jar)",
+      "grasp_object(jam jar)",
+      "locate_object(butter knife)",
+      "grasp_object(butter knife)",
+      "move_to_station(table)",
+      "release_object",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(bread slice 2)",
+      "grasp_object(bread slice 2)",
+      "move_to_station(plate)"
+    ],
+    "gaps": [
+      {
+        "id": "extract_item_from_container",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Remove an item from a container using the other hand."
+      },
+      {
+        "id": "extract_item_from_container",
+        "after": 3,
+        "dataset": "epic-kitchens-100",
+        "description": "Remove an item from a container using the other hand."
+      },
+      {
+        "id": "scoop_substance_with_tool",
+        "after": 11,
+        "dataset": "epic-kitchens-100",
+        "description": "Scoop a substance using a tool held in hand."
+      },
+      {
+        "id": "spread_substance_with_tool",
+        "after": 13,
+        "dataset": "epic-kitchens-100",
+        "description": "Spread a substance on a surface using a tool held in hand."
+      },
+      {
+        "id": "place_object_on_object",
+        "after": 18,
+        "dataset": "epic-kitchens-100",
+        "description": "Place a held object on top of another object."
+      }
+    ],
+    "objects": {
+      "bread bag": "item",
+      "jam jar": "item",
+      "butter knife": "item",
+      "plate": "item",
+      "table": "fixed",
+      "jam": "substance",
+      "bread slice 1": "item",
+      "bread slice 2": "item"
+    },
+    "goal": "A jam sandwich is assembled on the plate and both hands are empty."
+  },
+  {
+    "prompt": "make me a jam sandwich",
+    "seconds": 26.1,
+    "valid": false,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [
+      "unmet_precondition: Locate Object needs hand_empty (on the left hand), which no earlier step establishes.",
+      "unmet_precondition: Grasp Object needs hand_empty (on the left hand), which no earlier step establishes.",
+      "unmet_precondition: Move To Location needs holding (on the left hand), which no earlier step establishes.",
+      "unmet_precondition: Release Object needs holding (on the left hand), which no earlier step establishes."
+    ],
+    "steps": [
+      "locate_object(bread bag)",
+      "grasp_object(bread bag)",
+      "locate_object(bread slice 1)",
+      "grasp_object(bread slice 1)",
+      "move_to_station(plate)",
+      "release_object",
+      "locate_object(bread slice 2)",
+      "grasp_object(bread slice 2)",
+      "move_to_station(plate)",
+      "release_object",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(jam jar)",
+      "grasp_object(jam jar)",
+      "locate_object(butter knife)",
+      "grasp_object(butter knife)",
+      "move_to_station(table)",
+      "release_object",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(bread slice 2)",
+      "grasp_object(bread slice 2)",
+      "move_to_station(plate)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "open_bag",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Open a flexible bag containing bread slices."
+      },
+      {
+        "id": "open_jar",
+        "after": 13,
+        "dataset": "epic-kitchens-100",
+        "description": "Open a jar by unscrewing or removing the lid."
+      },
+      {
+        "id": "scoop_substance",
+        "after": 15,
+        "dataset": "epic-kitchens-100",
+        "description": "Scoop a substance like jam from a jar using a utensil."
+      },
+      {
+        "id": "spread_substance",
+        "after": 17,
+        "dataset": "epic-kitchens-100",
+        "description": "Spread a substance like jam on a flat surface using a utensil."
+      },
+      {
+        "id": "place_object_on_object",
+        "after": 21,
+        "dataset": "epic-kitchens-100",
+        "description": "Place one object carefully on top of another without dropping or sliding."
+      }
+    ],
+    "objects": {
+      "bread bag": "item",
+      "jam jar": "item",
+      "butter knife": "item",
+      "plate": "item",
+      "table": "fixed",
+      "jam": "substance",
+      "bread slice 1": "item",
+      "bread slice 2": "item"
+    },
+    "goal": "A jam sandwich is assembled on the plate and both hands are empty."
+  },
+  {
+    "prompt": "put the flowers in the vase and add water",
+    "seconds": 4.8,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(flowers)",
+      "grasp_object(flowers)",
+      "move_to_station(vase)",
+      "release_object(vase)",
+      "locate_object(water bottle)",
+      "grasp_bottle(water bottle)",
+      "move_to_station(vase)",
+      "pour_into(vase)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [],
+    "objects": {
+      "flowers": "item",
+      "vase": "item",
+      "water bottle": "bottle",
+      "table": "fixed"
+    },
+    "goal": "the flowers are in the vase with water and both hands are empty."
+  },
+  {
+    "prompt": "put the flowers in the vase and add water",
+    "seconds": 4.9,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(flowers)",
+      "grasp_object(flowers)",
+      "move_to_station(vase)",
+      "locate_object(water bottle)",
+      "grasp_bottle(water bottle)",
+      "move_to_station(vase)",
+      "pour_into(vase)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [
+      {
+        "id": "release_object_generic",
+        "after": 2,
+        "dataset": "droid",
+        "description": "Lower and release a held object onto a target surface or container."
+      }
+    ],
+    "objects": {
+      "flowers": "item",
+      "vase": "item",
+      "water bottle": "bottle",
+      "table": "fixed"
+    },
+    "goal": "the flowers are in the vase, the vase holds water, and both hands are empty."
+  },
+  {
+    "prompt": "feed the cat: open the tin and put the food in her bowl",
+    "seconds": 5.9,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(cat food tin)",
+      "grasp_object(cat food tin)",
+      "locate_object(tin lid)",
+      "grasp_object(tin lid)",
+      "move_to_station(cat bowl)",
+      "move_to_station(table)",
+      "release_object",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "lift_off",
+        "after": 3,
+        "dataset": "egocentric-10k",
+        "description": "Lift the tin lid off the cat food tin while holding it."
+      },
+      {
+        "id": "tilt_out",
+        "after": 4,
+        "dataset": "egocentric-10k",
+        "description": "Tilt the cat food tin to pour the food into the cat bowl."
+      }
+    ],
+    "objects": {
+      "cat food tin": "item",
+      "tin lid": "item",
+      "cat bowl": "item",
+      "table": "fixed",
+      "cat food": "substance"
+    },
+    "goal": "the cat bowl holds cat food and both hands are empty."
+  },
+  {
+    "prompt": "feed the cat: open the tin and put the food in her bowl",
+    "seconds": 6.0,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(cat food tin)",
+      "grasp_object(cat food tin)",
+      "move_to_station(cat bowl)",
+      "move_to_station(table)",
+      "release_object",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "twist_item",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Twist an item held or held against another to unscrew or open it."
+      },
+      {
+        "id": "lift_item",
+        "after": 1,
+        "dataset": "egocentric-10k",
+        "description": "Lift an item off another surface or object while holding it."
+      },
+      {
+        "id": "tilt_out",
+        "after": 2,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt a held container to pour out its contents into another vessel."
+      }
+    ],
+    "objects": {
+      "cat food tin": "item",
+      "tin lid": "item",
+      "cat bowl": "item",
+      "table": "fixed",
+      "cat food": "substance"
+    },
+    "goal": "the cat food is in the cat bowl and both hands are empty."
+  },
+  {
+    "prompt": "make me a pina colada",
+    "seconds": 25.3,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(ice scoop)",
+      "grasp_scoop(ice scoop)",
+      "move_to_station(shaker)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(white rum)",
+      "grasp_bottle(white rum)",
+      "move_to_station(shaker)",
+      "pour_into(shaker)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(pineapple juice)",
+      "grasp_bottle(pineapple juice)",
+      "move_to_station(shaker)",
+      "pour_into(shaker)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(coconut cream)",
+      "grasp_bottle(coconut cream)",
+      "move_to_station(shaker)",
+      "pour_into(shaker)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(shaker)",
+      "grasp_shaker(shaker)",
+      "seal_shaker",
+      "shake_shaker",
+      "move_to_station(glass)",
+      "pour_into(glass)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "scoop_item",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Scoop ice from the ice bucket using the scoop held in hand."
+      },
+      {
+        "id": "tilt_out",
+        "after": 2,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt the held scoop to pour out its contents into the shaker."
+      }
+    ],
+    "objects": {
+      "white rum": "bottle",
+      "pineapple juice": "bottle",
+      "coconut cream": "bottle",
+      "shaker": "shaker",
+      "ice scoop": "scoop",
+      "ice bucket": "item",
+      "glass": "glass",
+      "table": "fixed"
+    },
+    "goal": "the glass holds a pina colada and both hands are empty."
+  },
+  {
+    "prompt": "make me a pina colada",
+    "seconds": 23.0,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(ice scoop)",
+      "grasp_scoop(ice scoop)",
+      "move_to_station(shaker)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(white rum)",
+      "grasp_bottle(white rum)",
+      "move_to_station(shaker)",
+      "release_object",
+      "locate_object(pineapple juice)",
+      "grasp_bottle(pineapple juice)",
+      "move_to_station(shaker)",
+      "release_object",
+      "locate_object(coconut cream)",
+      "grasp_bottle(coconut cream)",
+      "move_to_station(shaker)",
+      "release_object",
+      "locate_object(shaker)",
+      "grasp_shaker(shaker)",
+      "seal_shaker",
+      "shake_shaker(shaker)",
+      "move_to_station(glass)",
+      "pour_into(glass)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(white rum)",
+      "grasp_bottle(white rum)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(pineapple juice)",
+      "grasp_bottle(pineapple juice)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(coconut cream)",
+      "grasp_bottle(coconut cream)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "scoop_item",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Scoop ice from the ice bucket using the scoop."
+      },
+      {
+        "id": "tilt_out",
+        "after": 2,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt the scoop to pour ice into the shaker."
+      },
+      {
+        "id": "tilt_out",
+        "after": 7,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt the bottle to pour white rum into the shaker."
+      },
+      {
+        "id": "tilt_out",
+        "after": 11,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt the bottle to pour pineapple juice into the shaker."
+      },
+      {
+        "id": "tilt_out",
+        "after": 15,
+        "dataset": "epic-kitchens-100",
+        "description": "Tilt the bottle to pour coconut cream into the shaker."
+      }
+    ],
+    "objects": {
+      "white rum": "bottle",
+      "pineapple juice": "bottle",
+      "coconut cream": "bottle",
+      "shaker": "shaker",
+      "ice scoop": "scoop",
+      "ice bucket": "item",
+      "glass": "glass",
+      "table": "fixed"
+    },
+    "goal": "the glass holds a pina colada and both hands are empty."
+  },
+  {
+    "prompt": "pour me a glass of juice",
+    "seconds": 3.8,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(juice)",
+      "grasp_bottle(juice)",
+      "move_to_station(glass)",
+      "pour_into(glass)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [],
+    "objects": {
+      "juice": "bottle",
+      "glass": "glass",
+      "table": "fixed"
+    },
+    "goal": "the glass holds juice and both hands are empty."
+  },
+  {
+    "prompt": "pour me a glass of juice",
+    "seconds": 3.9,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(juice)",
+      "grasp_bottle(juice)",
+      "move_to_station(glass)",
+      "pour_into(glass)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [],
+    "objects": {
+      "juice": "bottle",
+      "glass": "glass",
+      "table": "fixed"
+    },
+    "goal": "the glass holds juice and both hands are empty."
+  },
+  {
+    "prompt": "mix me a smoothie",
+    "seconds": 18.6,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(banana)",
+      "grasp_object(banana)",
+      "move_to_station(blender jar)",
+      "release_object(blender jar)",
+      "locate_object(strawberry)",
+      "grasp_object(strawberry)",
+      "move_to_station(blender jar)",
+      "release_object(blender jar)",
+      "locate_object(milk)",
+      "grasp_bottle(milk)",
+      "move_to_station(blender jar)",
+      "pour_into(blender jar)",
+      "move_to_station(table)",
+      "release_object(table)",
+      "locate_object(blender jar)",
+      "grasp_object(blender jar)",
+      "move_to_station(blender base)",
+      "release_object(blender base)",
+      "run_blender(blender base)",
+      "locate_object(blender jar)",
+      "grasp_object(blender jar)",
+      "move_to_station(glass)",
+      "pour_into(glass)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [
+      {
+        "id": "peel_item",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Peel a fruit item using dexterous hand movements."
+      }
+    ],
+    "objects": {
+      "banana": "item",
+      "strawberry": "item",
+      "milk": "bottle",
+      "blender jar": "item",
+      "blender base": "fixed",
+      "glass": "glass",
+      "table": "fixed"
+    },
+    "goal": "the glass holds smoothie and both hands are empty."
+  },
+  {
+    "prompt": "mix me a smoothie",
+    "seconds": 16.5,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(banana)",
+      "grasp_object(banana)",
+      "move_to_station(blender jar)",
+      "release_object(blender jar)",
+      "locate_object(yogurt)",
+      "grasp_object(yogurt)",
+      "move_to_station(blender jar)",
+      "release_object(blender jar)",
+      "locate_object(orange juice)",
+      "grasp_bottle(orange juice)",
+      "move_to_station(blender jar)",
+      "pour_into(blender jar)",
+      "move_to_station(table)",
+      "release_object(table)",
+      "locate_object(blender jar)",
+      "grasp_object(blender jar)",
+      "move_to_station(blender base)",
+      "release_object(blender base)",
+      "locate_object(blender jar)",
+      "grasp_object(blender jar)",
+      "move_to_station(glass)",
+      "pour_into(glass)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [
+      {
+        "id": "peel_item",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Peel the banana to prepare it for blending."
+      },
+      {
+        "id": "operate_blender",
+        "after": 17,
+        "dataset": null,
+        "description": "Press and hold the blender's start button until the contents are smooth."
+      }
+    ],
+    "objects": {
+      "banana": "item",
+      "orange juice": "bottle",
+      "yogurt": "item",
+      "blender jar": "item",
+      "table": "fixed",
+      "glass": "glass"
+    },
+    "goal": "the glass holds smoothie and both hands are empty."
+  },
+  {
+    "prompt": "wipe my table clean after dinner",
+    "seconds": 7.8,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(cloth)",
+      "grasp_cloth(cloth)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "press_to_surface",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Press the cloth onto the table surface to start wiping."
+      },
+      {
+        "id": "drag_along_surface",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Drag the cloth along the table surface to wipe it clean."
+      },
+      {
+        "id": "lift_off_surface",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Lift the cloth off the table surface after wiping."
+      }
+    ],
+    "objects": {
+      "table": "fixed",
+      "cloth": "cloth",
+      "crumbs": "substance"
+    },
+    "goal": "the table is wiped clean and both hands are empty."
+  },
+  {
+    "prompt": "wipe my table clean after dinner",
+    "seconds": 4.0,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(cloth)",
+      "grasp_cloth(cloth)",
+      "move_to_station(table)",
+      "release_object(table)"
+    ],
+    "gaps": [
+      {
+        "id": "drag_cloth_along_surface",
+        "after": 1,
+        "dataset": "epic-kitchens-100",
+        "description": "Drag a cloth across a flat surface to wipe or clean it."
+      }
+    ],
+    "objects": {
+      "table": "fixed",
+      "cloth": "cloth",
+      "crumbs": "substance"
+    },
+    "goal": "the table is wiped clean and both hands are empty."
+  },
+  {
+    "prompt": "clear the table and put the bottles away",
+    "seconds": 7.4,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(glass)",
+      "grasp_glass(glass)",
+      "move_to_station(shelf)",
+      "release_object(shelf)",
+      "locate_object(coaster)",
+      "grasp_object(coaster)",
+      "move_to_station(shelf)",
+      "release_object(shelf)",
+      "locate_object(banana)",
+      "grasp_object(banana)",
+      "move_to_station(shelf)",
+      "release_object(shelf)",
+      "locate_object(juice bottle)",
+      "grasp_bottle(juice bottle)",
+      "move_to_station(shelf)",
+      "release_object(shelf)",
+      "locate_object(white rum bottle)",
+      "grasp_bottle(white rum bottle)",
+      "move_to_station(shelf)",
+      "release_object(shelf)"
+    ],
+    "gaps": [],
+    "objects": {
+      "juice bottle": "bottle",
+      "white rum bottle": "bottle",
+      "glass": "glass",
+      "coaster": "item",
+      "banana": "item",
+      "table": "fixed",
+      "shelf": "fixed"
+    },
+    "goal": "the table is clear and both bottles are put away on the shelf, with both hands empty."
+  },
+  {
+    "prompt": "clear the table and put the bottles away",
+    "seconds": 7.1,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(glass)",
+      "grasp_glass(glass)",
+      "move_to_station(shelf)",
+      "release_object(shelf)",
+      "locate_object(coaster)",
+      "grasp_object(coaster)",
+      "move_to_station(shelf)",
+      "release_object(shelf)",
+      "locate_object(banana)",
+      "grasp_object(banana)",
+      "move_to_station(shelf)",
+      "release_object(shelf)",
+      "locate_object(juice bottle)",
+      "grasp_bottle(juice bottle)",
+      "move_to_station(shelf)",
+      "return_to_shelf",
+      "locate_object(white rum bottle)",
+      "grasp_bottle(white rum bottle)",
+      "move_to_station(shelf)",
+      "return_to_shelf"
+    ],
+    "gaps": [],
+    "objects": {
+      "juice bottle": "bottle",
+      "white rum bottle": "bottle",
+      "glass": "glass",
+      "coaster": "item",
+      "banana": "item",
+      "table": "fixed",
+      "shelf": "fixed"
+    },
+    "goal": "the table is clear and both bottles are put away on the shelf, with both hands empty."
+  }
+]

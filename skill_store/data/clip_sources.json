@@ -1,0 +1,78 @@
+{
+  "egocentric-10k": {
+    "kind": "none",
+    "why": "gated -- accept the terms and set HF_TOKEN"
+  },
+  "egocentric-10k-subset": {
+    "kind": "local",
+    "path": "clips/egocentric-10k-subset.mp4",
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "source": "https://huggingface.co/datasets/Voxel51/Egocentric_10K_subset/resolve/8a136de2d005a7041d80d2f78ac0478ce5f2fb54/data/factory051_worker001_00000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "egocentric-100k": {
+    "kind": "none",
+    "why": "gated -- accept the terms and set HF_TOKEN"
+  },
+  "egodex": {
+    "kind": "none",
+    "why": "not on the Hub (github)"
+  },
+  "ego-exo4d": {
+    "kind": "none",
+    "why": "not on the Hub (agreement)"
+  },
+  "epic-kitchens-100": {
+    "kind": "none",
+    "why": "not on the Hub (open)"
+  },
+  "svla_so101_pickplace": {
+    "kind": "stream",
+    "url": "https://huggingface.co/datasets/lerobot/svla_so101_pickplace/resolve/main/videos/observation.images.side/chunk-000/file-000.mp4",
+    "repo_id": "lerobot/svla_so101_pickplace",
+    "source": "https://huggingface.co/datasets/lerobot/svla_so101_pickplace/resolve/main/videos/observation.images.side/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0,
+    "codec": "av1"
+  },
+  "svla_so100_sorting": {
+    "kind": "stream",
+    "url": "https://huggingface.co/datasets/lerobot/svla_so100_sorting/resolve/main/videos/observation.images.top/chunk-000/file-000.mp4",
+    "repo_id": "lerobot/svla_so100_sorting",
+    "source": "https://huggingface.co/datasets/lerobot/svla_so100_sorting/resolve/main/videos/observation.images.top/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0,
+    "codec": "av1"
+  },
+  "aloha_sim_insertion_human_image": {
+    "kind": "local",
+    "path": "clips/aloha_sim_insertion_human_image.mp4",
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "source": "first 60 frames of the viewer",
+    "start": 0,
+    "length": 6.0
+  },
+  "high_quality_folding": {
+    "kind": "stream",
+    "url": "https://huggingface.co/datasets/lerobot/high_quality_folding/resolve/main/videos/observation.images.base/chunk-000/file-000.mp4",
+    "repo_id": "lerobot/high_quality_folding",
+    "source": "https://huggingface.co/datasets/lerobot/high_quality_folding/resolve/main/videos/observation.images.base/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0,
+    "codec": "av1"
+  },
+  "droid": {
+    "kind": "stream",
+    "url": "https://huggingface.co/datasets/lerobot/droid_1.0.1/resolve/main/videos/observation.images.exterior_1_left/chunk-000/file-000.mp4",
+    "repo_id": "lerobot/droid_1.0.1",
+    "source": "https://huggingface.co/datasets/lerobot/droid_1.0.1/resolve/main/videos/observation.images.exterior_1_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0,
+    "codec": "av1"
+  },
+  "spirit-pickplace": {
+    "kind": "none",
+    "why": "no video or images served"
+  }
+}
