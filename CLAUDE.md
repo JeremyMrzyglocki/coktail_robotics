@@ -1,0 +1,27 @@
+# Cocktail Robotics
+
+Bimanual OpenArm (Enactic, v10) that grasps a bottle and a glass, stops in a fixed
+"handoff" pose, then a separate scripted skill pours. Partner does teleoperation
+(leader arms → follower). Data will be LeRobotDataset v3; first policy will be ACT.
+
+## Hardware
+- Follower: 2 × 7-DOF arms + gripper, Damiao motors. Per arm: joint_1-2 DM8009,
+  joint_3-4 DM4340, joint_5-7 DM4310, gripper DM4310. Send IDs 0x01-0x08, feedback 0x11-0x18.
+- CAN: PEAK PCAN-USB Pro FD (2 channels, one arm each), CAN FD 1 Mbps / 5 Mbps, sample point 0.75.
+- On macOS only CAN1 works (PCBUSB driver limit), so robot work happens in the Ubuntu VM
+  (VMware Fusion, USB passthrough, `peak_usb` → `can0`, `can1`).
+
+## Code
+- `hardware/damiao.py`: minimal Damiao protocol (ported from enactic/openarm_can) over python-can.
+- `scripts/read_joints.py`: read-only state dump, never enables torque.
+- `scripts/calibrate_zero.py`: zero calibration without torque (needs typed confirmation).
+- Preferred stack for real use: LeRobot `openarm_follower` / `bi_openarm_follower` with socketcan.
+
+## Safety rules (from the user)
+- Never command motion or enable torque without the user's explicit go for that specific step.
+- Read-only checks first; any motion: one joint at a time, a few degrees, slow, return to start.
+- Zero calibration overwrites the motors' zero and affects the partner's teleop/data: confirm first.
+- Interactive steps that need hands on the robot (calibration) are run by the user.
+
+## Conventions
+- No Claude attribution (no Co-Authored-By) in commits or PRs.
