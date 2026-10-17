@@ -1,0 +1,667 @@
+[
+  {
+    "prompt": "You have a paint bucket and brush. draw an image on the table",
+    "seconds": 7.4,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(paint brush)",
+      "grasp_object(paint brush)",
+      "move_to_station(paint bucket)",
+      "move_to_station(table)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "dip_item",
+        "after": 2,
+        "dataset": "egocentric-10k",
+        "description": "Dip a held item into a container to load it with liquid or paint."
+      },
+      {
+        "id": "press_to_surface",
+        "after": 3,
+        "dataset": "egocentric-10k",
+        "description": "Press a held item onto a surface to apply force or paint."
+      },
+      {
+        "id": "drag_along_surface",
+        "after": 3,
+        "dataset": "egocentric-10k",
+        "description": "Drag a held item along a surface to create marks or move it."
+      },
+      {
+        "id": "lower_item",
+        "after": 4,
+        "dataset": "egocentric-10k",
+        "description": "Lower a held item onto a surface carefully."
+      }
+    ],
+    "objects": {
+      "paint bucket": "item",
+      "paint brush": "item",
+      "table": "fixed"
+    },
+    "goal": "an image is drawn on the table with paint and both hands are empty."
+  },
+  {
+    "prompt": "build a small sandcastle on the tray with the bucket and shovel",
+    "seconds": 32.4,
+    "valid": false,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [
+      "unmet_precondition: Locate Object needs hand_empty (on the left hand), which no earlier step establishes.",
+      "unmet_precondition: Grasp Object needs hand_empty (on the left hand), which no earlier step establishes.",
+      "unmet_precondition: Move To Location needs holding (on the left hand), which no earlier step establishes."
+    ],
+    "steps": [
+      "locate_object(shovel)",
+      "grasp_object(shovel)",
+      "locate_object(bucket)",
+      "grasp_object(bucket)",
+      "move_to_station(tray)",
+      "release_object",
+      "locate_object(bucket)",
+      "grasp_object(bucket)",
+      "move_to_station(tray)",
+      "release_object",
+      "move_to_station(tray)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "carry_object_to_substance",
+        "after": 3,
+        "dataset": "egocentric-10k-subset",
+        "description": "Carry a held object over a substance surface."
+      },
+      {
+        "id": "scoop_substance_with_tool",
+        "after": 3,
+        "dataset": "egocentric-10k-subset",
+        "description": "Use a tool to scoop a substance repeatedly."
+      },
+      {
+        "id": "carry_tool_to_container",
+        "after": 3,
+        "dataset": "egocentric-10k-subset",
+        "description": "Carry a held tool over a container repeatedly."
+      },
+      {
+        "id": "tilt_tool_into_container",
+        "after": 3,
+        "dataset": "egocentric-10k-subset",
+        "description": "Tilt a tool to pour substance into a container repeatedly."
+      },
+      {
+        "id": "invert_object_on_surface",
+        "after": 4,
+        "dataset": "egocentric-10k-subset",
+        "description": "Invert a held object onto a surface."
+      },
+      {
+        "id": "lower_object_onto_surface",
+        "after": 4,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lower a held object onto a surface."
+      },
+      {
+        "id": "lift_object_from_surface",
+        "after": 7,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lift a held object from a surface."
+      },
+      {
+        "id": "lower_object_onto_surface",
+        "after": 8,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lower a held object onto a surface."
+      },
+      {
+        "id": "lower_object_onto_surface",
+        "after": 10,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lower a held object onto a surface."
+      }
+    ],
+    "objects": {
+      "sand": "substance",
+      "bucket": "item",
+      "shovel": "item",
+      "tray": "fixed"
+    },
+    "goal": "A small sandcastle stands on the tray, and both hands are empty."
+  },
+  {
+    "prompt": "do a simple card trick with the deck on the table",
+    "seconds": 7.8,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(playing cards)",
+      "grasp_object(playing cards)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "lift_item",
+        "after": 1,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lift a rigid, hand-sized item from a surface."
+      },
+      {
+        "id": "rotate_item",
+        "after": 1,
+        "dataset": "egocentric-10k-subset",
+        "description": "Rotate a held rigid item in hand."
+      },
+      {
+        "id": "slide_item",
+        "after": 1,
+        "dataset": "egocentric-10k-subset",
+        "description": "Slide a held rigid item in hand."
+      },
+      {
+        "id": "slide_item",
+        "after": 1,
+        "dataset": "egocentric-10k-subset",
+        "description": "Slide a held rigid item in hand."
+      },
+      {
+        "id": "grasp_item",
+        "after": 1,
+        "dataset": "droid",
+        "description": "Grasp a rigid, hand-sized item by its body or handle."
+      },
+      {
+        "id": "pull_item",
+        "after": 1,
+        "dataset": "egocentric-10k-subset",
+        "description": "Pull a rigid, hand-sized item held in hand."
+      },
+      {
+        "id": "lower_item",
+        "after": 2,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lower a held rigid item onto a surface."
+      }
+    ],
+    "objects": {
+      "playing cards": "item",
+      "table": "fixed"
+    },
+    "goal": "the deck of playing cards is back on the table and both hands are empty."
+  },
+  {
+    "prompt": "water the two plants on the shelf",
+    "seconds": 8.6,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(watering can)",
+      "grasp_object(watering can)",
+      "move_to_station(sink)",
+      "move_to_station(shelf)",
+      "move_to_station(plant 2)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "fill_container",
+        "after": 2,
+        "dataset": "egocentric-10k",
+        "description": "Fill a held container with liquid from a fixed source."
+      },
+      {
+        "id": "tilt_container",
+        "after": 3,
+        "dataset": "egocentric-10k",
+        "description": "Tilt a held container over a target and then return upright."
+      },
+      {
+        "id": "tilt_container",
+        "after": 4,
+        "dataset": "egocentric-10k",
+        "description": "Tilt a held container over a target and then return upright."
+      },
+      {
+        "id": "lower_object",
+        "after": 5,
+        "dataset": "egocentric-10k",
+        "description": "Lower a held object onto a surface."
+      }
+    ],
+    "objects": {
+      "watering can": "item",
+      "water": "substance",
+      "sink": "fixed",
+      "plant 1": "item",
+      "plant 2": "item",
+      "shelf": "fixed",
+      "table": "fixed"
+    },
+    "goal": "both plants on the shelf have been watered and both hands are empty."
+  },
+  {
+    "prompt": "write my name on the whiteboard with the marker",
+    "seconds": 7.0,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(marker)",
+      "grasp_object(marker)",
+      "move_to_station(whiteboard)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "press_to_surface",
+        "after": 2,
+        "dataset": "egocentric-10k-subset",
+        "description": "Press an object against a surface to make contact or mark it."
+      },
+      {
+        "id": "drag_on_surface",
+        "after": 2,
+        "dataset": "egocentric-10k-subset",
+        "description": "Drag an object across a surface to write or draw."
+      },
+      {
+        "id": "lower_object",
+        "after": 3,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lower a held object onto a surface."
+      }
+    ],
+    "objects": {
+      "marker": "item",
+      "whiteboard": "fixed",
+      "table": "fixed"
+    },
+    "goal": "the name is written on the whiteboard and both hands are empty."
+  },
+  {
+    "prompt": "make me a jam sandwich",
+    "seconds": 20.7,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(jam jar)",
+      "grasp_bottle(jam jar)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(butter knife)",
+      "grasp_object(butter knife)",
+      "move_to_station(bread slice 1)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(bread slice 2)",
+      "grasp_object(bread slice 2)",
+      "move_to_station(bread slice 1)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "twist_open",
+        "after": 1,
+        "dataset": "egocentric-10k-subset",
+        "description": "Unscrew and remove a bottle cap while the bottle is held."
+      },
+      {
+        "id": "insert_tool_into_container",
+        "after": 5,
+        "dataset": "egocentric-10k-subset",
+        "description": "Insert a tool into a container to scoop or stir."
+      },
+      {
+        "id": "scoop_substance",
+        "after": 5,
+        "dataset": "egocentric-10k-subset",
+        "description": "Scoop a substance onto a tool held in hand."
+      },
+      {
+        "id": "spread_substance",
+        "after": 6,
+        "dataset": "egocentric-10k-subset",
+        "description": "Spread a substance from a tool onto a surface."
+      },
+      {
+        "id": "lower_tool",
+        "after": 7,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lower a held tool onto a surface."
+      },
+      {
+        "id": "lower_object",
+        "after": 11,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lower a held object onto another object or surface."
+      }
+    ],
+    "objects": {
+      "bread slice 1": "item",
+      "bread slice 2": "item",
+      "jam jar": "bottle",
+      "butter knife": "item",
+      "table": "fixed",
+      "jam": "substance"
+    },
+    "goal": "A jam sandwich is assembled from two bread slices with jam inside, and both hands are empty."
+  },
+  {
+    "prompt": "put the flowers in the vase and add water",
+    "seconds": 7.8,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(flowers)",
+      "grasp_object(flowers)",
+      "move_to_station(vase)",
+      "release_object",
+      "locate_object(water bottle)",
+      "grasp_bottle(water bottle)",
+      "move_to_station(vase)",
+      "pour_into",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "lower_item",
+        "after": 2,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lower a held item down into a container or onto a surface."
+      },
+      {
+        "id": "lower_item",
+        "after": 8,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lower a held item down into a container or onto a surface."
+      }
+    ],
+    "objects": {
+      "flowers": "item",
+      "vase": "item",
+      "water bottle": "bottle",
+      "table": "fixed"
+    },
+    "goal": "the flowers are in the vase with water and both hands are empty."
+  },
+  {
+    "prompt": "feed the cat: open the tin and put the food in her bowl",
+    "seconds": 22.5,
+    "valid": false,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [
+      "unmet_precondition: Locate Object needs hand_empty (on the left hand), which no earlier step establishes.",
+      "unmet_precondition: Grasp Object needs object_located, hand_empty (on the left hand), which no earlier step establishes."
+    ],
+    "steps": [
+      "locate_object(cat food tin)",
+      "grasp_object(cat food tin)",
+      "move_to_station(table)",
+      "locate_object(tin lid)",
+      "release_object",
+      "grasp_object(tin lid)",
+      "move_to_station(cat bowl)",
+      "grasp_object(cat food tin)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(cat food tin)",
+      "grasp_object(cat food tin)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "lift_item",
+        "after": 5,
+        "dataset": "egocentric-10k-subset",
+        "description": "Lift an item off another object."
+      },
+      {
+        "id": "tilt_out",
+        "after": 7,
+        "dataset": "egocentric-10k-subset",
+        "description": "Tilt an object to pour out contents."
+      }
+    ],
+    "objects": {
+      "cat food tin": "item",
+      "tin lid": "item",
+      "cat bowl": "item",
+      "table": "fixed",
+      "cat food": "substance"
+    },
+    "goal": "the cat food is in the cat bowl and both hands are empty."
+  },
+  {
+    "prompt": "make me a pina colada",
+    "seconds": 10.7,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(white rum)",
+      "grasp_bottle(white rum)",
+      "move_to_station(glass)",
+      "pour_into(glass)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(pineapple juice)",
+      "grasp_bottle(pineapple juice)",
+      "move_to_station(glass)",
+      "pour_into(glass)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(coconut cream)",
+      "grasp_bottle(coconut cream)",
+      "move_to_station(glass)",
+      "pour_into(glass)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [],
+    "objects": {
+      "white rum": "bottle",
+      "pineapple juice": "bottle",
+      "coconut cream": "bottle",
+      "glass": "glass",
+      "table": "fixed"
+    },
+    "goal": "the glass holds white rum, pineapple juice, and coconut cream, and both hands are empty."
+  },
+  {
+    "prompt": "pour me a glass of juice",
+    "seconds": 5.5,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(juice)",
+      "grasp_bottle(juice)",
+      "move_to_station(glass)",
+      "pour_into",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "lower_item",
+        "after": 4,
+        "dataset": "egocentric-10k",
+        "description": "Lower a held item onto a surface."
+      }
+    ],
+    "objects": {
+      "juice": "bottle",
+      "glass": "glass",
+      "table": "fixed"
+    },
+    "goal": "the glass holds juice and both hands are empty."
+  },
+  {
+    "prompt": "mix me a smoothie",
+    "seconds": 18.2,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(banana)",
+      "grasp_object(banana)",
+      "move_to_station(blender jar)",
+      "release_object",
+      "locate_object(orange juice)",
+      "grasp_bottle(orange juice)",
+      "move_to_station(blender jar)",
+      "pour_into(blender jar)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(yogurt)",
+      "grasp_bottle(yogurt)",
+      "move_to_station(blender jar)",
+      "pour_into(blender jar)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(blender jar)",
+      "grasp_object(blender jar)",
+      "move_to_station(blender jar)",
+      "move_to_station(table)",
+      "release_object",
+      "locate_object(blender jar)",
+      "grasp_object(blender jar)",
+      "move_to_station(glass)",
+      "pour_into(glass)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "peel_item",
+        "after": 1,
+        "dataset": "egocentric-10k",
+        "description": "Peel a fruit item by hand."
+      },
+      {
+        "id": "operate_appliance",
+        "after": 18,
+        "dataset": "egocentric-10k",
+        "description": "Operate a countertop appliance such as a blender."
+      }
+    ],
+    "objects": {
+      "banana": "item",
+      "orange juice": "bottle",
+      "yogurt": "bottle",
+      "blender jar": "item",
+      "table": "fixed",
+      "glass": "glass"
+    },
+    "goal": "the glass holds smoothie and both hands are empty."
+  },
+  {
+    "prompt": "wipe my table clean after dinner",
+    "seconds": 6.2,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(cleaning cloth)",
+      "grasp_cloth(cleaning cloth)",
+      "move_to_station(table)",
+      "move_to_station(bin)",
+      "move_to_station(table)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "press_to_surface",
+        "after": 2,
+        "dataset": "egocentric-10k-subset",
+        "description": "Press a held cloth onto a flat surface."
+      },
+      {
+        "id": "drag_across_surface",
+        "after": 2,
+        "dataset": "egocentric-10k-subset",
+        "description": "Drag a held cloth across a flat surface to clean it."
+      },
+      {
+        "id": "shake_cloth",
+        "after": 3,
+        "dataset": "egocentric-10k-subset",
+        "description": "Shake a held cloth to dislodge crumbs or debris."
+      }
+    ],
+    "objects": {
+      "cleaning cloth": "cloth",
+      "table": "fixed",
+      "crumbs": "substance",
+      "bin": "fixed"
+    },
+    "goal": "the table is wiped clean, crumbs are disposed of, and both hands are empty."
+  },
+  {
+    "prompt": "clear the table and put the bottles away",
+    "seconds": 10.6,
+    "valid": true,
+    "hands_empty": true,
+    "wrong_object": [],
+    "blocking": [],
+    "steps": [
+      "locate_object(glass)",
+      "grasp_glass(glass)",
+      "move_to_station(shelf)",
+      "release_object",
+      "move_to_station(shelf)",
+      "release_object",
+      "locate_object(juice bottle)",
+      "grasp_bottle(juice bottle)",
+      "move_to_station(shelf)",
+      "release_object",
+      "locate_object(white rum)",
+      "grasp_bottle(white rum)",
+      "move_to_station(shelf)",
+      "release_object"
+    ],
+    "gaps": [
+      {
+        "id": "grasp_item",
+        "after": 3,
+        "dataset": "egocentric-10k-subset",
+        "description": "Pick up a rigid, hand-sized loose item by its body or handle."
+      }
+    ],
+    "objects": {
+      "juice bottle": "bottle",
+      "white rum": "bottle",
+      "glass": "glass",
+      "coaster": "item",
+      "table": "fixed",
+      "shelf": "fixed"
+    },
+    "goal": "the table is clear of all loose items and the bottles are put away on the shelf, with both hands empty."
+  }
+]

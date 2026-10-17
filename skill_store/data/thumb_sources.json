@@ -1,0 +1,207 @@
+{
+  "add_straw": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "add_umbrella": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "clear_table": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": false,
+    "source": "video"
+  },
+  "close_drawer": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "detect_fill_level": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": false,
+    "source": "video"
+  },
+  "detect_spill": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": false,
+    "source": "video"
+  },
+  "garnish": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "grasp_bottle": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "grasp_bottle_lite": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "grasp_cloth": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "grasp_glass": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "grasp_scoop": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "grasp_shaker": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "handover": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "load_tray": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "locate_object": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": false,
+    "source": "video"
+  },
+  "measure_pour": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "move_to_station": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "open_drawer": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "place_in_bin": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "place_on_coaster": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "polish_glass": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": false,
+    "source": "video"
+  },
+  "pour_into": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "press_dispenser": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "read_label": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": false,
+    "source": "video"
+  },
+  "release_object": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "return_to_shelf": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "rinse_vessel": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": false,
+    "source": "video"
+  },
+  "scoop_pour": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "seal_shaker": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "serve_to_guest": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "shake_shaker": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "slide_coaster": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "stack_glasses": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": false,
+    "source": "video"
+  },
+  "stir": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "swirl_glass": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "top_up": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": true,
+    "source": "video"
+  },
+  "twist_cap": {
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "representative": true,
+    "source": "image"
+  },
+  "verify_surface_clean": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": false,
+    "source": "video"
+  },
+  "wipe_spill": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": false,
+    "source": "video"
+  },
+  "wipe_surface": {
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "representative": false,
+    "source": "video"
+  }
+}

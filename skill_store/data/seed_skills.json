@@ -1,0 +1,2317 @@
+[
+  {
+    "id": "locate_object",
+    "name": "Locate Object",
+    "title": "find the object on the table",
+    "thumbnail": "thumbs/locate_object.jpg",
+    "dataset": {
+      "id": "egocentric-10k-subset",
+      "episodes": 40,
+      "status": "trained_on"
+    },
+    "category": "perception",
+    "status": "trained",
+    "price_eur": 4.0,
+    "vendor": "Daidai Labs",
+    "description": "Sweep the wrist camera over the work surface to find a named object and its pose, with the arm that will grasp it.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "object_located"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": "checkpoints/pi05_moz_bartender/30000",
+    "prompt": "find the {target} on the table",
+    "est_duration_s": 6.0
+  },
+  {
+    "id": "detect_fill_level",
+    "name": "Detect Fill Level",
+    "title": "check how full the glass is",
+    "thumbnail": "thumbs/detect_fill_level.jpg",
+    "dataset": {
+      "id": "egocentric-10k-subset",
+      "episodes": 16,
+      "status": "candidate"
+    },
+    "category": "perception",
+    "status": "beta",
+    "price_eur": 6.0,
+    "vendor": "Daidai Labs",
+    "description": "Estimate how full a transparent vessel is, from the wrist camera.",
+    "preconditions": [],
+    "postconditions": [
+      "fill_known"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 6.0
+  },
+  {
+    "id": "verify_surface_clean",
+    "name": "Verify Surface Clean",
+    "title": "check whether the surface is clean",
+    "thumbnail": "thumbs/verify_surface_clean.jpg",
+    "dataset": {
+      "id": "egocentric-10k-subset",
+      "episodes": 30,
+      "status": "candidate"
+    },
+    "category": "perception",
+    "status": "trained",
+    "price_eur": 5.0,
+    "vendor": "Daidai Labs",
+    "description": "Score a surface for residue from the head camera. Used as a success detector.",
+    "preconditions": [],
+    "postconditions": [
+      "surface_verified"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 6.0
+  },
+  {
+    "id": "read_label",
+    "name": "Read Label",
+    "title": "read a printed bottle or package label",
+    "thumbnail": "thumbs/read_label.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "perception",
+    "status": "catalog",
+    "price_eur": 7.0,
+    "vendor": "Roborecs",
+    "description": "Read a printed bottle or package label.",
+    "preconditions": [],
+    "postconditions": [
+      "label_read"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 6.0
+  },
+  {
+    "id": "detect_spill",
+    "name": "Detect Spill",
+    "title": "spot liquid or granular spill on a surface",
+    "thumbnail": "thumbs/detect_spill.jpg",
+    "dataset": {
+      "id": "egocentric-10k-subset",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "perception",
+    "status": "catalog",
+    "price_eur": 5.0,
+    "vendor": "Daidai Labs",
+    "description": "Spot liquid or granular spill on a surface.",
+    "preconditions": [],
+    "postconditions": [
+      "spill_located"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 6.0
+  },
+  {
+    "id": "grasp_bottle",
+    "name": "Grasp Bottle",
+    "title": "pick up the bottle",
+    "thumbnail": "thumbs/grasp_bottle.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 52,
+      "status": "trained_on"
+    },
+    "category": "manipulation",
+    "status": "trained",
+    "price_eur": 12.0,
+    "vendor": "Daidai Labs",
+    "description": "Close the gripper around an upright bottle and secure it.",
+    "preconditions": [
+      "object_located",
+      "hand_empty"
+    ],
+    "postconditions": [
+      "bottle_grasped",
+      "holding"
+    ],
+    "deletes": [
+      "hand_empty",
+      "object_located"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [
+      "bottle"
+    ],
+    "checkpoint": "checkpoints/pi05_moz_bartender/30000",
+    "prompt": "pick up the {target} bottle",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "grasp_bottle_lite",
+    "name": "Grasp Bottle (Lite)",
+    "title": "pick up the bottle",
+    "thumbnail": "thumbs/grasp_bottle_lite.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 18,
+      "status": "trained_on"
+    },
+    "category": "manipulation",
+    "status": "beta",
+    "price_eur": 3.0,
+    "vendor": "OpenGrasp (community)",
+    "description": "Budget bottle grasp. Same interface, lower success rate, no wrist-camera servoing.",
+    "preconditions": [
+      "object_located",
+      "hand_empty"
+    ],
+    "postconditions": [
+      "bottle_grasped",
+      "holding"
+    ],
+    "deletes": [
+      "hand_empty",
+      "object_located"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [
+      "bottle"
+    ],
+    "checkpoint": "checkpoints/pi05_moz_bartender/30000",
+    "prompt": "pick up the {target} bottle",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "grasp_glass",
+    "name": "Grasp Glass",
+    "title": "pick up the glass",
+    "thumbnail": "thumbs/grasp_glass.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 44,
+      "status": "trained_on"
+    },
+    "category": "manipulation",
+    "status": "trained",
+    "price_eur": 12.0,
+    "vendor": "Daidai Labs",
+    "description": "Grasp a stemless glass without tipping it.",
+    "preconditions": [
+      "object_located",
+      "hand_empty"
+    ],
+    "postconditions": [
+      "glass_grasped",
+      "holding"
+    ],
+    "deletes": [
+      "hand_empty",
+      "object_located"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [
+      "glass"
+    ],
+    "checkpoint": "checkpoints/pi05_moz_bartender/30000",
+    "prompt": "pick up the glass",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "grasp_scoop",
+    "name": "Grasp Scoop",
+    "title": "pick up a measuring scoop by the handle",
+    "thumbnail": "thumbs/grasp_scoop.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "manipulation",
+    "status": "catalog",
+    "price_eur": 9.0,
+    "vendor": "Daidai Labs",
+    "description": "Pick up a measuring scoop by the handle.",
+    "preconditions": [
+      "object_located",
+      "hand_empty"
+    ],
+    "postconditions": [
+      "scoop_grasped",
+      "holding"
+    ],
+    "deletes": [
+      "hand_empty",
+      "object_located"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [
+      "scoop"
+    ],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "grasp_shaker",
+    "name": "Grasp Shaker",
+    "title": "grasp a cocktail shaker around its body",
+    "thumbnail": "thumbs/grasp_shaker.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "manipulation",
+    "status": "catalog",
+    "price_eur": 14.0,
+    "vendor": "Daidai Labs",
+    "description": "Grasp a cocktail shaker around its body.",
+    "preconditions": [
+      "object_located",
+      "hand_empty"
+    ],
+    "postconditions": [
+      "shaker_grasped",
+      "holding"
+    ],
+    "deletes": [
+      "hand_empty",
+      "object_located"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [
+      "shaker"
+    ],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "grasp_object",
+    "name": "Grasp Object",
+    "title": "pick up the object",
+    "thumbnail": "thumbs/grasp_object.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "manipulation",
+    "status": "beta",
+    "price_eur": 10.0,
+    "vendor": "Daidai Labs",
+    "description": "Pick up a rigid, hand-sized loose item by its body or handle -- fruit, a lid, a utensil, a brush, a bucket, a box.",
+    "preconditions": [
+      "object_located",
+      "hand_empty"
+    ],
+    "postconditions": [
+      "object_grasped",
+      "holding"
+    ],
+    "deletes": [
+      "hand_empty",
+      "object_located"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [
+      "item"
+    ],
+    "checkpoint": "checkpoints/pi05_moz_bartender/30000",
+    "prompt": "pick up the {target}",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "grasp_cloth",
+    "name": "Grasp Cloth",
+    "title": "pick up the cloth",
+    "thumbnail": "thumbs/grasp_cloth.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 38,
+      "status": "trained_on"
+    },
+    "category": "manipulation",
+    "status": "trained",
+    "price_eur": 10.0,
+    "vendor": "Daidai Labs",
+    "description": "Pick up a folded cloth or sponge from a flat surface.",
+    "preconditions": [
+      "object_located",
+      "hand_empty"
+    ],
+    "postconditions": [
+      "cloth_grasped",
+      "holding"
+    ],
+    "deletes": [
+      "hand_empty",
+      "object_located"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [
+      "cloth"
+    ],
+    "checkpoint": "checkpoints/pi05_moz_wipe/30000",
+    "prompt": "pick up the cloth",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "release_object",
+    "name": "Release Object",
+    "title": "let go of it there",
+    "thumbnail": "thumbs/release_object.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 52,
+      "status": "trained_on"
+    },
+    "category": "manipulation",
+    "status": "trained",
+    "price_eur": 2.0,
+    "vendor": "Daidai Labs",
+    "description": "Open the gripper wherever the held object was moved to, and retract. Over a vessel this drops the object in; over the table it sets it down.",
+    "preconditions": [
+      "holding",
+      "positioned"
+    ],
+    "postconditions": [
+      "hand_empty"
+    ],
+    "deletes": [
+      "bottle_grasped",
+      "glass_grasped",
+      "shaker_grasped",
+      "scoop_grasped",
+      "cloth_grasped",
+      "object_grasped",
+      "holding",
+      "positioned"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": "checkpoints/pi05_moz_bartender/30000",
+    "prompt": "let go of the object",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "handover",
+    "name": "Bimanual Handover",
+    "title": "pass a held object from one arm to the other",
+    "thumbnail": "thumbs/handover.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "manipulation",
+    "status": "catalog",
+    "price_eur": 24.0,
+    "vendor": "Spirit AI",
+    "description": "Pass a held object from one arm to the other. Requires dual-arm structure.",
+    "preconditions": [
+      "bottle_grasped"
+    ],
+    "postconditions": [
+      "handover_done"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "twist_cap",
+    "name": "Twist Cap",
+    "title": "unscrew and remove a bottle cap while the bottle is held",
+    "thumbnail": "thumbs/twist_cap.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "manipulation",
+    "status": "catalog",
+    "price_eur": 18.0,
+    "vendor": "Daidai Labs",
+    "description": "Unscrew and remove a bottle cap while the bottle is held.",
+    "preconditions": [
+      "bottle_grasped"
+    ],
+    "postconditions": [
+      "cap_removed"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "press_dispenser",
+    "name": "Press Dispenser",
+    "title": "press down on a pump dispenser",
+    "thumbnail": "thumbs/press_dispenser.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "manipulation",
+    "status": "catalog",
+    "price_eur": 8.0,
+    "vendor": "OpenGrasp (community)",
+    "description": "Press down on a pump dispenser.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "dispensed"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "open_drawer",
+    "name": "Open Drawer",
+    "title": "hook a drawer handle and pull it open",
+    "thumbnail": "thumbs/open_drawer.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "manipulation",
+    "status": "catalog",
+    "price_eur": 16.0,
+    "vendor": "Spirit AI",
+    "description": "Hook a drawer handle and pull it open.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "drawer_open"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "close_drawer",
+    "name": "Close Drawer",
+    "title": "push a drawer closed",
+    "thumbnail": "thumbs/close_drawer.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "manipulation",
+    "status": "catalog",
+    "price_eur": 14.0,
+    "vendor": "Spirit AI",
+    "description": "Push a drawer closed.",
+    "preconditions": [
+      "drawer_open"
+    ],
+    "postconditions": [],
+    "deletes": [
+      "drawer_open"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "move_to_station",
+    "name": "Move To Location",
+    "title": "carry it over to the target",
+    "thumbnail": "thumbs/move_to_station.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 36,
+      "status": "trained_on"
+    },
+    "category": "transport",
+    "status": "trained",
+    "price_eur": 6.0,
+    "vendor": "Daidai Labs",
+    "description": "Carry the held object to a named place and hold it there -- over a vessel, above a glass, back onto the table.",
+    "preconditions": [
+      "holding"
+    ],
+    "postconditions": [
+      "positioned"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": "checkpoints/pi05_moz_bartender/30000",
+    "prompt": "move it over the {target}",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "place_on_coaster",
+    "name": "Place On Coaster",
+    "title": "put the glass down on the coaster",
+    "thumbnail": "thumbs/place_on_coaster.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 47,
+      "status": "trained_on"
+    },
+    "category": "transport",
+    "status": "trained",
+    "price_eur": 10.0,
+    "vendor": "Daidai Labs",
+    "description": "Set a held glass down on the coaster, upright and centred.",
+    "preconditions": [
+      "glass_grasped"
+    ],
+    "postconditions": [
+      "hand_empty",
+      "glass_placed"
+    ],
+    "deletes": [
+      "bottle_grasped",
+      "glass_grasped",
+      "shaker_grasped",
+      "scoop_grasped",
+      "cloth_grasped",
+      "object_grasped",
+      "holding",
+      "positioned"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": "checkpoints/pi05_moz_bartender/30000",
+    "prompt": "put the glass down on the coaster",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "place_in_bin",
+    "name": "Place In Bin",
+    "title": "put it in the bin",
+    "thumbnail": "thumbs/place_in_bin.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 19,
+      "status": "trained_on"
+    },
+    "category": "transport",
+    "status": "beta",
+    "price_eur": 8.0,
+    "vendor": "Daidai Labs",
+    "description": "Drop a held object into a bin.",
+    "preconditions": [
+      "holding"
+    ],
+    "postconditions": [
+      "hand_empty",
+      "in_bin"
+    ],
+    "deletes": [
+      "bottle_grasped",
+      "glass_grasped",
+      "shaker_grasped",
+      "scoop_grasped",
+      "cloth_grasped",
+      "object_grasped",
+      "holding",
+      "positioned"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": "checkpoints/pi05_moz_bartender/30000",
+    "prompt": "put it in the bin",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "return_to_shelf",
+    "name": "Return To Shelf",
+    "title": "return a bottle to its slot on the shelf",
+    "thumbnail": "thumbs/return_to_shelf.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "transport",
+    "status": "catalog",
+    "price_eur": 11.0,
+    "vendor": "Daidai Labs",
+    "description": "Return a bottle to its slot on the shelf.",
+    "preconditions": [
+      "bottle_grasped"
+    ],
+    "postconditions": [
+      "hand_empty",
+      "on_shelf"
+    ],
+    "deletes": [
+      "bottle_grasped",
+      "glass_grasped",
+      "shaker_grasped",
+      "scoop_grasped",
+      "cloth_grasped",
+      "object_grasped",
+      "holding",
+      "positioned"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "load_tray",
+    "name": "Load Tray",
+    "title": "place an object onto a serving tray",
+    "thumbnail": "thumbs/load_tray.jpg",
+    "dataset": {
+      "id": "svla_so101_pickplace",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "transport",
+    "status": "catalog",
+    "price_eur": 15.0,
+    "vendor": "Roborecs",
+    "description": "Place an object onto a serving tray.",
+    "preconditions": [],
+    "postconditions": [
+      "on_tray"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "pour_into",
+    "name": "Pour Into",
+    "title": "pour it into the target",
+    "thumbnail": "thumbs/pour_into.jpg",
+    "dataset": {
+      "id": "egodex",
+      "episodes": 61,
+      "status": "trained_on"
+    },
+    "category": "pouring",
+    "status": "trained",
+    "price_eur": 20.0,
+    "vendor": "Daidai Labs",
+    "description": "Tilt the held bottle or vessel, already moved over the target, pour a target amount and come back upright.",
+    "preconditions": [
+      "holding",
+      "positioned",
+      "glass_placed"
+    ],
+    "postconditions": [
+      "vessel_filled"
+    ],
+    "deletes": [
+      "positioned"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": "checkpoints/pi05_moz_bartender/30000",
+    "prompt": "pour from the bottle into the glass",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "measure_pour",
+    "name": "Measured Pour",
+    "title": "pour a specified volume using closed-loop fill-level feedback",
+    "thumbnail": "thumbs/measure_pour.jpg",
+    "dataset": {
+      "id": "egodex",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "pouring",
+    "status": "catalog",
+    "price_eur": 26.0,
+    "vendor": "Daidai Labs",
+    "description": "Pour a specified volume using closed-loop fill-level feedback.",
+    "preconditions": [
+      "holding",
+      "positioned",
+      "glass_placed"
+    ],
+    "postconditions": [
+      "vessel_filled",
+      "measured"
+    ],
+    "deletes": [
+      "positioned"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "scoop_pour",
+    "name": "Scoop And Pour",
+    "title": "empty a filled scoop into the vessel it was moved over",
+    "thumbnail": "thumbs/scoop_pour.jpg",
+    "dataset": {
+      "id": "egodex",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "pouring",
+    "status": "catalog",
+    "price_eur": 17.0,
+    "vendor": "Daidai Labs",
+    "description": "Empty a filled scoop into the vessel it was moved over.",
+    "preconditions": [
+      "scoop_grasped",
+      "positioned"
+    ],
+    "postconditions": [
+      "vessel_filled"
+    ],
+    "deletes": [
+      "positioned"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "top_up",
+    "name": "Top Up",
+    "title": "add liquid until a target fill level is reached",
+    "thumbnail": "thumbs/top_up.jpg",
+    "dataset": {
+      "id": "egodex",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "pouring",
+    "status": "catalog",
+    "price_eur": 12.0,
+    "vendor": "OpenGrasp (community)",
+    "description": "Add liquid until a target fill level is reached.",
+    "preconditions": [
+      "holding",
+      "positioned",
+      "fill_known"
+    ],
+    "postconditions": [
+      "vessel_filled"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "stir",
+    "name": "Stir",
+    "title": "stir the drink in the glass",
+    "thumbnail": "thumbs/stir.jpg",
+    "dataset": {
+      "id": "egodex",
+      "episodes": 43,
+      "status": "trained_on"
+    },
+    "category": "mixing",
+    "status": "trained",
+    "price_eur": 14.0,
+    "vendor": "Daidai Labs",
+    "description": "Insert a stirrer and run a circular stirring motion in the glass.",
+    "preconditions": [
+      "vessel_filled",
+      "hand_empty"
+    ],
+    "postconditions": [
+      "contents_mixed",
+      "vessel_filled"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": "checkpoints/pi05_moz_bartender/30000",
+    "prompt": "stir the drink in the glass",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "shake_shaker",
+    "name": "Shake Shaker",
+    "title": "agitate a sealed shaker vertically for a set duration",
+    "thumbnail": "thumbs/shake_shaker.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "mixing",
+    "status": "catalog",
+    "price_eur": 22.0,
+    "vendor": "Daidai Labs",
+    "description": "Agitate a sealed shaker vertically for a set duration.",
+    "preconditions": [
+      "shaker_grasped",
+      "shaker_closed",
+      "vessel_filled"
+    ],
+    "postconditions": [
+      "contents_mixed",
+      "vessel_filled"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "swirl_glass",
+    "name": "Swirl Glass",
+    "title": "rotate a held glass to mix contents without a stirrer",
+    "thumbnail": "thumbs/swirl_glass.jpg",
+    "dataset": {
+      "id": "egodex",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "mixing",
+    "status": "catalog",
+    "price_eur": 9.0,
+    "vendor": "OpenGrasp (community)",
+    "description": "Rotate a held glass to mix contents without a stirrer.",
+    "preconditions": [
+      "glass_grasped"
+    ],
+    "postconditions": [
+      "contents_mixed"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "run_blender",
+    "name": "Run Blender",
+    "title": "press and hold a countertop blender's start button until the contents are smooth",
+    "thumbnail": "thumbs/run_blender.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "mixing",
+    "status": "catalog",
+    "price_eur": 16.0,
+    "vendor": "Daidai Labs",
+    "description": "Press and hold a countertop blender's start button until the contents are smooth.",
+    "preconditions": [
+      "hand_empty",
+      "vessel_filled"
+    ],
+    "postconditions": [
+      "contents_mixed",
+      "vessel_filled"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "seal_shaker",
+    "name": "Seal Shaker",
+    "title": "press the lid onto a shaker",
+    "thumbnail": "thumbs/seal_shaker.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "mixing",
+    "status": "catalog",
+    "price_eur": 13.0,
+    "vendor": "Daidai Labs",
+    "description": "Press the lid onto a shaker.",
+    "preconditions": [
+      "shaker_grasped"
+    ],
+    "postconditions": [
+      "shaker_closed"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "wipe_surface",
+    "name": "Wipe Surface",
+    "title": "wipe the table clean",
+    "thumbnail": "thumbs/wipe_surface.jpg",
+    "dataset": {
+      "id": "egocentric-10k-subset",
+      "episodes": 58,
+      "status": "trained_on"
+    },
+    "category": "cleaning",
+    "status": "trained",
+    "price_eur": 16.0,
+    "vendor": "Daidai Labs",
+    "description": "Run overlapping wiping strokes across a bounded flat area.",
+    "preconditions": [
+      "cloth_grasped"
+    ],
+    "postconditions": [
+      "surface_clean"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": "checkpoints/pi05_moz_wipe/30000",
+    "prompt": "wipe the table clean",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "wipe_spill",
+    "name": "Wipe Spill",
+    "title": "wipe up the spill",
+    "thumbnail": "thumbs/wipe_spill.jpg",
+    "dataset": {
+      "id": "egocentric-10k-subset",
+      "episodes": 22,
+      "status": "trained_on"
+    },
+    "category": "cleaning",
+    "status": "beta",
+    "price_eur": 18.0,
+    "vendor": "Daidai Labs",
+    "description": "Wipe a localised spill, working inward from the edges.",
+    "preconditions": [
+      "cloth_grasped",
+      "spill_located"
+    ],
+    "postconditions": [
+      "surface_clean"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": "checkpoints/pi05_moz_wipe/30000",
+    "prompt": "wipe up the spill",
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "polish_glass",
+    "name": "Polish Glass",
+    "title": "rotate a glass against a cloth to remove streaks",
+    "thumbnail": "thumbs/polish_glass.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "cleaning",
+    "status": "catalog",
+    "price_eur": 19.0,
+    "vendor": "Roborecs",
+    "description": "Rotate a glass against a cloth to remove streaks. Bimanual.",
+    "preconditions": [
+      "cloth_grasped",
+      "glass_grasped"
+    ],
+    "postconditions": [
+      "glass_polished"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "rinse_vessel",
+    "name": "Rinse Vessel",
+    "title": "hold a vessel under a tap and rinse",
+    "thumbnail": "thumbs/rinse_vessel.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "cleaning",
+    "status": "catalog",
+    "price_eur": 21.0,
+    "vendor": "Daidai Labs",
+    "description": "Hold a vessel under a tap and rinse.",
+    "preconditions": [
+      "glass_grasped"
+    ],
+    "postconditions": [
+      "glass_rinsed"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "clear_table",
+    "name": "Clear Table",
+    "title": "move every loose object on the table into a bin or tray",
+    "thumbnail": "thumbs/clear_table.jpg",
+    "dataset": {
+      "id": "egocentric-10k-subset",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "cleaning",
+    "status": "catalog",
+    "price_eur": 25.0,
+    "vendor": "Roborecs",
+    "description": "Move every loose object on the table into a bin or tray.",
+    "preconditions": [],
+    "postconditions": [
+      "table_clear"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "wholebody_without_base",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "stack_glasses",
+    "name": "Stack Glasses",
+    "title": "nest a glass into a stack",
+    "thumbnail": "thumbs/stack_glasses.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "cleaning",
+    "status": "catalog",
+    "price_eur": 20.0,
+    "vendor": "OpenGrasp (community)",
+    "description": "Nest a glass into a stack.",
+    "preconditions": [
+      "glass_grasped"
+    ],
+    "postconditions": [
+      "stacked"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "garnish",
+    "name": "Garnish",
+    "title": "place a fruit slice or similar garnish on the glass rim",
+    "thumbnail": "thumbs/garnish.jpg",
+    "dataset": {
+      "id": "egodex",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "finishing",
+    "status": "catalog",
+    "price_eur": 23.0,
+    "vendor": "Daidai Labs",
+    "description": "Place a fruit slice or similar garnish on the glass rim.",
+    "preconditions": [
+      "vessel_filled",
+      "hand_empty"
+    ],
+    "postconditions": [
+      "garnish_added"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "add_straw",
+    "name": "Add Straw",
+    "title": "drop a straw into a filled glass",
+    "thumbnail": "thumbs/add_straw.jpg",
+    "dataset": {
+      "id": "egodex",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "finishing",
+    "status": "catalog",
+    "price_eur": 11.0,
+    "vendor": "OpenGrasp (community)",
+    "description": "Drop a straw into a filled glass.",
+    "preconditions": [
+      "vessel_filled",
+      "hand_empty"
+    ],
+    "postconditions": [
+      "straw_added"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "add_umbrella",
+    "name": "Add Umbrella",
+    "title": "place a cocktail umbrella in a filled glass",
+    "thumbnail": "thumbs/add_umbrella.jpg",
+    "dataset": {
+      "id": "egodex",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "finishing",
+    "status": "catalog",
+    "price_eur": 10.0,
+    "vendor": "OpenGrasp (community)",
+    "description": "Place a cocktail umbrella in a filled glass.",
+    "preconditions": [
+      "vessel_filled",
+      "hand_empty"
+    ],
+    "postconditions": [
+      "umbrella_added"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "serve_to_guest",
+    "name": "Serve To Guest",
+    "title": "present the finished drink to a person and wait for them to take it",
+    "thumbnail": "thumbs/serve_to_guest.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "finishing",
+    "status": "catalog",
+    "price_eur": 28.0,
+    "vendor": "Spirit AI",
+    "description": "Present the finished drink to a person and wait for them to take it.",
+    "preconditions": [
+      "vessel_filled",
+      "contents_mixed"
+    ],
+    "postconditions": [
+      "served"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "wholebody_without_base",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "slide_coaster",
+    "name": "Slide Coaster",
+    "title": "slide a coaster into position",
+    "thumbnail": "thumbs/slide_coaster.jpg",
+    "dataset": {
+      "id": "egodex",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "finishing",
+    "status": "catalog",
+    "price_eur": 7.0,
+    "vendor": "Daidai Labs",
+    "description": "Slide a coaster into position.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "coaster_ready"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "fold_towel",
+    "name": "Fold Towel",
+    "title": "fold a rectangular towel in halves",
+    "thumbnail": "thumbs/fold_towel.jpg",
+    "dataset": {
+      "id": "egocentric-10k",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 24.0,
+    "vendor": "Roborecs",
+    "description": "Fold a rectangular towel in halves.",
+    "preconditions": [
+      "cloth_grasped"
+    ],
+    "postconditions": [
+      "folded"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "sort_cutlery",
+    "name": "Sort Cutlery",
+    "title": "sort mixed cutlery into compartments",
+    "thumbnail": "thumbs/sort_cutlery.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 27.0,
+    "vendor": "Roborecs",
+    "description": "Sort mixed cutlery into compartments.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "sorted"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "load_dishwasher",
+    "name": "Load Dishwasher",
+    "title": "place crockery into a dishwasher rack",
+    "thumbnail": "thumbs/load_dishwasher.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 32.0,
+    "vendor": "Roborecs",
+    "description": "Place crockery into a dishwasher rack.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "loaded"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "water_plant",
+    "name": "Water Plant",
+    "title": "pour a measured amount into a plant pot",
+    "thumbnail": "thumbs/water_plant.jpg",
+    "dataset": {
+      "id": "egocentric-10k",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 15.0,
+    "vendor": "OpenGrasp (community)",
+    "description": "Pour a measured amount into a plant pot.",
+    "preconditions": [
+      "bottle_grasped"
+    ],
+    "postconditions": [
+      "watered"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "wipe_window",
+    "name": "Wipe Window",
+    "title": "wipe a vertical glass surface",
+    "thumbnail": "thumbs/wipe_window.jpg",
+    "dataset": {
+      "id": "egocentric-10k",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 26.0,
+    "vendor": "Daidai Labs",
+    "description": "Wipe a vertical glass surface.",
+    "preconditions": [
+      "cloth_grasped"
+    ],
+    "postconditions": [
+      "window_clean"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "pick_up_floor",
+    "name": "Pick Up From Floor",
+    "title": "pick an object off the floor",
+    "thumbnail": "thumbs/pick_up_floor.jpg",
+    "dataset": {
+      "id": "egocentric-10k",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 29.0,
+    "vendor": "Spirit AI",
+    "description": "Pick an object off the floor. Requires torso or mobile base.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "object_grasped",
+      "holding"
+    ],
+    "deletes": [
+      "hand_empty"
+    ],
+    "embodiment": {
+      "structure": "wholebody_without_base",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [
+      "bottle",
+      "glass",
+      "cloth",
+      "item"
+    ],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "open_fridge",
+    "name": "Open Fridge",
+    "title": "pull a fridge door open by the handle",
+    "thumbnail": "thumbs/open_fridge.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 30.0,
+    "vendor": "Spirit AI",
+    "description": "Pull a fridge door open by the handle.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "fridge_open"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "wholebody_without_base",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "place_in_fridge",
+    "name": "Place In Fridge",
+    "title": "put a held item onto a fridge shelf",
+    "thumbnail": "thumbs/place_in_fridge.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 22.0,
+    "vendor": "Spirit AI",
+    "description": "Put a held item onto a fridge shelf.",
+    "preconditions": [
+      "fridge_open",
+      "bottle_grasped"
+    ],
+    "postconditions": [
+      "hand_empty"
+    ],
+    "deletes": [
+      "bottle_grasped",
+      "glass_grasped",
+      "shaker_grasped",
+      "scoop_grasped",
+      "cloth_grasped",
+      "object_grasped",
+      "holding",
+      "positioned"
+    ],
+    "embodiment": {
+      "structure": "wholebody_without_base",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "sweep_crumbs",
+    "name": "Sweep Crumbs",
+    "title": "brush crumbs from a surface into a dustpan",
+    "thumbnail": "thumbs/sweep_crumbs.jpg",
+    "dataset": {
+      "id": "egocentric-10k",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 17.0,
+    "vendor": "Daidai Labs",
+    "description": "Brush crumbs from a surface into a dustpan.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "surface_clean"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "align_chair",
+    "name": "Align Chair",
+    "title": "push a chair flush to the table edge",
+    "thumbnail": "thumbs/align_chair.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 18.0,
+    "vendor": "Spirit AI",
+    "description": "Push a chair flush to the table edge.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "chair_aligned"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "wholebody_without_base",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "hang_cloth",
+    "name": "Hang Cloth",
+    "title": "drape a cloth over a rail",
+    "thumbnail": "thumbs/hang_cloth.jpg",
+    "dataset": {
+      "id": "egocentric-10k",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 13.0,
+    "vendor": "OpenGrasp (community)",
+    "description": "Drape a cloth over a rail.",
+    "preconditions": [
+      "cloth_grasped"
+    ],
+    "postconditions": [
+      "hand_empty",
+      "hung"
+    ],
+    "deletes": [
+      "bottle_grasped",
+      "glass_grasped",
+      "shaker_grasped",
+      "scoop_grasped",
+      "cloth_grasped",
+      "object_grasped",
+      "holding",
+      "positioned"
+    ],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "close_fridge",
+    "name": "Close Fridge",
+    "title": "push the fridge door shut",
+    "thumbnail": "thumbs/close_fridge.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 12.0,
+    "vendor": "Spirit AI",
+    "description": "Push the fridge door shut.",
+    "preconditions": [
+      "fridge_open"
+    ],
+    "postconditions": [],
+    "deletes": [
+      "fridge_open"
+    ],
+    "embodiment": {
+      "structure": "wholebody_without_base",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "wipe_handle",
+    "name": "Wipe Handle",
+    "title": "wipe a cylindrical handle or rail",
+    "thumbnail": "thumbs/wipe_handle.jpg",
+    "dataset": {
+      "id": "egocentric-10k",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 14.0,
+    "vendor": "Daidai Labs",
+    "description": "Wipe a cylindrical handle or rail.",
+    "preconditions": [
+      "cloth_grasped"
+    ],
+    "postconditions": [
+      "handle_clean"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "pour_cereal",
+    "name": "Pour Cereal",
+    "title": "pour granular food into a bowl",
+    "thumbnail": "thumbs/pour_cereal.jpg",
+    "dataset": {
+      "id": "egocentric-10k",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 19.0,
+    "vendor": "OpenGrasp (community)",
+    "description": "Pour granular food into a bowl.",
+    "preconditions": [
+      "bottle_grasped"
+    ],
+    "postconditions": [
+      "bowl_filled"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "set_place",
+    "name": "Set A Place",
+    "title": "lay out a plate, cutlery and glass for one person",
+    "thumbnail": "thumbs/set_place.jpg",
+    "dataset": {
+      "id": null,
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 25.0,
+    "vendor": "Roborecs",
+    "description": "Lay out a plate, cutlery and glass for one person.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "place_set"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "wholebody_without_base",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  },
+  {
+    "id": "collect_bottles",
+    "name": "Collect Bottles",
+    "title": "gather loose bottles into a crate",
+    "thumbnail": "thumbs/collect_bottles.jpg",
+    "dataset": {
+      "id": "egocentric-10k",
+      "episodes": 0,
+      "status": "candidate"
+    },
+    "category": "household",
+    "status": "catalog",
+    "price_eur": 21.0,
+    "vendor": "Daidai Labs",
+    "description": "Gather loose bottles into a crate.",
+    "preconditions": [
+      "hand_empty"
+    ],
+    "postconditions": [
+      "bottles_collected"
+    ],
+    "deletes": [],
+    "embodiment": {
+      "structure": "dualarm",
+      "gripper": "parallel",
+      "cameras": [
+        "head",
+        "left_wrist",
+        "right_wrist"
+      ],
+      "control_hz": 120
+    },
+    "acts_on": [],
+    "checkpoint": null,
+    "prompt": null,
+    "est_duration_s": 12.0
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "bottle": "a rigid bottle, carton or jug of liquid, held upright by its body",
+  "glass": "a drinking glass, cup, mug or tumbler",
+  "shaker": "a cocktail shaker",
+  "scoop": "a measuring scoop with a handle",
+  "cloth": "something soft and deformable: a cloth, towel, rag, napkin or sponge",
+  "item": "any other rigid, hand-sized loose thing: fruit, a lid, a utensil, a brush, a tool, a bucket, a box, a toy",
+  "fixed": "something that is not picked up: the table, a wall, a shelf, a sink, an appliance, a bin, a plant pot in soil",
+  "substance": "a material inside something else, not grasped on its own: paint, water, sand, crumbs, a spill"
+}

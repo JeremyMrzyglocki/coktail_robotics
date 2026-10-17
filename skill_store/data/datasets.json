@@ -1,0 +1,263 @@
+[
+  {
+    "id": "egocentric-10k",
+    "name": "Egocentric-10K",
+    "publisher": "Build AI",
+    "kind": "egocentric",
+    "repo_id": "builddotai/Egocentric-10K",
+    "url": "https://huggingface.co/datasets/builddotai/Egocentric-10K",
+    "hours": 10000,
+    "size": "16.4 TB",
+    "frames": "1.08B",
+    "subjects": "2,153 factory workers",
+    "license": "Apache-2.0",
+    "access": "gated-auto",
+    "verified": true,
+    "notes": "First-person factory work, monocular head camera, no audio. Stream it; do not download. Commercial use permitted.",
+    "good_for": [
+      "pretraining",
+      "hand-object interaction",
+      "industrial manipulation"
+    ],
+    "covers": "first-person footage of factory workers' hands: picking, placing, assembling, fastening, sorting and packing parts, using hand tools"
+  },
+  {
+    "id": "egocentric-10k-subset",
+    "name": "Egocentric-10K (Voxel51 subset)",
+    "publisher": "Voxel51",
+    "kind": "egocentric",
+    "repo_id": "Voxel51/Egocentric_10K_subset",
+    "url": "https://huggingface.co/datasets/Voxel51/Egocentric_10K_subset",
+    "hours": null,
+    "size": "small",
+    "frames": "416 clips",
+    "subjects": "factory workers",
+    "license": "Apache-2.0",
+    "access": "open",
+    "verified": true,
+    "notes": "Ungated prototyping subset of Egocentric-10K. H.264, so ffmpeg can pull frames straight off the URL. Start here.",
+    "good_for": [
+      "prototyping",
+      "thumbnails",
+      "quick looks"
+    ],
+    "covers": "a small sample of Egocentric-10K: factory workers' hands picking, placing, assembling and using hand tools"
+  },
+  {
+    "id": "egocentric-100k",
+    "name": "Egocentric-100K",
+    "publisher": "Build AI",
+    "kind": "egocentric",
+    "repo_id": "builddotai/Egocentric-100K",
+    "url": "https://huggingface.co/datasets/builddotai/Egocentric-100K",
+    "hours": 100000,
+    "size": "very large",
+    "frames": "10.8B",
+    "subjects": "factory workers",
+    "license": "Apache-2.0",
+    "access": "gated-auto",
+    "verified": true,
+    "notes": "Ten times Egocentric-10K. Streaming only.",
+    "good_for": [
+      "pretraining",
+      "scaling studies"
+    ],
+    "covers": "the same kind of first-person factory footage as Egocentric-10K, ten times as much"
+  },
+  {
+    "id": "egodex",
+    "name": "EgoDex",
+    "publisher": "Apple",
+    "kind": "egocentric",
+    "repo_id": null,
+    "url": "https://github.com/apple/ml-egodex",
+    "hours": 829,
+    "size": "2.0 TB",
+    "frames": "90M",
+    "subjects": "338,000 episodes across 194 tabletop tasks",
+    "license": "research",
+    "access": "github",
+    "verified": false,
+    "notes": "Apple Vision Pro capture at 1080p/30Hz with 3D pose for every hand joint, plus language annotations and camera extrinsics. Named in the hackathon brief for pick-and-place. Download from GitHub, not the Hub.",
+    "good_for": [
+      "pick and place",
+      "hand pose retargeting",
+      "language-conditioned pretraining"
+    ],
+    "covers": "tabletop dexterous manipulation of everyday objects with every hand joint tracked: picking and placing, opening and closing containers, inserting, pouring, folding, sorting"
+  },
+  {
+    "id": "ego-exo4d",
+    "name": "Ego-Exo4D",
+    "publisher": "Meta AI",
+    "kind": "egocentric",
+    "repo_id": null,
+    "url": "https://ego-exo4d-data.org",
+    "hours": 1286,
+    "size": "large",
+    "frames": null,
+    "subjects": "paired ego + exo views",
+    "license": "CC-BY-NC",
+    "access": "agreement",
+    "verified": false,
+    "notes": "Paired first- and third-person views of skilled activity. Non-commercial; needs a signed licence.",
+    "good_for": [
+      "skill transfer",
+      "viewpoint invariance",
+      "proficiency estimation"
+    ],
+    "covers": "skilled activities filmed first- and third-person: cooking, bike repair, health procedures, music, sports, dance"
+  },
+  {
+    "id": "epic-kitchens-100",
+    "name": "EPIC-KITCHENS-100",
+    "publisher": "University of Bristol",
+    "kind": "egocentric",
+    "repo_id": null,
+    "url": "https://epic-kitchens.github.io",
+    "hours": 100,
+    "size": "~20M frames",
+    "frames": "20M",
+    "subjects": "700 videos, 90,000 action segments",
+    "license": "CC-BY-NC",
+    "access": "open",
+    "verified": false,
+    "notes": "The classic egocentric benchmark. Densely labelled verb-noun action segments -- a ready-made source of action titles.",
+    "good_for": [
+      "action titles",
+      "action recognition",
+      "task taxonomies"
+    ],
+    "covers": "unscripted home kitchen activity labelled verb by verb: take, put, open, close, wash, cut, peel, pour, mix, stir, scoop, spread, wipe"
+  },
+  {
+    "id": "svla_so101_pickplace",
+    "name": "SO-101 Pick & Place",
+    "publisher": "LeRobot",
+    "kind": "teleop",
+    "repo_id": "lerobot/svla_so101_pickplace",
+    "url": "https://huggingface.co/datasets/lerobot/svla_so101_pickplace",
+    "hours": null,
+    "size": "86 MB",
+    "frames": "11,939",
+    "subjects": "50 episodes, 2 cameras, 30 fps",
+    "license": "Apache-2.0",
+    "access": "open",
+    "verified": true,
+    "notes": "Real teleoperated pick-and-place in LeRobot v3 format. Videos are AV1 -- frame extraction needs an ffmpeg built with libdav1d.",
+    "good_for": [
+      "pick and place",
+      "fine-tuning",
+      "format reference"
+    ],
+    "covers": "a low-cost SO-101 arm teleoperated to pick objects up and place them"
+  },
+  {
+    "id": "svla_so100_sorting",
+    "name": "SO-100 Sorting",
+    "publisher": "LeRobot",
+    "kind": "teleop",
+    "repo_id": "lerobot/svla_so100_sorting",
+    "url": "https://huggingface.co/datasets/lerobot/svla_so100_sorting",
+    "hours": null,
+    "size": "moderate",
+    "frames": null,
+    "subjects": "teleoperated sorting",
+    "license": "Apache-2.0",
+    "access": "open",
+    "verified": true,
+    "notes": "Sorting into bins. Useful as a second task for composition experiments.",
+    "good_for": [
+      "sorting",
+      "multi-task",
+      "composition"
+    ],
+    "covers": "an SO-100 arm teleoperated to sort objects into bins"
+  },
+  {
+    "id": "aloha_sim_insertion_human_image",
+    "name": "ALOHA Insertion (image)",
+    "publisher": "LeRobot",
+    "kind": "teleop",
+    "repo_id": "lerobot/aloha_sim_insertion_human_image",
+    "url": "https://huggingface.co/datasets/lerobot/aloha_sim_insertion_human_image",
+    "hours": null,
+    "size": "moderate",
+    "frames": null,
+    "subjects": "bimanual insertion, top camera",
+    "license": "Apache-2.0",
+    "access": "open",
+    "verified": true,
+    "notes": "Stores frames as images rather than video, so the Hub viewer serves thumbnails directly -- no ffmpeg, no codec trouble.",
+    "good_for": [
+      "bimanual",
+      "thumbnails",
+      "ACT baselines"
+    ],
+    "covers": "simulated two-arm ALOHA robot inserting a peg into a socket"
+  },
+  {
+    "id": "high_quality_folding",
+    "name": "High Quality Folding",
+    "publisher": "LeRobot",
+    "kind": "teleop",
+    "repo_id": "lerobot/high_quality_folding",
+    "url": "https://huggingface.co/datasets/lerobot/high_quality_folding",
+    "hours": null,
+    "size": "moderate",
+    "frames": null,
+    "subjects": "cloth folding",
+    "license": "Apache-2.0",
+    "access": "open",
+    "verified": true,
+    "notes": "Deformable-object manipulation. Hard task, good contrast against rigid pick-and-place.",
+    "good_for": [
+      "deformables",
+      "cloth",
+      "long horizon"
+    ],
+    "covers": "teleoperated robot folding cloth and garments"
+  },
+  {
+    "id": "droid",
+    "name": "DROID 1.0.1",
+    "publisher": "LeRobot / DROID",
+    "kind": "teleop",
+    "repo_id": "lerobot/droid_1.0.1",
+    "url": "https://huggingface.co/datasets/lerobot/droid_1.0.1",
+    "hours": null,
+    "size": "very large",
+    "frames": null,
+    "subjects": "76k trajectories, 564 scenes",
+    "license": "MIT",
+    "access": "open",
+    "verified": true,
+    "notes": "Large-scale multi-scene Franka manipulation. A pi0.5 fine-tuning target exists for it.",
+    "good_for": [
+      "pretraining",
+      "generalisation",
+      "scene diversity"
+    ],
+    "covers": "a Franka arm teleoperated through everyday tasks in many homes and labs: picking, placing, opening drawers and doors, wiping, pouring"
+  },
+  {
+    "id": "spirit-pickplace",
+    "name": "Spirit Moz1 Pick & Place",
+    "publisher": "Spirit AI",
+    "kind": "teleop",
+    "repo_id": "spirit-ai/pickplace",
+    "url": "https://docs.spirit-ai.com/open-resources/pi.html",
+    "hours": null,
+    "size": null,
+    "frames": null,
+    "subjects": "Moz1 teleoperation",
+    "license": "vendor",
+    "access": "private",
+    "verified": true,
+    "notes": "Not public on the Hub -- obtain from Spirit after-sales support with a key. Lands in the LeRobot cache at ~/.cache/huggingface/lerobot/spirit-ai/pickplace and is what pi05_moz trains on. Ask the organizers on day one.",
+    "good_for": [
+      "Moz1 fine-tuning",
+      "the actual hackathon robot"
+    ]
+  }
+]
