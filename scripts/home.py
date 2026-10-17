@@ -92,10 +92,13 @@ def main() -> int:
         print(f"home pose of {home['saved']} {home.get('note', '')}\n")
         if args.once:
             return 0 if table(read(arms), home, args.tol) else 2
+        print("\033[2J", end="")  # clear once, then redraw in place: no flicker
         while True:
-            print("\033[2J\033[H", end="")
-            print(f"Delta to the home pose of {home['saved']} (deg). Ctrl+C to stop.\n")
-            table(read(arms), home, args.tol)
+            now = read(arms, 1.0)
+            print("\033[H", end="")
+            print(f"Delta to the home pose of {home['saved']} (deg), refreshed every second. Ctrl+C to stop.\n")
+            table(now, home, args.tol)
+            print("\033[J", end="", flush=True)
     except KeyboardInterrupt:
         return 0
     finally:
