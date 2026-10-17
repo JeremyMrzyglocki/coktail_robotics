@@ -148,7 +148,7 @@ def _schedule(steps, catalog, structure, overrides=None, plan=None):
     issues, _ = validate(steps, catalog, structure, hands,
                          kinds=plan.kinds() if plan else None,
                          gaps=plan.missing if plan else None)
-    graph = dependency_graph(steps, catalog, hands)
+    graph = dependency_graph(steps, catalog, hands, gaps=plan.missing if plan else None)
     width: dict[int, int] = {}
     for node in graph:
         width[node["layer"]] = width.get(node["layer"], 0) + 1

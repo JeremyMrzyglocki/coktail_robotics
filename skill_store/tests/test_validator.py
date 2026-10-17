@@ -163,6 +163,39 @@ def test_a_used_or_relocated_object_is_not_a_pointless_move(catalog):
         assert "pointless_move" not in [i.kind for i in validate(plan, catalog, kinds=kinds)[0]]
 
 
+def test_holding_a_thing_steady_for_the_other_hands_gap_is_using_it(catalog):
+    # left holds the jar while right twists its lid off, then left sets it back down
+    plan = [s("locate_object", "jam jar"), s("grasp_object", "jam jar"),
+            s("move_to_station", "table"), s("release_object")]
+    twist = gap("twist_open", 1, pre=["hand_empty"], post=["lid_off"])   # needs a free hand: right
+    issues = validate(plan, catalog, hands=["left"] * 4, kinds={"jam jar": "item", "table": "fixed"},
+                      gaps=[twist])[0]
+    assert "pointless_move" not in [i.kind for i in issues]
+
+
+def test_a_thing_held_for_the_other_hand_is_not_put_down_early(catalog):
+    from app.validator import dependency_graph
+    # left holds the toy car while right brings both wheels to it, then left sets it down
+    plan = [s("locate_object", "toy car"), s("grasp_object", "toy car"),
+            s("locate_object", "wheel1"), s("grasp_object", "wheel1"), s("move_to_station", "toy car"),
+            s("locate_object", "wheel2"), s("move_to_station", "toy car"),
+            s("move_to_station", "table"), s("release_object")]
+    hands = ["left", "left", "right", "right", "right", "right", "right", "left", "left"]
+    layer = {n["index"]: n["layer"] for n in dependency_graph(plan, catalog, hands)}
+    assert layer[7] > layer[6] > layer[4]
+
+
+def test_a_step_after_a_gap_on_its_hand_waits_for_the_gap(catalog):
+    from app.validator import dependency_graph
+    # left holds the banana, right peels it (a gap), then right carries the peel off
+    plan = [s("locate_object", "banana"), s("grasp_object", "banana"),
+            s("move_to_station", "table"), s("release_object")]
+    peel = gap("peel_item", 1, pre=["hand_empty"], post=["holding"])
+    hands = ["left", "left", "right", "right"]
+    layer = {n["index"]: n["layer"] for n in dependency_graph(plan, catalog, hands, gaps=[peel])}
+    assert layer[2] > layer[1]
+
+
 def test_an_unmet_step_before_a_grasp_does_not_crash_the_ledgers(catalog):
     plan = [s("pour_into", "glass"), s("locate_object", "juice"), s("grasp_bottle", "juice")]
     assert "unmet_precondition" in blocking(validate(plan, catalog, kinds=JUICE_KINDS)[0])

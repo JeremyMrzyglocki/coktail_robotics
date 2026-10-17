@@ -321,8 +321,14 @@
     ['table',   /^$|table|counter|surface|desk|worktop/],
     ['station', /shelf|sink|bin|trash|fridge|cabinet|cupboard|drawer|rack|tray|coaster|dishwasher|station|plate|board/]
   ];
+  // A part of a known thing ("blender lid", "banana peel", "lid of the jar") is
+  // not that thing: it is drawn as a stand-in, like any other unknown name.
+  var PART = '(?:lid|cap|cover|button|switch|knob|dial|lever|handle|peel|skin|rind|shell|pit|core|stem|seed|' +
+             'cork|spout|nozzle|plug|cord|blade|label|sticker|wrapper)(?:s|es)?';
+  var PART_RE = new RegExp('(?:^|\\s)' + PART + '$|^' + PART + ' of\\b');
   function propKind(name) {
     var n = String(name || '').toLowerCase().trim();
+    if (PART_RE.test(n)) return 'box';
     for (var i = 0; i < PROP_KINDS.length; i++) if (PROP_KINDS[i][1].test(n)) return PROP_KINDS[i][0];
     return 'box';
   }
@@ -592,6 +598,10 @@
       var n = norm(a.target);
       if (!n || props[n] || a.kind === 'gap') return;
       var kind = propKind(n);
+      // A kitchen has one blender: "blender", "blender jar" and "blender base"
+      // are all that one prop (its parts were made stand-ins above).
+      var B = kind === 'blender' && list.filter(function (p) { return p.kind === 'blender'; })[0];
+      if (B) { props[n] = props[B.name]; return; }
       // No builder for this name: use the model's design when the page fetched one.
       if (kind === 'box' && plan.specs && plan.specs[n]) kind = 'generated';
       if (kind !== 'table') addProp(n, kind, a.hand);
@@ -647,6 +657,36 @@
       dst.blend = src.blend; dst.swirl = src.swirl; dst.fold = src.fold; dst.hidden = src.hidden; return dst;
     }
     function clone(s) { return cp({ pos: new V3(), quat: new QT() }, s); }
+    // Things fastened to a prop ride along with it from then on: D.id -> [{ D, P, p, q }],
+    // P's place and turn in D's frame. Picking P up again takes it off.
+    var riders = {};
+    function detach(P) {
+      for (var id in riders) riders[id] = riders[id].filter(function (r) { return r.P !== P; });
+    }
+    function attach(P, D) {
+      detach(P);
+      var ds = sim[D.id], ps = sim[P.id], inv = ds.quat.clone().invert();
+      (riders[D.id] = riders[D.id] || []).push({ D: D, P: P,
+        p: ps.pos.clone().sub(ds.pos).applyQuaternion(inv), q: inv.multiply(ps.quat) });
+    }
+    // The riders of the props in `moved`, and theirs, parents first.
+    function ridersOf(moved) {
+      var out = [];
+      (function walk(ps) {
+        ps.forEach(function (D) {
+          (riders[D.id] || []).forEach(function (r) {
+            if (out.indexOf(r) >= 0 || moved.indexOf(r.P) >= 0) return;
+            out.push(r); walk([r.P]);
+          });
+        });
+      })(moved);
+      return out;
+    }
+    function ride(r, ds, rs) {     // rs: where r.P is when its parent is at ds
+      rs.pos.copy(r.p).applyQuaternion(ds.quat).add(ds.pos);
+      rs.quat.copy(ds.quat).multiply(r.q);
+      if (ds.hidden) rs.hidden = true;
+    }
     var hs = {
       left:  { pose: K.restPose('left'),  hold: null, rel: null, over: null, spot: 0 },
       right: { pose: K.restPose('right'), hold: null, rel: null, over: null, spot: 0 }
@@ -719,7 +759,7 @@
         else if (u < 0.8) T[a.hand] = K.lerpPose(pre, open, ease(seg(u, 0.55, 0.8)));
         else { T[a.hand] = withCurl(gp, M.lerp(0.15, gp.curl, ease(seg(u, 0.8, 1)))); snap[a.hand] = true; }
       };
-      h.hold = P; h.rel = relOf(st, gp); h.over = null;
+      h.hold = P; h.rel = relOf(st, gp); h.over = null; detach(P);
       a.handEnd = gp;
     };
 
@@ -1043,7 +1083,7 @@
         if (a.hand) T[a.hand] = start;
       };
       a.handEnd = start;
-      if (letGo) { h.hold = null; h.rel = null; h.atD = null; a.handEnd = rest; }
+      if (letGo) { attach(h.hold, h.atD); h.hold = null; h.rel = null; h.atD = null; a.handEnd = rest; }
     };
     DO.gap = DO.unknown;
 
@@ -1060,7 +1100,10 @@
         if (a.handEnd) h.pose = a.handEnd;
         a.holdEnd = !!h.hold;
       }
-      a.end = a.touch.map(function (P) { return { id: P.id, st: clone(sim[P.id]) }; });
+      // whatever is fastened to a moved prop moves with it
+      a.riders = ridersOf(a.touch);
+      a.riders.forEach(function (r) { ride(r, sim[r.D.id], sim[r.P.id]); a.touch.push(r.P); });
+      a.end =a.touch.map(function (P) { return { id: P.id, st: clone(sim[P.id]) }; });
     });
 
     /* --- per frame --- */
@@ -1081,6 +1124,7 @@
         }
         if (a.hand) snap[a.hand] = false;
         a.play((t - a.t0)/(a.t1 - a.t0), T, snap);
+        for (var r = 0; r < a.riders.length; r++) ride(a.riders[r], W[a.riders[r].D.id], W[a.riders[r].P.id]);
         api.active.push(a.step);
         if (a.kind === 'gap' || a.gap) api.gap = true;
       }

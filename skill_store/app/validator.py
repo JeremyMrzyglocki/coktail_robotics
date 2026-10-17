@@ -370,6 +370,8 @@ def validate(
             skill = _gap_skill(gaps[j])
             if hand:
                 used[hand] = True            # a gap is work done with the hand
+            for h in held:                   # ...and on what the other hand holds
+                used[h] = True               # steady for it (the jar whose lid it twists)
             for pred in skill["deletes"]:
                 state.discard(scoped(pred, hand))
             for pred in skill["postconditions"]:
@@ -510,6 +512,7 @@ def dependency_graph(
     steps: list[Step],
     catalog: dict[str, Any],
     hands: list[str | None] | None = None,
+    gaps: list[Any] | None = None,
 ) -> list[dict[str, Any]]:
     """Work out what each step waits on, so independent work can run at once.
 
@@ -526,9 +529,17 @@ def dependency_graph(
     Scoping hand predicates per hand is what makes the parallelism real: two
     chains on different hands share no predicate and share no hand edge, so they
     land in the same layer.
+
+    `gaps` are not nodes -- a gap plays right after the step it is inserted
+    after -- but a step written after a gap on the same hand still waits for it
+    (the peel is carried off after the peeling), so it waits for that step.
     """
     if hands is None:
-        hands = assign_hands(steps, catalog)
+        hands = assign_hands(steps, catalog, gaps=gaps)
+    ghands = gap_hands(steps, catalog, {i: h for i, h in enumerate(hands) if h},
+                       gaps) if gaps else []
+    gap_marks = sorted((g.insert_after, ghands[j], g.proposed_id)
+                       for j, g in enumerate(gaps or []) if ghands[j])
 
     source: dict[str, int] = {p: -1 for p in initial_scoped()}
     last_on_hand: dict[str, int] = {}
@@ -544,6 +555,7 @@ def dependency_graph(
     # stacked onto) is only there once that hand has let go of it.
     carrying: dict[str, str] = {}           # hand -> thing it picked up
     set_down: dict[str, tuple[int, str]] = {}  # thing -> (step that let go, hand)
+    worked_on: dict[str, tuple[int, str]] = {}  # thing -> (last step aimed at it, hand)
 
     for i, step in enumerate(steps):
         skill = catalog.get(step.skill_id, {})
@@ -566,6 +578,11 @@ def dependency_graph(
 
         if hand and hand in last_on_hand:
             add(last_on_hand[hand], f"{hand} hand", "hand")
+        if hand:
+            since = last_on_hand.get(hand, -1)
+            for after, ghand, pid in gap_marks:
+                if ghand == hand and since <= after < i and after >= 0:
+                    add(after, f"gap {pid}", "hand")
 
         # A step that needs no hand and no state (a camera check) has nothing to
         # wait on, so it would run at time zero -- before the work it checks.
@@ -590,6 +607,16 @@ def dependency_graph(
             add(vacated[moves_to][0], f"space over the {moves_to}", "resource")
         if moves_to and moves_to in set_down and set_down[moves_to][1] != hand:
             add(set_down[moves_to][0], f"{moves_to} set down", "resource")
+        # A thing one hand holds while the other works on it (the toy car held
+        # steady while wheels go on) stays put until that work is done: carrying
+        # it off or setting it down waits for the other hand's steps on it.
+        held_thing = carrying.get(hand) if hand else None
+        if held_thing and (moves_to or "holding" in skill.get("deletes", [])) \
+                and held_thing in worked_on and worked_on[held_thing][1] != hand:
+            add(worked_on[held_thing][0], f"{held_thing} held for the other hand", "resource")
+        target_name = str(step.params.get("target", "")).strip().lower()
+        if hand and target_name:
+            worked_on[target_name] = (i, hand)
 
         nodes.append({
             "index": i,

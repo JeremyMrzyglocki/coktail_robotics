@@ -33,7 +33,7 @@ from .llm import LLMError, structured_call
 from .models import CompiledPlan, MissingSkill, PlanObject, Step
 
 # Part of the cache key: a plan compiled by an older pipeline is not reused.
-COMPILER_VERSION = "6"
+COMPILER_VERSION = "7"
 GAP = "GAP"
 
 
@@ -302,8 +302,11 @@ def _act_schema() -> dict[str, Any]:
     }
 
 
-def _bind_schema(skill_ids: list[str], names: list[str],
-                 dataset_ids: list[str]) -> dict[str, Any]:
+def _bind_schema(skill_ids: list[str], dataset_ids: list[str]) -> dict[str, Any]:
+    # Nothing request-specific in here: the schema is part of the cached prefix
+    # and is compiled into a grammar once, so a per-request enum (the object
+    # names) made every compile miss the cache and recompile it. Targets are
+    # matched to the object names in code instead (_snap_target).
     strings = {"type": "array", "items": {"type": "string"}}
     return {
         "type": "object",
@@ -321,7 +324,7 @@ def _bind_schema(skill_ids: list[str], names: list[str],
                         "properties": {
                             # The hard constraint: only real skills can appear here.
                             "skill_id": {"type": "string", "enum": skill_ids},
-                            "target": {"type": "string", "enum": names + [""]},
+                            "target": {"type": "string"},
                             "hand": {"type": "string", "enum": ["left", "right"]},
                             "rationale": {"type": "string"},
                         },
@@ -400,10 +403,32 @@ def _size_cm(v: Any) -> float | None:
     return v if v > 0 else None
 
 
+def _names(script: dict[str, Any]) -> list[str]:
+    """Every valid target: the objects, and every place a movement names ("carry
+    the jar to the blender base" needs blender base even if it is not an object)."""
+    return sorted({o["name"] for o in script["objects"]} |
+                  {m[k] for ph in script["phases"] for m in ph["movements"]
+                   for k in ("object", "place") if m[k]})
+
+
+def _snap_target(target: str, names: list[str]) -> str:
+    """The object name a target means: exact, else ignoring case, spacing and
+    a leading "the". Anything else is kept as written; the validator judges it."""
+    t = (target or "").strip()
+    if not t or t in names:
+        return t
+    def key(s: str) -> str:
+        s = " ".join(s.lower().split())
+        return s[4:] if s.startswith("the ") else s
+    by_key = {key(n): n for n in names}
+    return by_key.get(key(t), t)
+
+
 def _to_plan(raw: dict[str, Any], script: dict[str, Any]) -> CompiledPlan:
     """Split the bound sequence into steps and gaps; a gap sits after the step
     before it, so its position is exact by construction."""
     datasets = cat.open_datasets()
+    names = _names(script)
     steps: list[Step] = []
     missing: list[MissingSkill] = []
     for item in raw.get("sequence", []):
@@ -422,7 +447,8 @@ def _to_plan(raw: dict[str, Any], script: dict[str, Any]) -> CompiledPlan:
                 hand=item.get("hand"),
             ))
         else:
-            params = {"target": item["target"]} if item.get("target") else {}
+            target = _snap_target(item.get("target", ""), names)
+            params = {"target": target} if target else {}
             steps.append(Step(skill_id=item["skill_id"], params=params,
                               rationale=item["rationale"],
                               planned_hand=item.get("hand")))
@@ -447,16 +473,14 @@ def compile_plan(
 
     script = act_out(prompt, robot_model)
 
-    # Every place a movement names is a valid target too: "carry the jar to the
-    # blender base" needs blender base even if it was not listed as an object.
-    names = sorted({o["name"] for o in script["objects"]} |
-                   {m[k] for ph in script["phases"] for m in ph["movements"]
-                    for k in ("object", "place") if m[k]})
+    names = _names(script)
     system = BIND_PROMPT.format(datasets=_datasets_block()) + _catalog_block(catalog)
     user = (f"Robot: {robot_model} (structure: {structure})\n"
             f"Customer request: {prompt.strip()}\n\n"
+            f"Object names (a target is one of these, exactly, or \"\"): "
+            f"{json.dumps(names)}\n\n"
             f"Motion script:\n{json.dumps(script, indent=1)}")
-    schema = _bind_schema(sorted(catalog), names, sorted(cat.open_datasets()))
+    schema = _bind_schema(sorted(catalog), sorted(cat.open_datasets()))
     try:
         raw = structured_call(system, user, schema, "skill_plan")
     except LLMError as exc:
