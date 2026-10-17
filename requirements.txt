@@ -1,0 +1,6 @@
+numpy
+pandas
+matplotlib
+opencv-python
+# Sur la VM robot uniquement (Linux, SocketCAN) :
+#   pip install openarm-driver   (ou python3-openarm-can via apt + venv --system-site-packages)

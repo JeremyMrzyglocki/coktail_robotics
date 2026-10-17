@@ -1,0 +1,9 @@
+.venv/
+vendor/
+__pycache__/
+*.pyc
+data/*.csv
+!data/.gitkeep
+plots/
+.DS_Store
+config/torque_calib.json
