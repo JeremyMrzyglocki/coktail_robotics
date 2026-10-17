@@ -7,6 +7,7 @@ import queue
 import sys
 import threading
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -20,6 +21,7 @@ logging.getLogger("lerobot.utils.import_utils").setLevel(logging.ERROR)
 from teleop_safe import JOINT_LIMITS, NAMES, Arm, parse_pair  # noqa: E402
 
 from hardware.damiao import MotorState  # noqa: E402
+from lerobot.cameras import Cv2Rotation  # noqa: E402
 from lerobot.cameras.opencv import OpenCVCamera, OpenCVCameraConfig  # noqa: E402
 
 ROBOT_TYPE = "bi_openarm_follower"
@@ -86,12 +88,91 @@ class SimCamera:
         img[:, :, 1] = (np.arange(self.height)[:, None] + self.i * 2) % 256
         return img
 
+    def read_latest_depth(self):
+        """Fake depth in mm (uint16, H x W x 1): a slope from 300 to 1500 mm."""
+        ramp = np.linspace(300, 1500, self.width, dtype=np.uint16)
+        return np.broadcast_to(ramp, (self.height, self.width))[..., None].copy()
 
-def parse_camera(value: str) -> tuple[str, str]:
-    name, sep, index = value.partition("=")
-    if not sep:
-        raise argparse.ArgumentTypeError("expected NAME=INDEX_OR_PATH, e.g. top=0 or wrist=/dev/video2")
-    return name, index
+
+@dataclass
+class CameraSpec:
+    """NAME=SOURCE[,rotate=DEG][,depth] from the command line.
+
+    SOURCE: an OpenCV index or /dev/video* path, or realsense[:SERIAL] (librealsense; the only
+    way to get depth). The D455 colour stream also works as a plain OpenCV/UVC device, which needs
+    no librealsense (its aarch64 wheels need glibc 2.38, i.e. Ubuntu 24.04).
+    """
+
+    name: str
+    source: str
+    rotate: int = 0
+    depth: bool = False
+
+    @property
+    def realsense(self) -> bool:
+        return self.source.split(":")[0] == "realsense"
+
+    def frame_shape(self, width: int, height: int) -> tuple[int, int]:
+        """(H, W) of the frames after rotation."""
+        return (width, height) if self.rotate in (90, 270) else (height, width)
+
+
+def parse_camera(value: str) -> CameraSpec:
+    name, sep, rest = value.partition("=")
+    if not sep or not rest:
+        raise argparse.ArgumentTypeError(
+            "expected NAME=SOURCE[,rotate=180][,depth], e.g. top=0, top=/dev/video4,rotate=180 "
+            "or top=realsense,rotate=180,depth")
+    source, *opts = rest.split(",")
+    spec = CameraSpec(name, source)
+    for opt in opts:
+        key, _, val = opt.partition("=")
+        if key == "rotate" and val in ("0", "90", "180", "270"):
+            spec.rotate = int(val)
+        elif key == "depth" and not val:
+            spec.depth = True
+        else:
+            raise argparse.ArgumentTypeError(f"camera {name}: unknown option '{opt}' (rotate=0|90|180|270, depth)")
+    if spec.depth and not spec.realsense:
+        raise argparse.ArgumentTypeError(f"camera {name}: depth needs a realsense source")
+    return spec
+
+
+def make_camera(spec: CameraSpec, args):
+    rotation = Cv2Rotation(-90 if spec.rotate == 270 else spec.rotate)
+    if spec.realsense:
+        # Imported here: pyrealsense2 only loads on glibc >= 2.38 on aarch64.
+        from lerobot.cameras.realsense import RealSenseCamera, RealSenseCameraConfig
+
+        serial = spec.source.partition(":")[2] or "Intel RealSense D455"
+        return RealSenseCamera(RealSenseCameraConfig(
+            serial_number_or_name=serial, fps=args.fps, width=args.cam_width, height=args.cam_height,
+            rotation=rotation, use_depth=spec.depth))
+    return OpenCVCamera(OpenCVCameraConfig(
+        index_or_path=int(spec.source) if spec.source.isdigit() else Path(spec.source),
+        fps=args.fps, width=args.cam_width, height=args.cam_height, rotation=rotation))
+
+
+def image_features(specs: list[CameraSpec], width: int, height: int) -> dict[str, tuple[int, int, int]]:
+    """Camera features as hw_to_dataset_features expects them: name -> (H, W, C)."""
+    out = {}
+    for spec in specs:
+        h, w = spec.frame_shape(width, height)
+        out[spec.name] = (h, w, 3)
+        if spec.depth:
+            out[f"{spec.name}_depth"] = (h, w, 1)
+    return out
+
+
+def read_images(cameras: dict, specs: list[CameraSpec]) -> dict:
+    """{feature name: frame}: RGB for every camera, plus NAME_depth for depth cameras."""
+    out = {}
+    for spec in specs:
+        cam = cameras[spec.name]
+        out[spec.name] = cam.read_latest()
+        if spec.depth:
+            out[f"{spec.name}_depth"] = cam.read_latest_depth()
+    return out
 
 
 def parse_can(value: str) -> tuple[None, str]:
@@ -107,7 +188,8 @@ def add_rig_args(p: argparse.ArgumentParser, with_leader: bool = True):
         p.add_argument("--right", type=parse_can, help="CAN channel of the right arm, e.g. can1")
     p.add_argument("--sim", action="store_true", help="fake arms and cameras (no hardware)")
     p.add_argument("--camera", type=parse_camera, action="append", default=[],
-                   help="NAME=INDEX_OR_PATH, repeatable (see `uv run lerobot-find-cameras opencv`)")
+                   help="NAME=SOURCE[,rotate=180][,depth], repeatable; SOURCE = OpenCV index or /dev/video*, or "
+                        "realsense[:SERIAL] (see `uv run lerobot-find-cameras opencv`)")
     p.add_argument("--cam-width", type=int, default=640)
     p.add_argument("--cam-height", type=int, default=480)
     p.add_argument("--fps", type=int, default=30)
@@ -123,14 +205,13 @@ def build_rig(p: argparse.ArgumentParser, args) -> tuple[list[Arm], dict]:
     pairs = [(side, pair) for side, pair in (("left", args.left), ("right", args.right)) if pair]
     if args.sim:
         arms = [SimArm(side) for side in ("left", "right")]
-        cameras = {name: SimCamera(args.cam_width, args.cam_height) for name, _ in args.camera}
+        cameras = {spec.name: SimCamera(*spec.frame_shape(args.cam_width, args.cam_height)[::-1])
+                   for spec in args.camera}
         return arms, cameras
     if not pairs:
         p.error("give --left and/or --right, or --sim")
     arms = [Arm(side, *pair) for side, pair in pairs]
-    cameras = {name: OpenCVCamera(OpenCVCameraConfig(
-        index_or_path=int(index) if index.isdigit() else Path(index),
-        fps=args.fps, width=args.cam_width, height=args.cam_height)) for name, index in args.camera}
+    cameras = {spec.name: make_camera(spec, args) for spec in args.camera}
     return arms, cameras
 
 

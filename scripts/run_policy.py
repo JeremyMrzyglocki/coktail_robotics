@@ -24,7 +24,17 @@ import time
 
 import numpy as np
 import torch
-from rig import ROBOT_TYPE, add_rig_args, build_rig, drain, joint_keys, next_key, stdin_lines
+from rig import (
+    ROBOT_TYPE,
+    add_rig_args,
+    build_rig,
+    drain,
+    image_features,
+    joint_keys,
+    next_key,
+    read_images,
+    stdin_lines,
+)
 from teleop_safe import NAMES, Teleop, confirm_start, stop_on_signals
 
 from lerobot.configs.policies import PreTrainedConfig
@@ -43,7 +53,7 @@ def pick_device(name: str) -> str:
 class PolicyDriver:
     """Observation (follower degrees + camera frames) -> policy -> {side: {joint: deg}}."""
 
-    def __init__(self, path: str, device: str, arms, cameras, task: str):
+    def __init__(self, path: str, device: str, arms, cameras, specs, task: str):
         self.cfg = PreTrainedConfig.from_pretrained(path)
         self.cfg.device = device
         self.device = torch.device(device)
@@ -51,7 +61,7 @@ class PolicyDriver:
         self.policy.eval()
         self.pre, self.post = make_pre_post_processors(
             self.cfg, pretrained_path=path, preprocessor_overrides={"device_processor": {"device": device}})
-        self.arms, self.cameras, self.task = arms, cameras, task
+        self.arms, self.cameras, self.specs, self.task = arms, cameras, specs, task
         self.keys = joint_keys(arms)
         self._check_features()
 
@@ -62,8 +72,9 @@ class PolicyDriver:
         state = self.cfg.input_features.get("observation.state")
         action = self.cfg.output_features.get("action")
         problems = []
-        if set(self.cameras) != want_images:
-            problems.append(f"cameras: policy wants {sorted(want_images)}, got {sorted(self.cameras)}")
+        have_images = set(image_features(self.specs, 0, 0))
+        if have_images != want_images:
+            problems.append(f"cameras: policy wants {sorted(want_images)}, got {sorted(have_images)}")
         if state is None or tuple(state.shape) != (len(self.keys),):
             problems.append(f"observation.state: policy wants {state and tuple(state.shape)}, "
                             f"got ({len(self.keys)},) for arms {[a.side for a in self.arms]}")
@@ -78,8 +89,8 @@ class PolicyDriver:
     def act(self, follower_deg: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
         obs = {"observation.state": np.array(
             [follower_deg[a.side][n] for a in self.arms for n in NAMES], dtype=np.float32)}
-        for name, cam in self.cameras.items():
-            obs[f"observation.images.{name}"] = cam.read_latest()
+        for name, img in read_images(self.cameras, self.specs).items():
+            obs[f"observation.images.{name}"] = img
         obs = prepare_observation_for_inference(obs, self.device, self.task, ROBOT_TYPE)
         with torch.inference_mode():
             action = self.post(self.policy.select_action(self.pre(obs)))
@@ -109,7 +120,7 @@ def main():
     arms, cameras = build_rig(p, args)
     device = pick_device(args.device)
     print(f"Loading policy {args.policy} on {device}...")
-    driver = PolicyDriver(args.policy, device, arms, cameras, args.task)
+    driver = PolicyDriver(args.policy, device, arms, cameras, args.camera, args.task)
 
     started, handed_over = False, False
     try:

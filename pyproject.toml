@@ -7,10 +7,14 @@ requires-python = ">=3.12"
 dependencies = [
     "lerobot[feetech,damiao,training]",
     "mujoco>=3.3",
+    "opencv-python>=4.13,<4.14",  # 4.14 aarch64 wheels crash with "Illegal instruction" in the VM
+    "pyrealsense2>=2.59.1 ; sys_platform == 'linux'",
 ]
 
 [tool.uv]
 package = false
+# LeRobot pulls opencv-python-headless (no cv2.imshow). Drop it for the GUI build; both provide cv2.
+override-dependencies = ["opencv-python-headless ; sys_platform == 'never'"]
 
 [tool.uv.sources]
 # Pinned to the LeRobot main commit tested with our OpenArm Mini (0.6.2, has openarm_mini).

@@ -26,7 +26,17 @@ import time
 from pathlib import Path
 
 import numpy as np
-from rig import ROBOT_TYPE, add_rig_args, build_rig, drain, joint_keys, next_key, stdin_lines
+from rig import (
+    ROBOT_TYPE,
+    add_rig_args,
+    build_rig,
+    drain,
+    image_features,
+    joint_keys,
+    next_key,
+    read_images,
+    stdin_lines,
+)
 from teleop_safe import NAMES, Teleop, confirm_start, stop_on_signals
 
 from lerobot.configs.video import RGBEncoderConfig
@@ -67,7 +77,7 @@ def main():
     hw = {k: float for k in keys_order}
     features = {
         **hw_to_dataset_features(hw, "action"),
-        **hw_to_dataset_features({**hw, **{c: (args.cam_height, args.cam_width, 3) for c in cameras}},
+        **hw_to_dataset_features({**hw, **image_features(args.camera, args.cam_width, args.cam_height)},
                                  "observation"),
     }
 
@@ -130,7 +140,7 @@ def main():
             while time.monotonic() - t0 < args.episode_time:
                 start = tick()
                 if cycle_i % record_every == 0:  # control runs faster than the dataset fps
-                    images = {c: cam.read_latest() for c, cam in cameras.items()}
+                    images = read_images(cameras, args.camera)
                     state = {f"{a.side}_{n}.pos": teleop.measured[a.side][n] for a in arms for n in NAMES}
                     action = {f"{a.side}_{n}.pos": teleop.cmd[a.side][n] for a in arms for n in NAMES}
                     dataset.add_frame({
