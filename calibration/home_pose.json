@@ -1,0 +1,48 @@
+{
+  "saved": "2026-10-17T23:45:26",
+  "note": "position de d\u00e9part \u00e9quipe, leaders en config demi-tour, calibration c130002",
+  "left": {
+    "follower": {
+      "joint_1": 7.1,
+      "joint_2": 1.9,
+      "joint_3": -82.0,
+      "joint_4": 8.3,
+      "joint_5": 81.1,
+      "joint_6": -4.3,
+      "joint_7": -0.7,
+      "gripper": 0.0
+    },
+    "leader": {
+      "joint_1": -6.9,
+      "joint_2": 0.3,
+      "joint_3": 177.5,
+      "joint_4": -2.8,
+      "joint_5": -85.9,
+      "joint_6": 0.9,
+      "joint_7": 1.3,
+      "gripper": -8.7
+    }
+  },
+  "right": {
+    "follower": {
+      "joint_1": -5.1,
+      "joint_2": 0.1,
+      "joint_3": -85.7,
+      "joint_4": 10.8,
+      "joint_5": 92.9,
+      "joint_6": 3.8,
+      "joint_7": -7.4,
+      "gripper": 1.7
+    },
+    "leader": {
+      "joint_1": 0.7,
+      "joint_2": 2.2,
+      "joint_3": -11.2,
+      "joint_4": -8.7,
+      "joint_5": -88.7,
+      "joint_6": 9.5,
+      "joint_7": 10.1,
+      "gripper": 0.0
+    }
+  }
+}
