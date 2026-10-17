@@ -3,6 +3,8 @@
 # e.g. ./scripts/record.sh --episodes 10 --push    or    ./scripts/record.sh --resume --push
 cd "$(dirname "$0")/.." || exit 1
 source scripts/ports.sh
+source scripts/reset_leaders.sh
+reset_leaders "$LEFT_LEADER" "$RIGHT_LEADER"
 CAMS=()
 for c in "${CAMERAS[@]}"; do CAMS+=(--camera "$c"); done
 exec .venv/bin/python scripts/record.py --left "$LEFT_LEADER:$LEFT_CAN" --right "$RIGHT_LEADER:$RIGHT_CAN" \

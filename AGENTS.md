@@ -125,3 +125,18 @@ a USB drop). With CAN timeout 0 they hold forever. The preflight now flags "alre
 - ACT on the VM CPU replans every 100 steps in ~0.2 s: brief pause, no jump.
 - The PCAN once dropped off the VM's USB (xhci errors): rerun `setup_can.sh`.
 - `hardware/damiao.py` carries a macOS PCAN `open_bus`; on Linux the scripts open socketcan.
+
+## Second VM (Parallels, 2026-10-17)
+
+- Ubuntu 26.04 ARM64 in Parallels Desktop (Standard edition: no `prlctl exec`, no USB controller
+  setting), 4 cores / 8 GB. Same repo and `uv sync`; pyrealsense2 loads (glibc 2.43).
+- Leaders over Parallels USB: the first open after a plug works, every later open finds no servo
+  ("Missing motor IDs") with `xhci_hcd ... not part of TD` in `journalctl -k`. The wrappers that
+  open the leaders (`teleop.sh`, `watch.sh`, `record.sh`, `snapshot.sh`) now reset them over USB
+  first (`scripts/reset_leaders.sh`, needs a NOPASSWD sudoers rule for `/usr/bin/usbreset`; skipped
+  without it). Measured: 3/3 checks OK in a row with the reset, 1/2 without.
+- Cameras: `front` = D455 by serial, `rotate=180`, 640x480 RGB at 30 fps over USB 2;
+  `back` = HBV HD CAMERA (0ac8:0346) by `/dev/v4l/by-id`, only ~11 fps in the VM whatever the
+  format or exposure.
+- Damiao check on 2026-10-17 with arms hanging: all 16 motors answer, no fault, none left
+  enabled, followers within 5 deg of 0.
