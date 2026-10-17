@@ -5,6 +5,9 @@ Bimanual OpenArm (Enactic, v10) that grasps a bottle and a glass, stops in a fix
 (leader arms → follower). Data will be LeRobotDataset v3; first policy will be ACT.
 
 ## Hardware
+- Leader: OpenArm Mini (Feetech servos). Its calibration lives in
+  `calibration/teleoperators/openarm_mini/` and matches offsets stored in the servos:
+  do not re-run `lerobot-calibrate` on the leader (see README).
 - Follower: 2 × 7-DOF arms + gripper, Damiao motors. Per arm: joint_1-2 DM8009,
   joint_3-4 DM4340, joint_5-7 DM4310, gripper DM4310. Send IDs 0x01-0x08, feedback 0x11-0x18.
 - CAN: PEAK PCAN-USB Pro FD (2 channels, one arm each), CAN FD 1 Mbps / 5 Mbps, sample point 0.75.
@@ -12,6 +15,8 @@ Bimanual OpenArm (Enactic, v10) that grasps a bottle and a glass, stops in a fix
   (VMware Fusion, USB passthrough, `peak_usb` → `can0`, `can1`).
 
 ## Code
+- Environment: `uv sync` (Python 3.12, LeRobot pinned to a tested commit in `pyproject.toml`).
+  Run tools with `uv run`, e.g. `uv run lerobot-calibrate ...`.
 - `hardware/damiao.py`: minimal Damiao protocol (ported from enactic/openarm_can) over python-can.
 - `scripts/read_joints.py`: read-only state dump, never enables torque.
 - `scripts/calibrate_zero.py`: zero calibration without torque (needs typed confirmation).

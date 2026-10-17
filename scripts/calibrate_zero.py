@@ -61,8 +61,8 @@ def main():
             print("Aborted. Nothing was written.")
             return 0
 
-        backup = ROOT / "calibration" / f"{args.arm}_before_zero_{datetime.now():%Y%m%d_%H%M%S}.json"
-        backup.parent.mkdir(exist_ok=True)
+        backup = ROOT / "calibration" / "backups" / f"{args.arm}_before_zero_{datetime.now():%Y%m%d_%H%M%S}.json"
+        backup.parent.mkdir(parents=True, exist_ok=True)
         backup.write_text(json.dumps({n: s.q for n, s in before.items()}, indent=2))
 
         for _, send_id, _ in ARM_MOTORS:
