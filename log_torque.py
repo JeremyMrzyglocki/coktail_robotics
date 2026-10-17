@@ -68,7 +68,11 @@ def main() -> int:
         kw["can_interfaces"] = {a.arm: a.can}
     if a.backend == "mock" and a.mass_g is not None:
         kw["content_g"] = a.mass_g  # le mock simule exactement la masse annoncée
-    robot = Robot(a.backend, arms=(a.arm,), control_hz=max(a.hz, 100.0), **kw)
+    try:
+        robot = Robot(a.backend, arms=(a.arm,), control_hz=max(a.hz, 100.0), **kw)
+    except RuntimeError as e:
+        print(f"ERREUR : {e}", file=sys.stderr)
+        return 1
 
     if a.backend == "mock":
         robot.enable(a.arm)  # simulation : on "tient" le bras pour avoir un couple réaliste

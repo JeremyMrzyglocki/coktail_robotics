@@ -364,7 +364,13 @@ class CanSnifferBackend:
             s = socket.socket(socket.AF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
             s.setsockopt(socket.SOL_CAN_RAW, socket.CAN_RAW_FD_FRAMES, 1)
             s.settimeout(0.2)
-            s.bind((can_interfaces[arm],))
+            try:
+                s.bind((can_interfaces[arm],))
+            except OSError as e:
+                s.close()
+                raise RuntimeError(
+                    f"interface CAN '{can_interfaces[arm]}' introuvable ({e.strerror}). Adaptateur USB-CAN "
+                    "branché et redirigé vers la VM ? Vérifier : ip -brief link ; lsusb ; sudo dmesg | tail") from None
             th = threading.Thread(target=self._rx, args=(arm, s), daemon=True)
             th.start()
             self.threads.append(th)
