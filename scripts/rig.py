@@ -60,7 +60,7 @@ class SimArm(Arm):
         self.enabled = True
         return self.command(hold_deg, scale)
 
-    def command(self, cmd_deg, scale):
+    def command(self, cmd_deg, scale, vel_dps=None):
         self.q.update(cmd_deg)
         return self.follower_states()
 

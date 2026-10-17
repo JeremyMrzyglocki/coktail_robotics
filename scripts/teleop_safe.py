@@ -48,6 +48,13 @@ from hardware.damiao import (  # noqa: E402
 LEADER_CALIBRATION = ROOT / "calibration" / "teleoperators" / "openarm_mini"
 # Per side, joints whose leader reading is inverted on top of LeRobot's own flips (set by --directions).
 FLIPS_FILE = ROOT / "calibration" / "teleop_flips.json"
+# Per side, degrees added to a leader joint (after the flips) so that leader and follower read the
+# same in a matched pose, e.g. a wrist whose zero differs by ~90 deg (set by --align).
+OFFSETS_FILE = ROOT / "calibration" / "teleop_offsets.json"
+# Per side, pairs of follower joints whose leader readings are exchanged, applied before flips and
+# offsets. LeRobot already maps leader joint_6/7 to follower joint_7/6; with the wrist roll zeros
+# 90 deg apart that mapping is wrong and [["joint_6", "joint_7"]] undoes it.
+SWAPS_FILE = ROOT / "calibration" / "teleop_swaps.json"
 DIRECTION_MIN_DEG = 5.0  # a joint must move at least this much on both arms to be judged
 JOINT_LIMITS = {"left": LEFT_DEFAULT_JOINTS_LIMITS, "right": RIGHT_DEFAULT_JOINTS_LIMITS}
 NAMES = [name for name, _, _ in ARM_MOTORS]
@@ -61,7 +68,8 @@ LIMIT_MARGIN_DEG = 5.0  # follower may start this far outside its limits: brough
 TRACKING_ERROR_DEG = 60.0  # commanded vs measured gap that triggers a stop while running
 LEADER_JUMP_DEG = 45.0  # leader change in one cycle no hand can make (bad read, angle wrap): stop
 MAX_TEMP_C = 80
-MAX_MISSED_CYCLES = 25  # 0.5 s at 50 fps
+MAX_MISSED_S = 0.5  # a motor silent this long stops everything (counted in cycles at the loop rate)
+VEL_SMOOTHING = 0.5  # EMA weight of the newest velocity feedforward sample (leader readings are noisy)
 
 
 def stop_on_signals():
@@ -78,6 +86,14 @@ def load_flips() -> dict[str, list[str]]:
     return json.loads(FLIPS_FILE.read_text()) if FLIPS_FILE.exists() else {}
 
 
+def load_offsets() -> dict[str, dict[str, float]]:
+    return json.loads(OFFSETS_FILE.read_text()) if OFFSETS_FILE.exists() else {}
+
+
+def load_swaps() -> dict[str, list[list[str]]]:
+    return json.loads(SWAPS_FILE.read_text()) if SWAPS_FILE.exists() else {}
+
+
 class Arm:
     """One follower arm on a CAN channel, with its leader unless leader_port is None (policy runs)."""
 
@@ -90,6 +106,8 @@ class Arm:
         self.bus: can.BusABC | None = None
         self.enabled = False
         self.flips = set(load_flips().get(side, []))
+        self.offsets = load_offsets().get(side, {})
+        self.swaps = load_swaps().get(side, [])
 
     def connect(self):
         # Ping + reads only: no configure(), no calibration write, the leader stays as it is.
@@ -109,7 +127,18 @@ class Arm:
 
     def leader_targets(self) -> dict[str, float]:
         action = self.leader.get_action()
-        return {n: -action[f"{n}.pos"] if n in self.flips else action[f"{n}.pos"] for n in NAMES}
+        for a, b in self.swaps:
+            action[f"{a}.pos"], action[f"{b}.pos"] = action[f"{b}.pos"], action[f"{a}.pos"]
+        out = {n: (-action[f"{n}.pos"] if n in self.flips else action[f"{n}.pos"]) + self.offsets.get(n, 0.0)
+               for n in NAMES}
+        # A leader joint turned past +-180 deg reads as a jump to the other end; unwrap it so a real
+        # move stays continuous (179 -> 181) instead of tripping the jump check (179 -> -180).
+        last = getattr(self, "_last_leader", None)
+        if last is not None:
+            for n in NAMES:
+                out[n] += 360.0 * round((last[n] - out[n]) / 360.0)
+        self._last_leader = out
+        return out
 
     def clip(self, name: str, deg: float) -> float:
         lo, hi = self.limits[name]
@@ -126,9 +155,12 @@ class Arm:
                      kp=KP[name] * scale, kd=KD[name] * max(scale, 0.2))
         return collect_states(self.bus, ARM_MOTORS, timeout=0.05)
 
-    def command(self, cmd_deg: dict[str, float], scale: float):
+    def command(self, cmd_deg: dict[str, float], scale: float, vel_dps: dict[str, float] | None = None):
+        """MIT command; vel_dps (deg/s) is the commanded velocity, so kd damps the error to the
+        intended motion instead of braking every move (0 when holding)."""
         for name, send_id, mtype in ARM_MOTORS:
             send_mit(self.bus, send_id, mtype, math.radians(cmd_deg[name]),
+                     dq=math.radians(vel_dps[name]) if vel_dps else 0.0,
                      kp=KP[name] * scale, kd=KD[name] * max(scale, 0.2))
         return collect_states(self.bus, ARM_MOTORS, timeout=0.01)
 
@@ -283,6 +315,8 @@ class Teleop:
         self.missed = {arm.side: {n: 0 for n in NAMES} for arm in arms}
         self.last_target: dict[str, dict[str, float]] = {}
         self.synced = False
+        self.vel = {arm.side: {n: 0.0 for n in NAMES} for arm in arms}
+        self.max_missed = max(1, round(MAX_MISSED_S / self.dt))
         self.reset_stats()
 
     def reset_stats(self):
@@ -315,7 +349,7 @@ class Teleop:
             s = states.get(name)
             if s is None:
                 self.missed[arm.side][name] += 1
-                if self.missed[arm.side][name] > MAX_MISSED_CYCLES:
+                if self.missed[arm.side][name] > self.max_missed:
                     raise RuntimeError(f"{arm.side} {name}: no answer")
                 continue
             self.missed[arm.side][name] = 0
@@ -368,7 +402,9 @@ class Teleop:
                 reached &= abs(goal - prev) <= step
                 if self.synced and abs(goal - prev) > step:
                     self.stats[arm.side][name]["capped"] += 1
-            self._check(arm, arm.command(self.cmd[arm.side], self.gain_scale))
+                v = self.vel[arm.side]
+                v[name] += VEL_SMOOTHING * ((self.cmd[arm.side][name] - prev) / self.dt - v[name])
+            self._check(arm, arm.command(self.cmd[arm.side], self.gain_scale, self.vel[arm.side]))
         if self.synced:
             self.stat_cycles += 1
         if reached and not self.synced:
@@ -376,8 +412,9 @@ class Teleop:
             print(f"In sync. Teleop running ({self.max_speed:.0f} deg/s cap, gains x{self.gain_scale}).")
 
     def hold(self):
-        """One cycle of holding the last command (no new target)."""
+        """One cycle of holding the last command (no new target, zero velocity)."""
         for arm in self.arms:
+            self.vel[arm.side] = {n: 0.0 for n in NAMES}
             self._check(arm, arm.command(self.cmd[arm.side], self.gain_scale))
 
     def retarget(self, targets):
@@ -402,6 +439,40 @@ def confirm_start(arms: list[Arm], approach_speed: float, targets=None) -> bool:
         print("Aborted, torque was never enabled.")
         return False
     return True
+
+
+def align_offsets(arms: list[Arm], joints: list[str]):
+    """Read-only: leader and follower in the same pose -> per-joint leader offset, averaged over 1 s."""
+    sums = {arm.side: {n: 0.0 for n in joints} for arm in arms}
+    count = 0
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < 1.0:
+        for arm in arms:
+            states, leader = arm.follower_states(), arm.leader_targets()
+            for n in joints:
+                if n not in states:
+                    raise RuntimeError(f"{arm.side} {n}: no answer")
+                # Wrapped difference: the leader can read +-180 for the same orientation.
+                d = math.degrees(states[n].q) - leader[n]
+                sums[arm.side][n] += (d + 180.0) % 360.0 - 180.0
+        count += 1
+        time.sleep(0.05)
+
+    offsets = load_offsets()
+    print(f"\n  {'side':<6}{'joint':<9}{'current':>9}{'measured':>10}{'new':>9}")
+    for arm in arms:
+        side = offsets.setdefault(arm.side, {})
+        for n in joints:
+            extra = sums[arm.side][n] / count
+            new = round(side.get(n, 0.0) + extra, 1)
+            print(f"  {arm.side:<6}{n:<9}{side.get(n, 0.0):>9.1f}{extra:>+10.1f}{new:>9.1f}")
+            side[n] = new
+    print(f"\nSave these leader offsets to {OFFSETS_FILE.relative_to(ROOT)}? [y/N] ", end="", flush=True)
+    if input().strip().lower() == "y":
+        OFFSETS_FILE.write_text(json.dumps(offsets, indent=2) + "\n")
+        print("Saved. They apply to --watch, the check, --run, recording and the policy runs.")
+    else:
+        print("Not saved.")
 
 
 def run(arms: list[Arm], fps: float, max_speed: float, approach_speed: float, gain_scale: float,
@@ -434,6 +505,9 @@ def main():
     mode.add_argument("--run", action="store_true", help="enable torque and teleoperate")
     mode.add_argument("--directions", action="store_true",
                       help="read-only test of which joints move the wrong way, saves the inversions")
+    mode.add_argument("--align", nargs="+", choices=NAMES, metavar="JOINT",
+                      help="read-only: with leader and follower in the same pose, measure and save the "
+                           "leader offset of these joints (e.g. --align joint_5)")
     p.add_argument("--fps", type=float, default=50.0)
     p.add_argument("--max-speed", type=float, default=30.0, help="per-joint speed cap, deg/s")
     p.add_argument("--approach-speed", type=float, default=10.0,
@@ -457,6 +531,9 @@ def main():
                 time.sleep(0.5)
         if args.directions:
             direction_test(arms)
+            return
+        if args.align:
+            align_offsets(arms, args.align)
             return
         if not args.run:
             for arm in arms:

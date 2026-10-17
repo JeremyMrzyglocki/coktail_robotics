@@ -53,6 +53,9 @@ def main():
     p.add_argument("--episode-time", type=float, default=30.0, help="max episode duration, s")
     p.add_argument("--reset-time", type=float, default=0.0,
                    help="reset phase duration, s (0: wait for Enter)")
+    p.add_argument("--control-hz", type=float, default=60.0,
+                   help="follower control rate, a multiple of --fps; one frame is recorded every "
+                        "control_hz / fps cycles (default 60: smoother teleop, dataset still at --fps)")
     p.add_argument("--push", action="store_true", help="push the dataset to the Hugging Face Hub at the end")
     p.add_argument("--private", action="store_true")
     p.add_argument("--vcodec", choices=sorted(ENCODERS), default="h264", help="video codec (default h264)")
@@ -89,7 +92,10 @@ def main():
                                         rgb_encoder=ENCODERS[args.vcodec])
 
     started = False
-    teleop = Teleop(arms, args.fps, args.max_speed, args.approach_speed, args.gain_scale, args.ramp)
+    record_every = round(args.control_hz / args.fps)
+    if record_every < 1 or abs(record_every * args.fps - args.control_hz) > 1e-6:
+        p.error(f"--control-hz must be a multiple of --fps ({args.fps}), e.g. {2 * args.fps}")
+    teleop = Teleop(arms, args.control_hz, args.max_speed, args.approach_speed, args.gain_scale, args.ramp)
     try:
         for arm in arms:
             arm.connect()
@@ -120,17 +126,20 @@ def main():
             t0, redo = time.monotonic(), False
             worst, late = 0.0, 0
             teleop.reset_stats()
+            cycle_i = 0
             while time.monotonic() - t0 < args.episode_time:
                 start = tick()
-                images = {c: cam.read_latest() for c, cam in cameras.items()}
-                state = {f"{a.side}_{n}.pos": teleop.measured[a.side][n] for a in arms for n in NAMES}
-                action = {f"{a.side}_{n}.pos": teleop.cmd[a.side][n] for a in arms for n in NAMES}
-                dataset.add_frame({
-                    "observation.state": np.array([state[k] for k in keys_order], dtype=np.float32),
-                    "action": np.array([action[k] for k in keys_order], dtype=np.float32),
-                    **{f"observation.images.{c}": img for c, img in images.items()},
-                    "task": args.task,
-                })
+                if cycle_i % record_every == 0:  # control runs faster than the dataset fps
+                    images = {c: cam.read_latest() for c, cam in cameras.items()}
+                    state = {f"{a.side}_{n}.pos": teleop.measured[a.side][n] for a in arms for n in NAMES}
+                    action = {f"{a.side}_{n}.pos": teleop.cmd[a.side][n] for a in arms for n in NAMES}
+                    dataset.add_frame({
+                        "observation.state": np.array([state[k] for k in keys_order], dtype=np.float32),
+                        "action": np.array([action[k] for k in keys_order], dtype=np.float32),
+                        **{f"observation.images.{c}": img for c, img in images.items()},
+                        "task": args.task,
+                    })
+                cycle_i += 1
                 cycle = time.monotonic() - start
                 worst, late = max(worst, cycle), late + (cycle > teleop.dt)
                 key = next_key(keys)

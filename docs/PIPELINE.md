@@ -55,8 +55,12 @@ uv run lerobot-find-cameras opencv   # set CAMERAS=(...) in scripts/ports.sh
   how `grasp.sh` knows the grasp is done.
 - More episodes later: `./scripts/record.sh --resume --push`. Keep cameras (names, placement) and
   `--task` identical for the whole dataset.
-- Each episode prints its slowest control cycle; it should stay under the 33 ms budget. If it does
-  not, use fewer cameras or more VM cores.
+- The follower is controlled at `--control-hz` (default 60, a multiple of `--fps`) and one frame
+  is recorded every control_hz / fps cycles, so the teleop is smoother than the 30 fps dataset.
+- Each episode prints its slowest control cycle; it should stay under the 17 ms budget at 60 Hz.
+  If it does not, use `--control-hz 30`, fewer cameras or more VM cores.
+- The follower also gets the command's velocity (MIT `dq`), so its damping only resists the error
+  to the intended motion instead of braking every move.
 - Dataset `antonin-leroy/cocktail-grasp`: `observation.state` = follower joints (deg), `action` =
   command sent to the follower (deg), `observation.images.<camera>` (h264), names
   `left_joint_1.pos` ... `right_gripper.pos` as in LeRobot's `bi_openarm_follower`.

@@ -21,5 +21,5 @@ CAMERAS=(top=0)
 #   GAIN_SCALE  fraction of LeRobot's kp/kd: 0.3 -> 0.5 -> 0.7 if "err" exceeds a few deg
 #               (sag under gravity, lag), e.g. while holding the bottle.
 # The slow approach at start (10 deg/s) does not depend on these.
-MAX_SPEED=30
-GAIN_SCALE=0.3
+MAX_SPEED=60  # 30 capped the right wrist 13-15 % of the time (first both-arm session)
+GAIN_SCALE=0.5  # 0.3 left the right gripper 13 deg behind on average

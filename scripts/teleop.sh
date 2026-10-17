@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Usage: ./scripts/teleop.sh left|right|both [--run | --watch | --directions]
+# Usage: ./scripts/teleop.sh left|right|both [--run | --watch | --directions | --align JOINT...]
 # Without a mode: read-only check. --run: check, then torque on after you type GO.
 cd "$(dirname "$0")/.." || exit 1
 source scripts/ports.sh
