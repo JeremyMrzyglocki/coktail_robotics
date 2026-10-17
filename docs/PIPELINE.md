@@ -46,6 +46,8 @@ goes limp, so bring it near its rest pose first.
 
 ```bash
 uv run lerobot-find-cameras opencv   # set CAMERAS=(...) in scripts/ports.sh
+uv run scripts/usb_camera_preview.py --list                  # USB cameras + stable /dev/v4l/by-id paths
+uv run scripts/usb_camera_preview.py /dev/video4,rotate=180  # check the image as recorded (q quits)
 ./scripts/record.sh --episodes 10 --episode-time 30 --push
 ```
 - Same start as the teleop. While recording: Enter ends the episode, `r` + Enter redoes it,

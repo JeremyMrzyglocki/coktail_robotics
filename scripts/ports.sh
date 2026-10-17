@@ -10,9 +10,11 @@ RIGHT_LEADER=/dev/serial/by-id/usb-1a86_USB_Single_Serial_58FA101582-if00
 RIGHT_CAN=can1
 LEFT_LEADER=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5876042927-if00
 LEFT_CAN=can0
-# Cameras for record.sh / grasp.sh, NAME=INDEX_OR_PATH (`uv run lerobot-find-cameras opencv`).
-# Use the same list for recording and for running the policy.
-CAMERAS=(top=0)
+# Cameras for record.sh / grasp.sh, NAME=SOURCE[,rotate=DEG][,depth] (see rig.py; find them with
+# `uv run lerobot-find-cameras realsense|opencv` or scripts/usb_camera_preview.py --list).
+# Use the same list for recording and for running the policy: NAME is the dataset key.
+# front = RealSense D455 (serial 151422253450), mounted upside down, RGB only (PI0.5 ignores depth).
+CAMERAS=(front=realsense:151422253450,rotate=180)
 
 # Follower tuning for teleop.sh, record.sh and grasp.sh (a command-line option still wins).
 # Raise step by step once the joint directions are validated, reading the tracking summary printed

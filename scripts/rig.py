@@ -4,6 +4,7 @@ import argparse
 import logging
 import math
 import queue
+import re
 import sys
 import threading
 import time
@@ -148,8 +149,14 @@ def make_camera(spec: CameraSpec, args):
         return RealSenseCamera(RealSenseCameraConfig(
             serial_number_or_name=serial, fps=args.fps, width=args.cam_width, height=args.cam_height,
             rotation=rotation, use_depth=spec.depth))
+    source = spec.source
+    # OpenCV opens a /dev/video* path (or a /dev/v4l/by-id link) with its FFMPEG backend, which
+    # refuses the capture size, and LeRobot then fails to set the width. Only an index uses V4L2.
+    video = re.fullmatch(r"/dev/video(\d+)", str(Path(source).resolve())) if source.startswith("/dev/") else None
+    if video:
+        source = video.group(1)
     return OpenCVCamera(OpenCVCameraConfig(
-        index_or_path=int(spec.source) if spec.source.isdigit() else Path(spec.source),
+        index_or_path=int(source) if source.isdigit() else Path(source),
         fps=args.fps, width=args.cam_width, height=args.cam_height, rotation=rotation))
 
 

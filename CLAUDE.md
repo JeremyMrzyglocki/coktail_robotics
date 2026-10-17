@@ -25,6 +25,7 @@ Bimanual OpenArm (Enactic, v10) that grasps a bottle and a glass, stops in a fix
   ramps gains, approaches slowly, caps speed. Its `Teleop` loop is shared by:
   `scripts/record.py` (LeRobotDataset v3) and `scripts/run_policy.py` (ACT grasp, then `--then`
   hands over with torque kept on). `scripts/rig.py`: shared setup and `--sim` fakes.
+- `scripts/usb_camera_preview.py` / `scripts/realsense_preview.py`: camera previews (no robot).
 - Wrappers read `scripts/ports.sh` (leaders by USB serial, CAN channels, cameras):
   `setup_can.sh`, `teleop.sh`, `watch.sh`, `record.sh`, `grasp.sh`; `train_act.sh` on a GPU box.
   Full flow in `docs/PIPELINE.md`.
