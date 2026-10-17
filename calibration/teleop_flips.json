@@ -1,8 +1,7 @@
 {
-  "right": [
-    "joint_4"
-  ],
+  "right": [],
   "left": [
-    "joint_6"
+    "joint_6",
+    "joint_4"
   ]
 }

@@ -1,20 +1,20 @@
 {
   "left": {
-    "joint_5": 281.0,
-    "joint_1": 5.7,
-    "joint_2": 0.2,
-    "joint_3": -83.8,
-    "joint_4": 2.6,
-    "joint_6": -16.0,
-    "joint_7": -1.1
+    "joint_5": 167.7,
+    "joint_1": 2.7,
+    "joint_2": -0.6,
+    "joint_3": 92.3,
+    "joint_4": 2.0,
+    "joint_6": -2.9,
+    "joint_7": -20.0
   },
   "right": {
-    "joint_5": -4.2,
-    "joint_1": 0.2,
-    "joint_2": -0.6,
-    "joint_3": 87.0,
-    "joint_4": -5.5,
-    "joint_6": 0.3,
-    "joint_7": -8.7
+    "joint_5": -176.7,
+    "joint_1": 6.4,
+    "joint_2": -1.1,
+    "joint_3": -87.2,
+    "joint_4": 6.9,
+    "joint_6": -0.7,
+    "joint_7": -3.5
   }
 }
