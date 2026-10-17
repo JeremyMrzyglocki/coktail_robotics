@@ -1,0 +1,452 @@
+{
+  "date": "2026-10-17T17:37:12",
+  "host": "antonin",
+  "usb": "Bus 003 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub\nBus 002 Device 026: ID 05e3:0751 Genesys Logic, Inc. microSD Card Reader\nBus 002 Device 024: ID 0c72:0011 PEAK System VMware Virtual USB Video Device\nBus 002 Device 005: ID 0e0f:0002 VMware, Inc. Virtual USB Hub\nBus 002 Device 027: ID 1a86:55d3 QinHeng Electronics VMware Virtual USB Hub\nBus 002 Device 025: ID 1a86:55d3 QinHeng Electronics VMware Virtual USB Hub\nBus 002 Device 011: ID 0e0f:0006 VMware, Inc. Virtual Keyboard\nBus 002 Device 023: ID 343c:5361 VMware, Inc. VMware Virtual USB Video Device\nBus 002 Device 004: ID 0e0f:0002 VMware, Inc. Virtual USB Hub\nBus 002 Device 003: ID 0e0f:0003 VMware, Inc. Virtual Mouse\nBus 002 Device 002: ID 0e0f:000b VMware, Inc. VMware Virtual USB Video Device\nBus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub\nBus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub",
+  "serial_by_id": "total 0\nlrwxrwxrwx 1 root root 13 Oct 17 17:31 usb-1a86_USB_Single_Serial_5876042927-if00 -> ../../ttyACM1\nlrwxrwxrwx 1 root root 13 Oct 17 17:31 usb-1a86_USB_Single_Serial_58FA101582-if00 -> ../../ttyACM0",
+  "can_links": {
+    "can0": "9: can0: <NOARP,UP,LOWER_UP,ECHO> mtu 72 qdisc pfifo_fast state UP mode DEFAULT group default qlen 10\n    link/can  promiscuity 0 minmtu 0 maxmtu 0 \n    can <FD> state ERROR-ACTIVE (berr-counter tx 0 rx 0) restart-ms 100 \n\t  bitrate 1000000 sample-point 0.750 \n\t  tq 12 prop-seg 29 phase-seg1 30 phase-seg2 20 sjw 1\n\t  pcan_usb_pro_fd: tseg1 1..256 tseg2 1..128 sjw 1..128 brp 1..1024 brp-inc 1\n\t  dbitrate 5000000 dsample-point 0.750 \n\t  dtq 12 dprop-seg 5 dphase-seg1 6 dphase-seg2 4 dsjw 1\n\t  pcan_usb_pro_fd: dtseg1 1..32 dtseg2 1..16 dsjw 1..16 dbrp 1..1024 dbrp-inc 1\n\t  clock 80000000 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535",
+    "can1": "10: can1: <NOARP,UP,LOWER_UP,ECHO> mtu 72 qdisc pfifo_fast state UP mode DEFAULT group default qlen 10\n    link/can  promiscuity 0 minmtu 0 maxmtu 0 \n    can <FD> state ERROR-ACTIVE (berr-counter tx 0 rx 0) restart-ms 100 \n\t  bitrate 1000000 sample-point 0.750 \n\t  tq 12 prop-seg 29 phase-seg1 30 phase-seg2 20 sjw 1\n\t  pcan_usb_pro_fd: tseg1 1..256 tseg2 1..128 sjw 1..128 brp 1..1024 brp-inc 1\n\t  dbitrate 5000000 dsample-point 0.750 \n\t  dtq 12 dprop-seg 5 dphase-seg1 6 dphase-seg2 4 dsjw 1\n\t  pcan_usb_pro_fd: dtseg1 1..32 dtseg2 1..16 dsjw 1..16 dbrp 1..1024 dbrp-inc 1\n\t  clock 80000000 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535"
+  },
+  "files": {
+    "calibration/teleop_swaps.json": "{\n  \"left\": [[\"joint_6\", \"joint_7\"]],\n  \"right\": [[\"joint_6\", \"joint_7\"]]\n}\n",
+    "calibration/teleop_flips.json": "{\n  \"right\": [],\n  \"left\": [\n    \"joint_6\"\n  ]\n}\n",
+    "calibration/teleop_offsets.json": "{\n  \"left\": {\n    \"joint_5\": 87.5\n  },\n  \"right\": {\n    \"joint_5\": 103.5\n  }\n}\n",
+    "scripts/ports.sh": "# Hardware mapping used by the wrapper scripts (sourced, not run). Edit here if an arm is swapped.\n# Follower sides as seen on this robot: right arm on can1, left on can0 (moving the right leader\n# drove the left follower with can0 as right). The OpenArm SDK default used by skills/pour is the\n# opposite (right_arm = can0): it needs can_interfaces={'right_arm': 'can1', 'left_arm': 'can0'}.\n# Leader sides follow their calibration files: only my_openarm_mini_right.json reads the gripper of\n# ...58FA101582 correctly (closed = 0), so that one is the right leader.\n# Check the pairs with ./scripts/watch.sh and ./scripts/teleop.sh both --directions.\n# Leaders by USB serial number, so the mapping survives replugging (ttyACM0/1 can swap).\nRIGHT_LEADER=/dev/serial/by-id/usb-1a86_USB_Single_Serial_58FA101582-if00\nRIGHT_CAN=can1\nLEFT_LEADER=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5876042927-if00\nLEFT_CAN=can0\n# Cameras for record.sh / grasp.sh, NAME=INDEX_OR_PATH (`uv run lerobot-find-cameras opencv`).\n# Use the same list for recording and for running the policy.\nCAMERAS=(top=0)\n\n# Follower tuning for teleop.sh, record.sh and grasp.sh (a command-line option still wins).\n# Raise step by step once the joint directions are validated, reading the tracking summary printed\n# at the end of each run / episode:\n#   MAX_SPEED   per-joint speed cap, deg/s: 30 -> 60 -> 90 if \"at cap\" is often high.\n#   GAIN_SCALE  fraction of LeRobot's kp/kd: 0.3 -> 0.5 -> 0.7 if \"err\" exceeds a few deg\n#               (sag under gravity, lag), e.g. while holding the bottle.\n# The slow approach at start (10 deg/s) does not depend on these.\nMAX_SPEED=60  # 30 capped the right wrist 13-15 % of the time (first both-arm session)\nGAIN_SCALE=0.5  # 0.3 left the right gripper 13 deg behind on average\n"
+  },
+  "git": "4676650 dernier",
+  "arms": {
+    "left": {
+      "follower": {
+        "can": "can0",
+        "motors": {
+          "joint_1": {
+            "deg": -6.96,
+            "status": "DISABLED",
+            "temp_mos": 27,
+            "params": {
+              "MST_ID": 17,
+              "ESC_ID": 1,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925971510,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 45.0,
+              "TMAX": 54.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_2": {
+            "deg": -4.12,
+            "status": "DISABLED",
+            "temp_mos": 30,
+            "params": {
+              "MST_ID": 18,
+              "ESC_ID": 2,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925971510,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 45.0,
+              "TMAX": 54.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_3": {
+            "deg": 84.66,
+            "status": "DISABLED",
+            "temp_mos": 30,
+            "params": {
+              "MST_ID": 19,
+              "ESC_ID": 3,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970741,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 10.0,
+              "TMAX": 28.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_4": {
+            "deg": 2.72,
+            "status": "DISABLED",
+            "temp_mos": 28,
+            "params": {
+              "MST_ID": 20,
+              "ESC_ID": 4,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970741,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 10.0,
+              "TMAX": 28.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_5": {
+            "deg": -84.84,
+            "status": "DISABLED",
+            "temp_mos": 30,
+            "params": {
+              "MST_ID": 21,
+              "ESC_ID": 5,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970485,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 30.0,
+              "TMAX": 10.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_6": {
+            "deg": 1.21,
+            "status": "DISABLED",
+            "temp_mos": 30,
+            "params": {
+              "MST_ID": 22,
+              "ESC_ID": 6,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970485,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 30.0,
+              "TMAX": 10.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_7": {
+            "deg": 3.42,
+            "status": "DISABLED",
+            "temp_mos": 28,
+            "params": {
+              "MST_ID": 23,
+              "ESC_ID": 7,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970485,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 30.0,
+              "TMAX": 10.0,
+              "CAN_BR": 9
+            }
+          },
+          "gripper": {
+            "deg": -0.69,
+            "status": "DISABLED",
+            "temp_mos": 27,
+            "params": {
+              "MST_ID": 24,
+              "ESC_ID": 8,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970485,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 30.0,
+              "TMAX": 10.0,
+              "CAN_BR": 9
+            }
+          }
+        }
+      },
+      "leader": {
+        "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5876042927-if00",
+        "servo_calibration": {
+          "joint_1": {
+            "homing_offset": -588,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_2": {
+            "homing_offset": 471,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_3": {
+            "homing_offset": -638,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_4": {
+            "homing_offset": -530,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_5": {
+            "homing_offset": -747,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_6": {
+            "homing_offset": -1902,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_7": {
+            "homing_offset": -559,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "gripper": {
+            "homing_offset": -255,
+            "range_min": 757,
+            "range_max": 3338,
+            "drive_mode": 0
+          }
+        },
+        "raw_position": {
+          "joint_1": 2143,
+          "joint_2": 1976,
+          "joint_3": 968,
+          "joint_4": 2015,
+          "joint_5": 31,
+          "joint_6": 2064,
+          "joint_7": 2003,
+          "gripper": 736
+        },
+        "follower_targets_deg": {
+          "joint_1": -8.4,
+          "joint_2": -6.29,
+          "joint_3": 94.9,
+          "joint_4": 2.86,
+          "joint_5": -95.23,
+          "joint_6": 1.45,
+          "joint_7": 3.91,
+          "gripper": 0.0
+        }
+      }
+    },
+    "right": {
+      "follower": {
+        "can": "can1",
+        "motors": {
+          "joint_1": {
+            "deg": 1.21,
+            "status": "DISABLED",
+            "temp_mos": 27,
+            "params": {
+              "MST_ID": 17,
+              "ESC_ID": 1,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925971510,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 45.0,
+              "TMAX": 54.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_2": {
+            "deg": 1.74,
+            "status": "DISABLED",
+            "temp_mos": 30,
+            "params": {
+              "MST_ID": 18,
+              "ESC_ID": 2,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925971510,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 45.0,
+              "TMAX": 54.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_3": {
+            "deg": 83.61,
+            "status": "DISABLED",
+            "temp_mos": 30,
+            "params": {
+              "MST_ID": 19,
+              "ESC_ID": 3,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970741,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 10.0,
+              "TMAX": 28.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_4": {
+            "deg": -0.01,
+            "status": "DISABLED",
+            "temp_mos": 28,
+            "params": {
+              "MST_ID": 20,
+              "ESC_ID": 4,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970741,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 10.0,
+              "TMAX": 28.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_5": {
+            "deg": -79.99,
+            "status": "DISABLED",
+            "temp_mos": 30,
+            "params": {
+              "MST_ID": 21,
+              "ESC_ID": 5,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970485,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 30.0,
+              "TMAX": 10.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_6": {
+            "deg": 7.31,
+            "status": "DISABLED",
+            "temp_mos": 29,
+            "params": {
+              "MST_ID": 22,
+              "ESC_ID": 6,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970485,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 30.0,
+              "TMAX": 10.0,
+              "CAN_BR": 9
+            }
+          },
+          "joint_7": {
+            "deg": 1.87,
+            "status": "DISABLED",
+            "temp_mos": 28,
+            "params": {
+              "MST_ID": 23,
+              "ESC_ID": 7,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970485,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 30.0,
+              "TMAX": 10.0,
+              "CAN_BR": 9
+            }
+          },
+          "gripper": {
+            "deg": -1.28,
+            "status": "DISABLED",
+            "temp_mos": 27,
+            "params": {
+              "MST_ID": 24,
+              "ESC_ID": 8,
+              "TIMEOUT": 0,
+              "CTRL_MODE": 1,
+              "SW_VER": 925970485,
+              "SN": 1412444213,
+              "PMAX": 12.5,
+              "VMAX": 30.0,
+              "TMAX": 10.0,
+              "CAN_BR": 9
+            }
+          }
+        }
+      },
+      "leader": {
+        "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_58FA101582-if00",
+        "servo_calibration": {
+          "joint_1": {
+            "homing_offset": 912,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_2": {
+            "homing_offset": 511,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_3": {
+            "homing_offset": 1056,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_4": {
+            "homing_offset": 395,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_5": {
+            "homing_offset": 92,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_6": {
+            "homing_offset": -1414,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "joint_7": {
+            "homing_offset": 785,
+            "range_min": 0,
+            "range_max": 4095,
+            "drive_mode": 0
+          },
+          "gripper": {
+            "homing_offset": 1208,
+            "range_min": 899,
+            "range_max": 3196,
+            "drive_mode": 0
+          }
+        },
+        "raw_position": {
+          "joint_1": 2031,
+          "joint_2": 2027,
+          "joint_3": 1098,
+          "joint_4": 2078,
+          "joint_5": 40,
+          "joint_6": 2135,
+          "joint_7": 2019,
+          "gripper": 3216
+        },
+        "follower_targets_deg": {
+          "joint_1": 1.45,
+          "joint_2": 1.8,
+          "joint_3": 83.47,
+          "joint_4": -2.68,
+          "joint_5": -80.02,
+          "joint_6": 7.69,
+          "joint_7": 2.51,
+          "gripper": 0.0
+        }
+      }
+    }
+  },
+  "note": "before handing the robot to the next team; pose: arms hanging, joint_3 ~+84 and joint_5 ~-82 deg on both arms (not the all-zero reference pose), grippers closed, followers aligned with leaders"
+}

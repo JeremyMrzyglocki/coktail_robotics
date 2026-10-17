@@ -92,12 +92,32 @@ Tools (read-only): `./scripts/teleop.sh both --directions` (fixes flips), `--ali
 
 - `openarm_driver.SingleArmDriver.start()` enables and holds the measured pose (no disable first)
   and `robot_io` skips the start trajectory, so taking over a holding arm is possible. Only the
-  pouring arm is taken over; the other keeps our last MIT command (fine while the Damiao CAN
-  timeout is 0).
+  pouring arm is taken over; the other keeps our last MIT command. Measured 2026-10-17: the Damiao
+  CAN timeout (RID 9) is 0 on all 16 motors (they hold their last command forever) and
+  CTRL_MODE is 1 (MIT).
 - To check on the robot: the SDK drives the gripper in POS_FORCE mode with a torque limit, which
   may loosen the grip on the bottle at takeover.
 - `openarm_can` + `openarm-driver` are not installed in this VM yet (`skills/pour/setup_robot_vm.sh`).
   Only one VM can own the PCAN adapter.
+
+## Detecting changes made by another team
+
+`./scripts/snapshot.sh --note "..."` (read-only, arms in the reference pose) saves
+`calibration/snapshots/<date>.json`: follower angles and Damiao parameters, the calibration stored
+in the leader servos (Homing_Offset, limits), what the leaders map to, mapping files, USB devices
+and CAN settings. `./scripts/snapshot.sh --compare calibration/snapshots/<date>.json` lists every
+difference. Leader servo calibration on 2026-10-17 matched `my_openarm_mini_{left,right}.json`
+exactly. The Damiao SN parameter is identical on all motors, so it cannot detect swapped arms:
+check the sides with `watch.sh` (move one follower by hand).
+
+Reference snapshot before handing the robot to the next team: `calibration/snapshots/20261017_173713.json`
+(pose: arms hanging, joint_3 ~+84 and joint_5 ~-82 deg on both arms, grippers closed, followers
+aligned with leaders). When the robot comes back, put it in that pose and run
+`./scripts/snapshot.sh --compare calibration/snapshots/20261017_173713.json`.
+
+On 2026-10-17 all 16 motors were found ENABLED and holding with no program running in this VM
+(likely enabled from another machine, e.g. `lerobot-setup-can --mode=test`, or a teleop cut off by
+a USB drop). With CAN timeout 0 they hold forever. The preflight now flags "already ENABLED".
 
 ## Known limits
 

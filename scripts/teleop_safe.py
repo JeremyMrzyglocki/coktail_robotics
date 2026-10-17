@@ -134,8 +134,10 @@ class Arm:
         # A leader joint turned past +-180 deg reads as a jump to the other end; unwrap it so a real
         # move stays continuous (179 -> 181) instead of tripping the jump check (179 -> -180).
         last = getattr(self, "_last_leader", None)
-        if last is not None:
-            for n in NAMES:
+        for n in NAMES:
+            if last is None:  # first reading: the turn closest to zero (an offset can push it past 180)
+                out[n] = (out[n] + 180.0) % 360.0 - 180.0
+            else:
                 out[n] += 360.0 * round((last[n] - out[n]) / 360.0)
         self._last_leader = out
         return out
@@ -194,6 +196,10 @@ def preflight(arm: Arm, target: dict[str, float] | None = None) -> tuple[bool, t
         problems = []
         if s.status not in (0x0, 0x1):
             problems.append(s.status_name)
+        elif s.status == 0x1:
+            # Not blocking, but the start ramps the gains from 0: an arm held up by another
+            # program's command goes limp for a moment. Support it or disable it first.
+            problems.append("already ENABLED (another program?): support the arm")
         if not lo - LIMIT_MARGIN_DEG <= f <= hi + LIMIT_MARGIN_DEG:
             problems.append("follower outside limits")
         if not lo - TARGET_FAR_DEG <= leader[name] <= hi + TARGET_FAR_DEG:
@@ -202,7 +208,7 @@ def preflight(arm: Arm, target: dict[str, float] | None = None) -> tuple[bool, t
             problems.append("target outside limits (clipped)")
         if max(s.t_mos, s.t_rotor) > MAX_TEMP_C:
             problems.append("hot")
-        ok &= not problems or all("clipped" in p for p in problems)
+        ok &= all("clipped" in p or "already ENABLED" in p for p in problems)
         if abs(gap) > ALIGN_TOL_DEG:
             problems.append("slow approach")
         if abs(gap) > abs(biggest[1]):
