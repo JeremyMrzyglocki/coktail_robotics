@@ -1,0 +1,946 @@
+{
+  "_about": "Extra open datasets per skill, beyond the skill's primary `dataset`. Merged into each manifest as `datasets` when the catalog is seeded (app/db.py). Curated from Hugging Face; every repo was checked for licence, access, episode count and task text.",
+  "add_straw": [
+    {
+      "id": "robocoin-ai2-alphabot-2-insert-straw",
+      "episodes": 499,
+      "match": "Pick up the straw with one hand, pass it to the other hand, and insert it into the cup."
+    },
+    {
+      "id": "villekuosmanen-agilex-straw-cafe-cup-l",
+      "episodes": 24,
+      "match": "Pick up the straw and insert it into the large coffee cup."
+    },
+    {
+      "id": "villekuosmanen-agilex-straw-cafe-cup-m",
+      "episodes": 19,
+      "match": "Pick up the straw and insert it into the medium coffee cup."
+    }
+  ],
+  "add_umbrella": [
+    {
+      "id": "villekuosmanen-agilex-grab-stick-into-bottle",
+      "episodes": 20,
+      "match": "Grab a stick from the table and stick it in a plastic bottle."
+    },
+    {
+      "id": "villekuosmanen-agilex-cocktail-sunset-lemon",
+      "episodes": 29,
+      "match": "Pick up the lemon slice from the paper cup on the left and carefully insert it into the rim of the goblet."
+    },
+    {
+      "id": "jiahexu98-insert-marker-into-cup",
+      "episodes": 20,
+      "match": "insert_marker_into_cup"
+    }
+  ],
+  "align_chair": [
+    {
+      "id": "lerobot-aloha-mobile-chair",
+      "episodes": 55,
+      "match": "Aloha mobile chair"
+    },
+    {
+      "id": "villekuosmanen-agilex-push-chair",
+      "episodes": 20,
+      "match": "Push the black chair under the table."
+    },
+    {
+      "id": "villekuosmanen-agilex-pull-chair",
+      "episodes": 20,
+      "match": "Pull out the black chair under the table."
+    },
+    {
+      "id": "daoyuanzhu-wb-pointed-chair-pull-push-rgb",
+      "episodes": 80,
+      "match": "pull out the chair indicated by the human gesture, then push it back when the human starts sitting down"
+    }
+  ],
+  "clear_table": [
+    {
+      "id": "unitreerobotics-g1-dex1-dualrobot-clean-table",
+      "episodes": 200,
+      "match": "Collaborate with a nearby partner to tidy the table."
+    },
+    {
+      "id": "robocoin-galbot-g1-clear-table-trash-1",
+      "episodes": 145,
+      "match": "Galbot_G1_clear_the_ desktop_trash_1"
+    },
+    {
+      "id": "unitreerobotics-g1-wbt-brainco-clean-tea-table-garbage",
+      "episodes": 74,
+      "match": "Clean Tea Table Garbage"
+    }
+  ],
+  "close_drawer": [
+    {
+      "id": "robocoin-agilex-cobot-magic-close-drawer-upper",
+      "episodes": 173,
+      "match": "close the upper drawer."
+    },
+    {
+      "id": "robocoin-airbot-mmk2-close-drawer",
+      "episodes": 50,
+      "match": "close the top drawer by hand."
+    },
+    {
+      "id": "robocoin-agilex-cobot-magic-close-drawer-bottom",
+      "episodes": 50,
+      "match": "close the bottom drawer."
+    }
+  ],
+  "close_fridge": [
+    {
+      "id": "unitreerobotics-g1-wbt-inspire-put-drinks-into-fridge",
+      "episodes": 200,
+      "match": "Put Drinks Into Fridge"
+    },
+    {
+      "id": "unitreerobotics-g1-wbt-brainco-put-drinks-into-fridge",
+      "episodes": 200,
+      "match": "Put Drinks Into Fridge"
+    }
+  ],
+  "collect_bottles": [
+    {
+      "id": "villekuosmanen-agilex-pick-place-water-bottle",
+      "episodes": 50,
+      "match": "Pick up the mineral water bottle and place it on the laptop."
+    },
+    {
+      "id": "unitreerobotics-g1-wbt-inspire-pick-up-drinks-v0",
+      "episodes": 300,
+      "match": "Pick Up Drinks"
+    },
+    {
+      "id": "unitreerobotics-g1-dex3-pickbottle-dataset",
+      "episodes": 202,
+      "match": "PickBottle"
+    }
+  ],
+  "detect_fill_level": [
+    {
+      "id": "villekuosmanen-agilex-pour-water-cup-full",
+      "episodes": 19,
+      "match": "Pick up the mineral water bottle on the table and pour water into the mug until it's full."
+    },
+    {
+      "id": "villekuosmanen-agilex-pour-water-cup-half",
+      "episodes": 19,
+      "match": "Pick up the mineral water bottle on the table and pour water into the mug until it's half full."
+    },
+    {
+      "id": "villekuosmanen-agilex-pour-water-cup-little",
+      "episodes": 18,
+      "match": "Pick up the mineral water bottle on the table and pour a little water into the mug."
+    }
+  ],
+  "detect_spill": [
+    {
+      "id": "lerobot-aloha-mobile-wipe-wine",
+      "episodes": 50,
+      "match": "Aloha mobile wipe wine"
+    },
+    {
+      "id": "villekuosmanen-agilex-messy-pour-water",
+      "episodes": 20,
+      "match": "Pick up the mineral water bottle on the table and pour water into the mug until it's half full."
+    },
+    {
+      "id": "unitreerobotics-g1-dex1-wipe-table",
+      "episodes": 930,
+      "match": "Wipe the water off the table with a rag."
+    }
+  ],
+  "fold_towel": [
+    {
+      "id": "unitreerobotics-g1-dex1-fold-towel",
+      "episodes": 200,
+      "match": "Fold the towel and set it aside."
+    },
+    {
+      "id": "robocoin-agilex-cobot-magic-fold-towel-brown",
+      "episodes": 387,
+      "match": "Fold towels."
+    },
+    {
+      "id": "villekuosmanen-agilex-fold-towel",
+      "episodes": 20,
+      "match": "Fold the bottom of the cloth upward, then fold it vertically to form a square shape."
+    },
+    {
+      "id": "lerobot-aloha-static-towel",
+      "episodes": 50,
+      "match": "Aloha static towel"
+    }
+  ],
+  "garnish": [
+    {
+      "id": "villekuosmanen-agilex-cocktail-sunset-lemon",
+      "episodes": 29,
+      "match": "Pick up the lemon slice from the paper cup on the left and carefully insert it into the rim of the goblet."
+    },
+    {
+      "id": "robocoin-agilex-cobot-magic-storage-lemon-mango",
+      "episodes": 100,
+      "match": "Randomly grab green lemon or mangoes from the table and put them in a basket."
+    }
+  ],
+  "grasp_bottle": [
+    {
+      "id": "unitreerobotics-g1-dex3-pickbottle-dataset",
+      "episodes": 202,
+      "match": "PickBottle"
+    },
+    {
+      "id": "villekuosmanen-agilex-pick-place-water-bottle",
+      "episodes": 50,
+      "match": "Pick up the mineral water bottle and place it on the laptop."
+    },
+    {
+      "id": "unitreerobotics-g1-wbt-inspire-pick-up-drinks-v0",
+      "episodes": 300,
+      "match": "Pick Up Drinks"
+    }
+  ],
+  "grasp_bottle_lite": [
+    {
+      "id": "unitreerobotics-g1-dex3-pickbottle-dataset",
+      "episodes": 202,
+      "match": "PickBottle"
+    },
+    {
+      "id": "villekuosmanen-agilex-pick-place-water-bottle",
+      "episodes": 50,
+      "match": "Pick up the mineral water bottle and place it on the laptop."
+    }
+  ],
+  "grasp_cloth": [
+    {
+      "id": "lerobot-aloha-static-towel",
+      "episodes": 50,
+      "match": "Aloha static towel"
+    },
+    {
+      "id": "unitreerobotics-g1-wbt-brainco-put-sink-towel",
+      "episodes": 200,
+      "match": "Put Sink Towel"
+    },
+    {
+      "id": "villekuosmanen-agilex-put-rag-on-laptop-blue",
+      "episodes": 20,
+      "match": "Pick up the blue rag and put it over the laptop."
+    }
+  ],
+  "grasp_glass": [
+    {
+      "id": "lerobot-aloha-static-vinh-cup",
+      "episodes": 101,
+      "match": "Aloha static vinh cup"
+    },
+    {
+      "id": "robocoin-airbot-mmk2-stack-cup",
+      "episodes": 99,
+      "match": "pick up the cup by hand and stack it on top of another cup."
+    },
+    {
+      "id": "villekuosmanen-agilex-exchange-cup-position",
+      "episodes": 19,
+      "match": "Swap the positions of the transparent plastic cup and the white ceramic cup."
+    }
+  ],
+  "grasp_object": [
+    {
+      "id": "lerobot-svla-so100-pickplace",
+      "episodes": 50,
+      "match": "Svla so100 pickplace"
+    },
+    {
+      "id": "lerobot-ucsd-pick-and-place-dataset",
+      "episodes": 1355,
+      "match": "Ucsd pick and place dataset"
+    },
+    {
+      "id": "droid",
+      "episodes": 95658,
+      "match": "Droid 1.0.1"
+    }
+  ],
+  "grasp_scoop": [
+    {
+      "id": "villekuosmanen-agilex-put-ice-scoop-in-box-tidy-table",
+      "episodes": 20,
+      "match": "Pick up the metal ice scoop from the table and place it inside the transparent plastic box."
+    },
+    {
+      "id": "villekuosmanen-agilex-shovel-ice-into-cup",
+      "episodes": 19,
+      "match": "Pick up an ice shovel filled with ice cubes and pour the ice from the shovel into the glass."
+    },
+    {
+      "id": "robocoin-ai2-alphabot-2-stir-spoon",
+      "episodes": 405,
+      "match": "Pick up the stirring spoon with one hand, stir inside the cup, then place it back in its original position."
+    }
+  ],
+  "grasp_shaker": [
+    {
+      "id": "villekuosmanen-agilex-shake-glass",
+      "episodes": 40,
+      "match": "Gently pick up the goblet, rotate it counterclockwise for two full turns (viewing from above), and then place it back on the table."
+    },
+    {
+      "id": "robocoin-ai2-alphabot-2-shake-bottle",
+      "episodes": 394,
+      "match": "Grasp the erlenmeyer flask with one hand, shake it three times, then place it back."
+    },
+    {
+      "id": "unitreerobotics-g1-dex3-pickbottle-dataset",
+      "episodes": 202,
+      "match": "PickBottle"
+    }
+  ],
+  "handover": [
+    {
+      "id": "villekuosmanen-agilex-handover-pan",
+      "episodes": 5,
+      "match": "Pick up the black marker on the right and put it into the packaging box on the left, making sure the marker fit the shape of the box's grooves."
+    },
+    {
+      "id": "jensenyuan-dextacwam-cube-handover",
+      "episodes": 100,
+      "match": "Pick up the cube with the right hand and hand it over to the left hand."
+    },
+    {
+      "id": "suz22-robotwin-handover-block-randomized",
+      "episodes": 500,
+      "match": "RoboTwin handover block randomized"
+    }
+  ],
+  "hang_cloth": [
+    {
+      "id": "unitreerobotics-g1-wbt-inspire-hang-up-clothes",
+      "episodes": 200,
+      "match": "Hang Up Clothes"
+    },
+    {
+      "id": "unitreerobotics-g1-dex1-hang-pants",
+      "episodes": 1400,
+      "match": "Hang Pants"
+    },
+    {
+      "id": "villekuosmanen-agilex-hang-bag-on-hook",
+      "episodes": 20,
+      "match": "Pick up the paper bag and hang it on the hook."
+    }
+  ],
+  "load_dishwasher": [
+    {
+      "id": "unitreerobotics-g1-wbt-brainco-put-plate-into-dishwasher",
+      "episodes": 200,
+      "match": "Put Plate Into Dishwasher"
+    },
+    {
+      "id": "unitreerobotics-g1-wbt-brainco-collect-plates-into-dishwasher",
+      "episodes": 300,
+      "match": "Collect Plates Into Dishwasher"
+    },
+    {
+      "id": "unitreerobotics-g1-wbt-inspire-walk-to-table-put-cups-and-rack-plates-in-dishwasher",
+      "episodes": 374,
+      "match": "Walk To Table Put Cups And Rack Plates In Dishwasher"
+    }
+  ],
+  "load_tray": [
+    {
+      "id": "robocoin-agilex-cobot-magic-fold-towel-tray-twice",
+      "episodes": 195,
+      "match": "fold one of the towels by two grippers and place it on the tray,then fold another towel by two grippers and place it on the folded towel."
+    },
+    {
+      "id": "lerobot-svla-so100-pickplace",
+      "episodes": 50,
+      "match": "Svla so100 pickplace"
+    }
+  ],
+  "locate_object": [
+    {
+      "id": "droid",
+      "episodes": 95658,
+      "match": "Droid 1.0.1"
+    },
+    {
+      "id": "lerobot-svla-so100-pickplace",
+      "episodes": 50,
+      "match": "Svla so100 pickplace"
+    }
+  ],
+  "measure_pour": [
+    {
+      "id": "villekuosmanen-agilex-pour-water-cup2jigger2glass",
+      "episodes": 20,
+      "match": "Pick up the small amber measuring cup and pour the water in it into the jigger, then pick up the jigger and pour the water in it into the wine glass."
+    },
+    {
+      "id": "villekuosmanen-agilex-pour-water-jigger2cup",
+      "episodes": 20,
+      "match": "Pick up the jigger and pour the water inside into the glass."
+    },
+    {
+      "id": "villekuosmanen-agilex-cocktail-sunset-coconut",
+      "episodes": 29,
+      "match": "Pick up the first measuring cup from the left, pour the coconut rum inside into the goblet, and finally put the measuring cup back in its original place."
+    },
+    {
+      "id": "villekuosmanen-agilex-pour-water-cup-half",
+      "episodes": 19,
+      "match": "Pick up the mineral water bottle on the table and pour water into the mug until it's half full."
+    }
+  ],
+  "move_to_station": [
+    {
+      "id": "robocoin-ai2-alphabot-2-move-basket",
+      "episodes": 81,
+      "match": "Use one hand to grasp the basket and place it at the designated location."
+    },
+    {
+      "id": "droid",
+      "episodes": 95658,
+      "match": "Droid 1.0.1"
+    }
+  ],
+  "open_drawer": [
+    {
+      "id": "robocoin-agilex-cobot-magic-open-drawer-bottom",
+      "episodes": 50,
+      "match": "open the bottom drawer."
+    },
+    {
+      "id": "villekuosmanen-agilex-put-object-into-drawer",
+      "episodes": 20,
+      "match": "Pick up a can of beer from the white table, open the left drawer, place the beer inside the drawer, and finally close the drawer."
+    },
+    {
+      "id": "lerobot-aloha-mobile-cabinet",
+      "episodes": 85,
+      "match": "Aloha mobile cabinet"
+    }
+  ],
+  "open_fridge": [
+    {
+      "id": "lerobot-utokyo-pr2-opening-fridge",
+      "episodes": 80,
+      "match": "Utokyo pr2 opening fridge"
+    },
+    {
+      "id": "unitreerobotics-g1-wbt-inspire-put-drinks-into-fridge",
+      "episodes": 200,
+      "match": "Put Drinks Into Fridge"
+    },
+    {
+      "id": "villekuosmanen-agilex-put-orange-into-microwave",
+      "episodes": 20,
+      "match": "Open the microwave door, place the orange inside the microwave, then close the microwave door."
+    }
+  ],
+  "pick_up_floor": [
+    {
+      "id": "robocoin-galbot-g1-pick-floor-trash",
+      "episodes": 188,
+      "match": "Galbot_G1_clean_the_desk_2"
+    },
+    {
+      "id": "robocoin-galbot-g1-load-floor-trash-3",
+      "episodes": 588,
+      "match": "Galbot_G1_Pick_up_trash_new"
+    },
+    {
+      "id": "villekuosmanen-agilex-collect-litter",
+      "episodes": 20,
+      "match": "Pick up all the trash on the table and put it in the trash can."
+    }
+  ],
+  "place_in_bin": [
+    {
+      "id": "unitreerobotics-g1-wbt-inspire-put-vegetables-into-basket-v0",
+      "episodes": 300,
+      "match": "Put Vegetables Into Basket"
+    },
+    {
+      "id": "villekuosmanen-agilex-put-rubbish-in-carton",
+      "episodes": 20,
+      "match": "Pick up the lid and place it into the paper box."
+    },
+    {
+      "id": "robocoin-ai2-alphabot-2-sort-garbage-bag-and-box",
+      "episodes": 915,
+      "match": "Pick up the garbage bag with the one hand and transfer it to the other hand."
+    }
+  ],
+  "place_in_fridge": [
+    {
+      "id": "unitreerobotics-g1-wbt-inspire-put-drinks-into-fridge-v0",
+      "episodes": 300,
+      "match": "Put Drinks Into Fridge"
+    },
+    {
+      "id": "unitreerobotics-g1-wbt-brainco-put-drinks-into-fridge",
+      "episodes": 200,
+      "match": "Put Drinks Into Fridge"
+    }
+  ],
+  "place_on_coaster": [
+    {
+      "id": "lerobot-aloha-static-vinh-cup",
+      "episodes": 101,
+      "match": "Aloha static vinh cup"
+    },
+    {
+      "id": "villekuosmanen-agilex-put-cup-front-laptop",
+      "episodes": 20,
+      "match": "Pick up the water cup and place it on the side of the laptop close to you."
+    }
+  ],
+  "polish_glass": [
+    {
+      "id": "villekuosmanen-agilex-wipe-glass-water",
+      "episodes": 20,
+      "match": "Pick up the sponge from the table, wipe the water off the glass, and finally place the sponge back on the table."
+    },
+    {
+      "id": "syun88-dual-scorpion-oc-polish-the-bowl1",
+      "episodes": 100,
+      "match": "polish the bowl1"
+    }
+  ],
+  "pour_cereal": [
+    {
+      "id": "robocoin-ai2-alphabot-2-pour-mung-beans",
+      "episodes": 213,
+      "match": "Pick up the cup and pour the mung beans from the cup into the bowl."
+    },
+    {
+      "id": "robocoin-galaxea-r1-lite-pour-solid-marble-bar-counter",
+      "episodes": 85,
+      "match": "use a gripper to pick up the cup and pour the solid into a bowl or tray."
+    },
+    {
+      "id": "unitreerobotics-r1-dex1-pour-popcorn-between-bowls",
+      "episodes": 32,
+      "match": "Pour Popcorn Between Bowls"
+    }
+  ],
+  "pour_into": [
+    {
+      "id": "unitreerobotics-g1-dex1-pour-drink",
+      "episodes": 850,
+      "match": "Pour the drink into the goblet."
+    },
+    {
+      "id": "robocoin-galaxea-r1-lite-pour-liquid-mrable-bar-counter",
+      "episodes": 100,
+      "match": "use a gripper to pick up the cup and pour the liquid into a bowl or tray."
+    },
+    {
+      "id": "villekuosmanen-agilex-pour-water-from-bottle-to-cup",
+      "episodes": 18,
+      "match": "Carefully pick up the bottle and pour some water from the bottle into the cup."
+    },
+    {
+      "id": "robocoin-agilex-cobot-magic-pour-drink-bottle-cup",
+      "episodes": 195,
+      "match": "use a gripper to hold the bottle of the drink and pour it into a random cup."
+    }
+  ],
+  "press_dispenser": [
+    {
+      "id": "villekuosmanen-agilex-press-alcohol-sanitizing",
+      "episodes": 18,
+      "match": "Pull out a tissue from the tissue dispenser, then press the switch of the alcohol sanitizer bottle to drop some sanitizer on the paper tissue, and finally place the treated tissue on the table."
+    },
+    {
+      "id": "villekuosmanen-agilex-get-cold-water",
+      "episodes": 20,
+      "match": "Pick up the plastic mug from the left desk, go to the cold water outlet of the water dispenser, press the vertical switch to get some water, then put the mug back on the desk."
+    },
+    {
+      "id": "pengyue-polaron-nyush-galaxea-a1-press-button-5s",
+      "episodes": 50,
+      "match": "press and hold the button for 5 seconds, then release it"
+    }
+  ],
+  "read_label": [
+    {
+      "id": "unitreerobotics-g1-wbt-inspire-supermarket-shelf-organizing",
+      "episodes": 200,
+      "match": "Supermarket Shelf Organizing"
+    },
+    {
+      "id": "nmotion-initiative-unitzero-sort-household-objects-into-labeled-bins-yam-lerobot",
+      "episodes": 243,
+      "match": "Unitzero sort household objects into labeled bins yam lerobot"
+    }
+  ],
+  "release_object": [
+    {
+      "id": "lerobot-svla-so100-pickplace",
+      "episodes": 50,
+      "match": "Svla so100 pickplace"
+    },
+    {
+      "id": "lerobot-ucsd-pick-and-place-dataset",
+      "episodes": 1355,
+      "match": "Ucsd pick and place dataset"
+    }
+  ],
+  "return_to_shelf": [
+    {
+      "id": "unitreerobotics-g1-wbt-inspire-supermarket-shelf-organizing",
+      "episodes": 200,
+      "match": "Supermarket Shelf Organizing"
+    },
+    {
+      "id": "villekuosmanen-agilex-insert-book-shelf",
+      "episodes": 20,
+      "match": "Pick up the blue book and put it on the bookshelf."
+    },
+    {
+      "id": "kiroaiseoul-task11-place-beaker-on-the-shelf-gist-0804",
+      "episodes": 921,
+      "match": "Task11 place beaker on the shelf"
+    }
+  ],
+  "rinse_vessel": [
+    {
+      "id": "villekuosmanen-agilex-wash-cup-1",
+      "episodes": 20,
+      "match": "Pick up the mug next to the sink, go to the faucet to get some water, pour the water into the sink, and finally put the mug back to its place."
+    },
+    {
+      "id": "villekuosmanen-agilex-wash-cup-2",
+      "episodes": 20,
+      "match": "Pick up the mug next to the sink, go to the faucet to get some water, pour the water into the sink, and finally put the mug back to its place."
+    },
+    {
+      "id": "lerobot-aloha-mobile-wash-pan",
+      "episodes": 50,
+      "match": "Aloha mobile wash pan"
+    }
+  ],
+  "run_blender": [
+    {
+      "id": "pengyue-polaron-nyush-galaxea-a1-press-button-5s",
+      "episodes": 50,
+      "match": "press and hold the button for 5 seconds, then release it"
+    },
+    {
+      "id": "villekuosmanen-agilex-press-socket-button",
+      "episodes": 20,
+      "match": "Press the button on the power strip."
+    },
+    {
+      "id": "jchandru08-so100-press-red-button",
+      "episodes": 29,
+      "match": "Press the red button"
+    }
+  ],
+  "scoop_pour": [
+    {
+      "id": "villekuosmanen-agilex-shovel-ice-into-cup",
+      "episodes": 19,
+      "match": "Pick up an ice shovel filled with ice cubes and pour the ice from the shovel into the glass."
+    },
+    {
+      "id": "villekuosmanen-agilex-cocktail-sunset-ice",
+      "episodes": 30,
+      "match": "Pick up the ice scoop on the desk filled with ice cubes, pour the ice into the goblet, and finally put the scoop back on the table."
+    },
+    {
+      "id": "jellyho-droid-subsets-scooping",
+      "episodes": 300,
+      "match": "Droid subsets scooping"
+    }
+  ],
+  "seal_shaker": [
+    {
+      "id": "robocoin-airbot-mmk2-cover-lid",
+      "episodes": 50,
+      "match": "pick up the lid with both hands and cover the box."
+    },
+    {
+      "id": "villekuosmanen-agilex-cover-spary-lid",
+      "episodes": 20,
+      "match": "Pick up the sprayer with the left hand, pick up its lid with the right hand then put the lid on the sprayer."
+    },
+    {
+      "id": "robocoin-airbot-mmk2-close-lid",
+      "episodes": 239,
+      "match": "close the box lid by hand."
+    }
+  ],
+  "serve_to_guest": [
+    {
+      "id": "moaibo-handover-scene1-2-giver-receiver-merged-pos-vel",
+      "episodes": 338,
+      "match": "Handover scene1 2 giver receiver merged pos vel"
+    },
+    {
+      "id": "masato-ka-lekiwi-dounut-serve-full",
+      "episodes": 60,
+      "match": "Give me one chocolate dounut."
+    }
+  ],
+  "set_place": [
+    {
+      "id": "lerobot-aloha-static-fork-pick-up",
+      "episodes": 100,
+      "match": "Aloha static fork pick up"
+    },
+    {
+      "id": "unitreerobotics-g1-wbt-brainco-put-plate-into-dishwasher",
+      "episodes": 200,
+      "match": "Put Plate Into Dishwasher"
+    }
+  ],
+  "shake_shaker": [
+    {
+      "id": "villekuosmanen-agilex-shake-glass",
+      "episodes": 40,
+      "match": "Gently pick up the goblet, rotate it counterclockwise for two full turns (viewing from above), and then place it back on the table."
+    },
+    {
+      "id": "robocoin-ai2-alphabot-2-shake-bottle",
+      "episodes": 394,
+      "match": "Grasp the erlenmeyer flask with one hand, shake it three times, then place it back."
+    },
+    {
+      "id": "suz22-robotwin-shake-bottle-randomized",
+      "episodes": 500,
+      "match": "RoboTwin shake bottle randomized"
+    }
+  ],
+  "slide_coaster": [
+    {
+      "id": "robocoin-airbot-mmk2-slide-block",
+      "episodes": 173,
+      "match": "Press the building block with one hand to move its position."
+    },
+    {
+      "id": "lerobot-aloha-static-ziploc-slide",
+      "episodes": 56,
+      "match": "Aloha static ziploc slide"
+    },
+    {
+      "id": "lerobot-pusht",
+      "episodes": 206,
+      "match": "Push the T-shaped block onto the T-shaped target."
+    }
+  ],
+  "sort_cutlery": [
+    {
+      "id": "lerobot-aloha-static-fork-pick-up",
+      "episodes": 100,
+      "match": "Aloha static fork pick up"
+    },
+    {
+      "id": "unitreerobotics-g1-wbt-inspire-sort-fruit",
+      "episodes": 200,
+      "match": "Sort Fruit"
+    },
+    {
+      "id": "svla_so100_sorting",
+      "episodes": 52,
+      "match": "Svla so100 sorting"
+    }
+  ],
+  "stack_glasses": [
+    {
+      "id": "robocoin-ai2-alphabot-2-stack-cups",
+      "episodes": 403,
+      "match": "Stack the three plastic cups sequentially using one hand."
+    },
+    {
+      "id": "robocoin-airbot-mmk2-stack-cup",
+      "episodes": 99,
+      "match": "pick up the cup by hand and stack it on top of another cup."
+    },
+    {
+      "id": "villekuosmanen-agilex-stack-cup",
+      "episodes": 20,
+      "match": "Pick up all the paper cups on the table one by one and stack them together."
+    },
+    {
+      "id": "villekuosmanen-agilex-put-paper-cup-jsh",
+      "episodes": 20,
+      "match": "Carefully pick up the cup on the right and stack it on top of the cup on the left."
+    }
+  ],
+  "stir": [
+    {
+      "id": "robocoin-ai2-alphabot-2-stir-spoon",
+      "episodes": 405,
+      "match": "Pick up the stirring spoon with one hand, stir inside the cup, then place it back in its original position."
+    },
+    {
+      "id": "villekuosmanen-agilex-stir-liquid-inside-cup",
+      "episodes": 20,
+      "match": "Pick up a spoon and stir the liquid in the cup."
+    },
+    {
+      "id": "robocoin-ai2-alphabot-2-stir-water",
+      "episodes": 322,
+      "match": "Use the one hand to pick up the spoon and stir the clear water in the bowl."
+    }
+  ],
+  "sweep_crumbs": [
+    {
+      "id": "robocoin-airbot-mmk2-sweep-peaper",
+      "episodes": 98,
+      "match": "hold the dustpan with one hand and the broom with the other, and sweep the paper ball into the dustpan."
+    },
+    {
+      "id": "robocoin-agilex-cobot-magic-sweep-coffee-beans",
+      "episodes": 359,
+      "match": "Sweep Coffee Bean."
+    }
+  ],
+  "swirl_glass": [
+    {
+      "id": "villekuosmanen-agilex-shake-glass",
+      "episodes": 40,
+      "match": "Gently pick up the goblet, rotate it counterclockwise for two full turns (viewing from above), and then place it back on the table."
+    },
+    {
+      "id": "robocoin-ai2-alphabot-2-shake-beaker",
+      "episodes": 48,
+      "match": "Pick up the beaker with the right gripper, shake it three times, and then put it down."
+    }
+  ],
+  "top_up": [
+    {
+      "id": "villekuosmanen-agilex-pour-water-cup-full",
+      "episodes": 19,
+      "match": "Pick up the mineral water bottle on the table and pour water into the mug until it's full."
+    },
+    {
+      "id": "villekuosmanen-agilex-pour-water-cup-little",
+      "episodes": 18,
+      "match": "Pick up the mineral water bottle on the table and pour a little water into the mug."
+    },
+    {
+      "id": "unitreerobotics-g1-dex1-pour-drink",
+      "episodes": 850,
+      "match": "Pour the drink into the goblet."
+    }
+  ],
+  "twist_cap": [
+    {
+      "id": "villekuosmanen-agilex-unscrew-cap",
+      "episodes": 20,
+      "match": "Unscrew the cap from the plastic bottle on the table."
+    },
+    {
+      "id": "robocoin-airbot-mmk2-unscrew-bottle-cap",
+      "episodes": 50,
+      "match": "Pick up the bottle with one hand and unscrew the cap with the other."
+    },
+    {
+      "id": "jensenyuan-dextacwam-unscrew-bottle-cap",
+      "episodes": 96,
+      "match": "Unscrew the cap off the bottle and set it down."
+    },
+    {
+      "id": "unitreerobotics-g1-dex1-open-bottle-cap",
+      "episodes": 300,
+      "match": "Use the bottle opener to remove the cap."
+    }
+  ],
+  "verify_surface_clean": [
+    {
+      "id": "unitreerobotics-g1-dex1-wipe-table",
+      "episodes": 930,
+      "match": "Wipe the water off the table with a rag."
+    },
+    {
+      "id": "villekuosmanen-agilex-wipe-desk",
+      "episodes": 20,
+      "match": "Wipe the tabletop with a clean cloth to remove dust and stains."
+    }
+  ],
+  "water_plant": [
+    {
+      "id": "villekuosmanen-agilex-water-plant-1",
+      "episodes": 18,
+      "match": "Pick up the watering can from the table, water the potted plant, and put the can back."
+    },
+    {
+      "id": "villekuosmanen-agilex-water-plant-4",
+      "episodes": 30,
+      "match": "Pick up the watering can from the table, water the potted plant, and put the can back."
+    },
+    {
+      "id": "sucrammal-plant-pour-data",
+      "episodes": 50,
+      "match": "Grasp the black cup, lift it towards the plant pot, tilt the cup to pour out its contents, tilt it back, and return it to its original position."
+    }
+  ],
+  "wipe_handle": [
+    {
+      "id": "unitreerobotics-g1-dex1-wipe-board",
+      "episodes": 1180,
+      "match": "Wipe Board"
+    },
+    {
+      "id": "robocoin-galbot-g1-wipe-mirror",
+      "episodes": 30,
+      "match": "Galbot_G1_wipe_mirror_bathroom_sink_1"
+    }
+  ],
+  "wipe_spill": [
+    {
+      "id": "lerobot-aloha-mobile-wipe-wine",
+      "episodes": 50,
+      "match": "Aloha mobile wipe wine"
+    },
+    {
+      "id": "unitreerobotics-g1-dex1-wipe-table",
+      "episodes": 930,
+      "match": "Wipe the water off the table with a rag."
+    },
+    {
+      "id": "villekuosmanen-agilex-wipe-laptop-water",
+      "episodes": 17,
+      "match": "Pick up the rag and use it to wipe the water off the lid of the laptop on the table."
+    }
+  ],
+  "wipe_surface": [
+    {
+      "id": "unitreerobotics-g1-dex1-wipe-table",
+      "episodes": 930,
+      "match": "Wipe the water off the table with a rag."
+    },
+    {
+      "id": "villekuosmanen-agilex-wipe-table-l2r",
+      "episodes": 20,
+      "match": "Wipe the table from left to right using the rag."
+    },
+    {
+      "id": "villekuosmanen-agilex-wipe-desk",
+      "episodes": 20,
+      "match": "Wipe the tabletop with a clean cloth to remove dust and stains."
+    }
+  ],
+  "wipe_window": [
+    {
+      "id": "robocoin-galbot-g1-wipe-mirror",
+      "episodes": 30,
+      "match": "Galbot_G1_wipe_mirror_bathroom_sink_1"
+    },
+    {
+      "id": "villekuosmanen-agilex-wipe-whiteboard",
+      "episodes": 20,
+      "match": "Wipe the whiteboard clean using the black magnetic whiteboard eraser attached to the whiteboard."
+    }
+  ]
+}

@@ -43,6 +43,13 @@ def seed_skills(path: Path | None = None, replace: bool = True) -> int:
     """Load the catalog from JSON. Idempotent."""
     path = path or ROOT / "data" / "seed_skills.json"
     manifests = json.loads(path.read_text())
+    # Extra open datasets per skill live in their own file so regenerating the
+    # seed (tools/make_catalog.py) never drops them.
+    extra_path = ROOT / "data" / "skill_datasets.json"
+    extra = json.loads(extra_path.read_text()) if extra_path.exists() else {}
+    for m in manifests:
+        if extra.get(m["id"]):
+            m["datasets"] = extra[m["id"]]
     with connect() as conn:
         if replace:
             # Composites were built here from verified plans; they are not in the

@@ -33,7 +33,7 @@ from .llm import LLMError, structured_call
 from .models import CompiledPlan, MissingSkill, PlanObject, Step
 
 # Part of the cache key: a plan compiled by an older pipeline is not reused.
-COMPILER_VERSION = "3"
+COMPILER_VERSION = "6"
 GAP = "GAP"
 
 
@@ -46,7 +46,10 @@ Start state: both hands empty. Everything the request names is within reach on \
 the table unless the request says otherwise. A glass already stands on a coaster \
 on the table. Things are in the everyday state a person would find them on a \
 counter: bottles open and ready to pour, food as it is sold (a banana still in \
-its peel). Use the fewest movements that get the work done.
+its peel), appliances (a blender, a kettle, a toaster) standing ready on their \
+base. Operating an appliance is pressing its control with a free hand; its jar or \
+pot stays on the base while it runs and is only lifted to pour out the result. \
+Use the fewest movements that get the work done.
 
 objects -- every thing the work involves: tools, ingredients, containers, and the \
 places things are moved to or worked on (the table, a whiteboard, a shelf).
@@ -56,6 +59,10 @@ exactly that name everywhere else.
 {kinds}
   Rum comes in a bottle, so "white rum" is a bottle. Soup sits in a pot: "soup" \
 is a substance and "soup pot" is an item.
+- size_cm: its approximate largest dimension in centimetres, as it is in this \
+request. Judge every object with the others in view: the parts of a toy are \
+toy-sized (a doll's teacup is ~3 cm, a real mug ~10 cm), and a thing that goes \
+onto or into another is smaller than what receives it.
 - If the request does not name ingredients, choose a short, typical set (two or \
 three) for it.
 
@@ -104,7 +111,7 @@ thing when X goes onto or into it.
 goal -- one sentence: what is true when the work is done.
 
 Example. "pour me a glass of juice":
-  objects: juice (bottle), glass (glass), table (fixed)
+  objects: juice (bottle, 25 cm), glass (glass, 12 cm), table (fixed, 120 cm)
   phase "the juice is in hand": look for the juice -> pick up the juice (all left)
   phase "the glass holds juice": carry the juice over the glass ->
         tilt the juice into the glass
@@ -113,7 +120,8 @@ Example. "pour me a glass of juice":
   goal: the glass holds juice and both hands are empty.
 
 Example. "stack the boxes":
-  objects: box1 (item), box2 (item), box3 (item), table (fixed)
+  objects: box1 (item, 10 cm), box2 (item, 10 cm), box3 (item, 10 cm), table \
+(fixed, 120 cm)
   box1 is the bottom of the stack: it stays on the table, untouched.
   phase "box2 is on box1": look for box2 -> pick up box2 -> carry box2 to \
 box1 -> set box2 down on box1 (all left)
@@ -137,7 +145,12 @@ movement; one skill may cover several consecutive movements. "look for the rum, 
 pick it up" is locate_object(target=white rum) then grasp_bottle(target=white \
 rum); "carry it over the glass" is move_to_station(target=glass); "tilt it into \
 the glass" is pour_into(target=glass); "carry it to the table, set it down" is \
-move_to_station(target=table) then release_object. The destination can be \
+move_to_station(target=table) then release_object.
+- A pour goes FROM what the hand holds INTO the target. To pour the blender into \
+the glass: grasp_object(target=blender), move_to_station(target=glass), \
+pour_into(target=glass); the glass stays where it is. Never pick up the \
+destination to pour into it, and never pour from a glass or shaker that nothing \
+was poured into. The simulator keeps a ledger of what each vessel contains. The destination can be \
 another object: "carry cup2 over cup1, set it down on cup1" is \
 move_to_station(target=cup1) then release_object.
 - Only use a skill whose `acts_on` includes the kind of its target (an empty \
@@ -155,7 +168,9 @@ not add new work.
 
 Gaps -- movements no catalog skill covers, judged by what the skill does, not its \
 name: a grasp includes the lift, release_object includes lowering before letting \
-go, any carrying is move_to_station.
+go, any carrying is move_to_station. Each skill's `aka` lists other ways its \
+movement gets described ("drag the cloth over" is wipe_surface, "turn on the \
+blender" is run_blender): check those before declaring a gap.
 - One gap per movement. skill_id "GAP". proposed_id names it as a reusable motion \
 primitive, verb plus a generic object or relation (twist_open, press_to_surface, \
 tilt_out, peel_item), never the phase or the task. name: title case of it. \
@@ -200,6 +215,12 @@ def _kinds_block() -> str:
 def _datasets_block() -> str:
     lines = []
     for d in sorted(cat.open_datasets().values(), key=lambda d: d["id"]):
+        if d.get("episodes_total") is not None:
+            # A single-task robot dataset: its id and task line say enough, and
+            # there are over a hundred of them, so keep each to one short line.
+            lines.append(json.dumps({"id": d["id"], "covers": d.get("covers", "")[:90]},
+                                    separators=(",", ":"), ensure_ascii=False))
+            continue
         lines.append(json.dumps({
             "id": d["id"], "name": d["name"], "kind": d.get("kind"),
             "covers": d.get("covers", ""), "good_for": d.get("good_for", []),
@@ -219,6 +240,7 @@ def _catalog_block(catalog: dict[str, dict[str, Any]]) -> str:
             "price_eur": s["price_eur"],
             "vendor": s["vendor"],
             "desc": s["description"],
+            "aka": s.get("aliases", []),
             "acts_on": s.get("acts_on", []),
             "pre": s.get("preconditions", []),
             "post": s.get("postconditions", []),
@@ -239,8 +261,9 @@ def _act_schema() -> dict[str, Any]:
                     "properties": {
                         "name": {"type": "string"},
                         "kind": {"type": "string", "enum": sorted(cat.object_kinds())},
+                        "size_cm": {"type": "number"},
                     },
-                    "required": ["name", "kind"],
+                    "required": ["name", "kind", "size_cm"],
                     "additionalProperties": False,
                 },
             },
@@ -332,15 +355,19 @@ def _bind_schema(skill_ids: list[str], names: list[str],
     }
 
 
-def cache_key(prompt: str, robot_model: str, catalog_ids: list[str]) -> str:
+def cache_key(prompt: str, robot_model: str, catalog: dict[str, dict[str, Any]],
+              structure: str = "dualarm") -> str:
+    """Everything the compiler's answer depends on, hashed. Editing the
+    compiler's prompts, a skill's conditions, status or acts_on, the datasets or
+    the object kinds retires the cached plans built on the old version, as does
+    a different robot structure."""
+    atoms = {k: v for k, v in catalog.items() if v.get("category") != "composite"}
     h = hashlib.sha256()
-    h.update(COMPILER_VERSION.encode())
-    h.update(b"\x00")
-    h.update(prompt.strip().lower().encode())
-    h.update(b"\x00")
-    h.update(robot_model.encode())
-    h.update(b"\x00")
-    h.update(",".join(sorted(catalog_ids)).encode())
+    for part in (COMPILER_VERSION, ACT_PROMPT, BIND_PROMPT,
+                 " ".join(prompt.lower().split()), robot_model,
+                 structure, _catalog_block(atoms), _datasets_block(), _kinds_block()):
+        h.update(part.encode())
+        h.update(b"\x00")
     return h.hexdigest()[:32]
 
 
@@ -362,6 +389,15 @@ def act_out(prompt: str, robot_model: str) -> dict[str, Any]:
     if not any(p.get("movements") for p in script.get("phases", [])):
         raise CompileError("the planner could not describe this as physical work")
     return script
+
+
+def _size_cm(v: Any) -> float | None:
+    """The planner's size estimate, or None when it gave nothing usable."""
+    try:
+        v = float(v)
+    except (TypeError, ValueError):
+        return None
+    return v if v > 0 else None
 
 
 def _to_plan(raw: dict[str, Any], script: dict[str, Any]) -> CompiledPlan:
@@ -390,7 +426,7 @@ def _to_plan(raw: dict[str, Any], script: dict[str, Any]) -> CompiledPlan:
             steps.append(Step(skill_id=item["skill_id"], params=params,
                               rationale=item["rationale"],
                               planned_hand=item.get("hand")))
-    objects = [PlanObject(name=o["name"], kind=o["kind"])
+    objects = [PlanObject(name=o["name"], kind=o["kind"], size_cm=_size_cm(o.get("size_cm")))
                for o in script.get("objects", [])]
     return CompiledPlan(summary=raw.get("summary", ""), combo_name=raw.get("combo_name", ""),
                         steps=steps, missing=missing, objects=objects,
@@ -556,14 +592,35 @@ def _repair(plan: CompiledPlan, script: dict[str, Any],
     """
     from .validator import is_blocking, validate  # local import avoids a cycle
 
-    for _ in range(max(budget, 0)):
+    rounds, extended = 0, False
+    while rounds < max(budget, 0):
+        rounds += 1
         issues = [i for i in validate(plan.steps, catalog, structure,
                                       kinds=plan.kinds(), gaps=plan.missing)[0]
-                  if is_blocking(i) or i.kind == "loose_end"]
+                  if is_blocking(i) or i.kind in ("loose_end", "pointless_move")]
+        # A pour the wrong way round is cheap to fix and expensive to ship:
+        # worth one extra round on its own.
+        if any(i.kind == "wrong_flow" for i in issues) and rounds == budget \
+                and not extended:
+            budget += 1
+            extended = True      # once: a model that keeps pouring backwards stops here
         wrongly_missing = [m.proposed_id for m in plan.missing if m.proposed_id in catalog]
         duplicates = _duplicate_gaps(plan, catalog)
         if not issues and not wrongly_missing and not duplicates:
             return plan
+        # Gaps whose words match a trained skill's aliases. Advice only: it rides
+        # along on a round the blocking issues already caused, and the binder
+        # keeps the gap when the skill's acts_on or preconditions do not fit.
+        # Demanding the swap drove plans into wrong-object grasps (a shovel
+        # bound as a scoop), which blocked more than the gap ever did.
+        seen = {g for g, _ in duplicates} | set(wrongly_missing)
+        lookalikes = []
+        for m in plan.missing:
+            if m.proposed_id in seen:
+                continue
+            hit = cat.covering_skill(m.model_dump(), catalog)
+            if hit and hit["trained"]:
+                lookalikes.append((m.proposed_id, hit["id"]))
 
         lines = []
         for issue in issues:
@@ -580,6 +637,11 @@ def _repair(plan: CompiledPlan, script: dict[str, Any],
         for gap, sid in duplicates:
             lines.append(f"- gap {gap} declares exactly what catalog skill {sid} "
                          f"does (same preconditions and effects) -- use {sid}")
+        for gap, sid in lookalikes:
+            aka = ", ".join(catalog[sid].get("aliases", [])[:3])
+            lines.append(f"- (advice) gap {gap} reads like trained skill {sid}"
+                         f"{' (aka ' + aka + ')' if aka else ''}: use {sid} if its acts_on "
+                         f"and preconditions fit this object, otherwise keep the gap")
 
         retry = (
             f"{user}\n\n"
@@ -592,7 +654,10 @@ def _repair(plan: CompiledPlan, script: dict[str, Any],
             "robot's structure cannot run (it becomes a gap)."
         )
         try:
-            raw = structured_call(system, retry, schema, "skill_plan")
+            # Repairs are where a small model struggles (a 25-step plan with one
+            # hand still busy), so they may go to a stronger one: REPAIR_MODEL.
+            raw = structured_call(system, retry, schema, "skill_plan",
+                                  model=os.environ.get("REPAIR_MODEL", "").strip() or None)
             candidate = _to_plan(raw, script)
         except Exception:
             return plan  # keep the flawed plan; the UI will show why it is blocked

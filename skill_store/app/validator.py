@@ -285,6 +285,45 @@ def wrong_object(skill: dict[str, Any], step: Step, kinds: dict[str, str],
             f"'{target}' is {a(kind)}.{instead}")
 
 
+# Object kinds that start empty: whatever is in them later got there in the plan.
+STARTS_EMPTY = {"glass", "shaker"}
+# Kinds a held thing can be dropped into (release_object over them puts it inside).
+CONTAINERS = {"glass", "shaker", "bottle", "item"}
+
+
+def wrong_flow(skill: dict[str, Any], step: Step, hand: str | None,
+               held: dict[str, str], contents: dict[str, set[str]],
+               kinds: dict[str, str]) -> str | None:
+    """Why this pour makes no physical sense, or None.
+
+    pour_into moves what the hand holds into the target. The predicate model
+    cannot tell "holding the blender over the glass" from "holding the glass
+    over the blender" -- both satisfy holding + positioned -- so this check
+    follows the objects: what is held, what it contains, where it goes.
+    """
+    if skill.get("flow") != "held->target" or not hand:
+        return None
+    source = held.get(hand)
+    target = str(step.params.get("target", "")).strip()
+    if not source or not target:
+        return None
+    full = sorted(o for o, c in contents.items() if c and o not in (source, target)
+                  and kinds.get(o) != "bottle")
+    if source == target:
+        hint = (f" What holds something now: {', '.join(full)} -- pick that up, "
+                f"carry it over the {target} and pour into the {target}.") if full else ""
+        return (f"{skill['name']}({target}) while holding the {target}: the target is "
+                f"where the contents go, so hold the source and pour into the "
+                f"{target}.{hint}")
+    if kinds.get(source) in STARTS_EMPTY and not contents.get(source):
+        hint = f" Things that hold something now: {', '.join(full)}." if full else ""
+        return (f"the {source} is empty, so there is nothing to pour from it into the "
+                f"{target}.{hint} Hold the full vessel and pour into the {target}.")
+    if kinds.get(target) == "fixed" and target.lower() in SHARED_PLACES:
+        return f"{skill['name']}({target}) pours onto the {target}, not into a vessel."
+    return None
+
+
 def validate(
     steps: list[Step],
     catalog: dict[str, Any],
@@ -329,10 +368,26 @@ def validate(
         for j in gaps_after.get(after, []):
             hand = ghands[j] or (hands[after] if 0 <= after < len(hands) else None)
             skill = _gap_skill(gaps[j])
+            if hand:
+                used[hand] = True            # a gap is work done with the hand
             for pred in skill["deletes"]:
                 state.discard(scoped(pred, hand))
             for pred in skill["postconditions"]:
                 state.add(scoped(pred, hand))
+
+    # The contents ledger: which object each hand holds, and what is inside
+    # each object. Bottles arrive full; glasses and shakers start empty.
+    held: dict[str, str] = {}
+    at: dict[str, str] = {}          # where each hand last carried its object
+    # Where each object stands (everything starts on the table), and, per hand,
+    # where its held object was picked up and whether the hand did anything
+    # with it besides carrying it about.
+    placed: dict[str, str] = {}
+    picked: dict[str, tuple[int, str]] = {}
+    used: dict[str, bool] = {}
+    contents: dict[str, set[str]] = {}
+    for name, kind in kinds.items():
+        contents[name] = {name} if kind == "bottle" else set()
 
     apply_gaps(-1)
     for i, step in enumerate(steps):
@@ -360,6 +415,51 @@ def validate(
         if misfit:
             issues.append(ValidationIssue(step_index=i, kind="wrong_object",
                                           detail=misfit))
+
+        flow = wrong_flow(skill, step, hand, held, contents, kinds)
+        if flow:
+            issues.append(ValidationIssue(step_index=i, kind="wrong_flow", detail=flow))
+
+        # Ledger updates: grasps take hold of the target, pours and releases
+        # move contents, letting go clears the hand.
+        target = str(step.params.get("target", "")).strip()
+        adds = set(skill.get("postconditions", []))
+        if hand and "holding" in adds and target:
+            held[hand] = target
+            picked[hand] = (i, placed.get(target, "table"))
+            used[hand] = False
+        elif hand and hand in held and step.skill_id != "move_to_station" \
+                and "holding" not in set(skill.get("deletes", [])):
+            used[hand] = True
+        if hand and "positioned" in adds and target:
+            at[hand] = target
+        # A release usually names no target: it lets go wherever the hand went.
+        if not target and hand and skill.get("flow") == "object->target":
+            target = at.get(hand, "")
+        if hand and skill.get("flow") and held.get(hand) and target and not flow:
+            source = held[hand]
+            if skill["flow"] == "held->target":
+                moved = contents.get(source) or {source}
+                contents.setdefault(target, set()).update(moved)
+                if kinds.get(source) in STARTS_EMPTY:
+                    contents[source] = set()          # a glass poured out is empty
+            elif skill["flow"] == "object->target" and kinds.get(target) in CONTAINERS:
+                contents.setdefault(target, set()).add(source)
+        if hand and "holding" in set(skill.get("deletes", [])):
+            obj = held.get(hand)
+            dest = target or at.get(hand) or "table"
+            if obj and hand in picked:
+                start, origin = picked[hand]
+                if dest == origin and not used.get(hand):
+                    issues.append(ValidationIssue(
+                        step_index=i, kind="pointless_move",
+                        detail=(f"Steps {start + 1}-{i + 1} pick up the {obj} and set it "
+                                f"back on the {dest} where it already was, without using "
+                                f"it. Drop those steps.")))
+                placed[obj] = dest
+            held.pop(hand, None)
+            at.pop(hand, None)
+            picked.pop(hand, None)
 
         need = skill.get("embodiment", {}).get("structure", "dualarm")
         if STRUCTURE_RANK.get(need, 0) > have_rank:
@@ -402,7 +502,8 @@ def validate(
 def is_blocking(issue: ValidationIssue) -> bool:
     """Issues that stop the plan from being queued at all."""
     return issue.kind in {"unknown_skill", "unmet_precondition",
-                          "embodiment_mismatch", "empty_plan", "wrong_object"}
+                          "embodiment_mismatch", "empty_plan", "wrong_object",
+                          "wrong_flow"}
 
 
 def dependency_graph(
@@ -465,6 +566,12 @@ def dependency_graph(
 
         if hand and hand in last_on_hand:
             add(last_on_hand[hand], f"{hand} hand", "hand")
+
+        # A step that needs no hand and no state (a camera check) has nothing to
+        # wait on, so it would run at time zero -- before the work it checks.
+        # It waits for the step written before it.
+        if i > 0 and not deps and hands_required(skill) == 0:
+            add(i - 1, "the step before", "requires")
 
         for pred in skill.get("postconditions", []):
             if pred in HAND_SCOPED:

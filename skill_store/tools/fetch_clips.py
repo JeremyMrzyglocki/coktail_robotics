@@ -27,12 +27,14 @@ import os
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import urllib.error
+import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from fetch_media import _get, _media_columns, lerobot_video_urls, viewer_rows  # noqa: E402
+from fetch_media import TIMEOUT, _get, _media_columns, ffmpeg_bin, lerobot_video_urls, viewer_rows  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CLIPS = ROOT / "app" / "static" / "clips"
@@ -42,9 +44,9 @@ START, LENGTH = 3.0, 6.0
 
 def cut(url: str, dest: Path) -> tuple[bool, str]:
     """Cut LENGTH seconds at START, re-encoded to H.264. Returns (ok, stderr)."""
-    if not shutil.which("ffmpeg"):
+    if not ffmpeg_bin():
         return False, "ffmpeg not installed"
-    cmd = ["ffmpeg", "-nostdin", "-loglevel", "error", "-ss", str(START), "-t", str(LENGTH),
+    cmd = [ffmpeg_bin(), "-nostdin", "-loglevel", "error", "-ss", str(START), "-t", str(LENGTH),
            "-i", url, "-an", "-vf", "scale=640:-2", "-c:v", "libx264", "-pix_fmt", "yuv420p",
            "-crf", "28", "-movflags", "+faststart", "-y", str(dest)]
     try:
@@ -69,11 +71,68 @@ def frames_clip(srcs: list[str], dest: Path, token: str | None) -> bool:
                 continue
         if n < 10:
             return False
-        cmd = ["ffmpeg", "-nostdin", "-loglevel", "error", "-framerate", "10",
+        cmd = [ffmpeg_bin(), "-nostdin", "-loglevel", "error", "-framerate", "10",
                "-i", str(Path(tmp) / "%04d.jpg"), "-vf", "scale=640:-2",
                "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                "-y", str(dest)]
         return subprocess.run(cmd, capture_output=True).returncode == 0
+
+
+TAR_CAP = 800 * 1024 * 1024     # never pull more than this out of one shard
+
+
+def first_tar(repo: str, token: str | None) -> str | None:
+    """The first .tar shard in the repo, found by walking the tree two levels down."""
+    def ls(path: str) -> list[dict]:
+        url = f"https://huggingface.co/api/datasets/{repo}/tree/main/{path}".rstrip("/")
+        try:
+            return json.loads(_get(url, token))
+        except (urllib.error.URLError, json.JSONDecodeError, TimeoutError):
+            return []
+    frontier = [""]
+    for _ in range(4):
+        nxt = []
+        for d in frontier[:3]:
+            for f in ls(d):
+                if f.get("type") == "file" and f.get("path", "").endswith(".tar"):
+                    return f["path"]
+                if f.get("type") == "directory":
+                    nxt.append(f["path"])
+        frontier = nxt
+        if not frontier:
+            break
+    return None
+
+
+def video_from_tar(repo: str, path: str, token: str | None, out: Path) -> tuple[str | None, str]:
+    """Stream a tar shard only as far as its first video member and save that.
+
+    Build AI's egocentric sets keep MP4s inside tar shards with no viewer, so a
+    clip means reading one shard sequentially until the first video ends -- a
+    few hundred MB at most, not the shard.
+    """
+    url = f"https://huggingface.co/datasets/{repo}/resolve/main/{path}"
+    req = urllib.request.Request(url, headers={"user-agent": "skill-store/0.1"})
+    if token:
+        req.add_header("authorization", f"Bearer {token}")
+    try:
+        resp = urllib.request.urlopen(req, timeout=TIMEOUT)
+    except urllib.error.URLError as exc:
+        return None, f"could not open {path}: {exc}"
+    try:
+        with tarfile.open(fileobj=resp, mode="r|") as tf:
+            for m in tf:
+                if not m.isfile() or not m.name.lower().endswith((".mp4", ".mkv", ".webm")):
+                    continue
+                if m.size > TAR_CAP:
+                    return None, f"first video in {path} is {m.size >> 20} MB, over the cap"
+                src = tf.extractfile(m)
+                with open(out, "wb") as fh:
+                    shutil.copyfileobj(src, fh, 1 << 20)
+                return f"{path}::{m.name}", ""
+    except (tarfile.TarError, OSError) as exc:
+        return None, f"bad tar {path}: {exc}"
+    return None, f"no video member in {path}"
 
 
 def fetch(ds: dict, token: str | None) -> dict:
@@ -104,9 +163,21 @@ def fetch(ds: dict, token: str | None) -> dict:
         return {"kind": "local", "path": f"clips/{dest.name}", "repo_id": repo,
                 "source": f"first {min(len(images), 60)} frames of the viewer", "start": 0,
                 "length": min(len(images), 60) / 10}
-    why = "gated -- accept the terms and set HF_TOKEN" if ds.get("access") == "gated-auto" \
-        else "no video or images served"
-    return {"kind": "none", "why": why}
+    if ds.get("access") == "gated-auto" and not token:
+        return {"kind": "none", "why": "gated -- accept the terms and set HF_TOKEN"}
+    shard = first_tar(repo, token)
+    if shard:
+        with tempfile.TemporaryDirectory() as tmp:
+            raw = Path(tmp) / "first.mp4"
+            member, err = video_from_tar(repo, shard, token, raw)
+            if member:
+                ok, ferr = cut(str(raw), dest)
+                if ok:
+                    return {"kind": "local", "path": f"clips/{dest.name}", "repo_id": repo,
+                            "source": member, "start": START, "length": LENGTH}
+                return {"kind": "none", "why": f"could not cut a clip: {ferr.strip()[:120]}"}
+            return {"kind": "none", "why": err}
+    return {"kind": "none", "why": "no video or images served"}
 
 
 def main() -> int:
@@ -120,11 +191,17 @@ def main() -> int:
     for ds in datasets:
         if args.only and ds["id"] != args.only:
             continue
+        have = out.get(ds["id"])
+        if not args.only and have and have["kind"] == "local":
+            continue                      # a local clip is final; streams and misses get another go
         print(f"{ds['id']:34}", end=" ", flush=True)
-        out[ds["id"]] = fetch(ds, token)
-        info = out[ds["id"]]
-        print(info["kind"], info.get("path") or info.get("why") or info.get("codec", ""))
-    SOURCES.write_text(json.dumps(out, indent=2) + "\n")
+        info = fetch(ds, token)
+        print(info["kind"], info.get("path") or info.get("why") or info.get("codec", ""), flush=True)
+        # Save after every dataset, merging with whatever another run wrote
+        # meanwhile: a long sweep can be stopped without losing its progress.
+        out = json.loads(SOURCES.read_text()) if SOURCES.exists() else {}
+        out[ds["id"]] = info
+        SOURCES.write_text(json.dumps(out, indent=2) + "\n")
     return 0
 
 

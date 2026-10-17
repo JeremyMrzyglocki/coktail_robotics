@@ -10,6 +10,8 @@ let plan = null;        // {plan_id, steps[], missing[], issues[], ...}
 let catalogCache = [];
 let credits = {};
 let pollTimer = null;
+let runActive = false;    // a plan is queued or running: its order is locked
+let compiling = false;    // one compile at a time; a second click waits for the first
 let handOverrides = {};   // step index -> 'left' | 'right'
 
 /* Nothing should fail silently in a live demo. */
@@ -116,11 +118,13 @@ function sequence() {
   return out;
 }
 
-function insertBar(atIndex, label) {
+/* `seqPos` is how many rows (steps and gaps) sit above this bar. */
+function insertBar(seqPos, label) {
   const bar = el("div", "ins");
+  if (runActive) return bar;               // no edits while the robot has the plan
   const b = el("button", null, "+");
   b.title = label;
-  b.addEventListener("click", (ev) => { ev.stopPropagation(); openPicker(atIndex); });
+  b.addEventListener("click", (ev) => { ev.stopPropagation(); openPicker(seqPos); });
   bar.appendChild(b);
   return bar;
 }
@@ -143,8 +147,7 @@ function renderSequence() {
   rows.forEach((item) => {
     n += 1;
     wrap.appendChild(item.gap ? gapRow(item.data, n) : skillRow(item.data, n, item.stepIndex));
-    const at = item.gap ? (plan.steps || []).length : item.stepIndex + 1;
-    wrap.appendChild(insertBar(at, "Insert here"));
+    wrap.appendChild(insertBar(n, "Insert here"));
   });
 }
 
@@ -190,6 +193,7 @@ function skillRow(s, n, stepIndex) {
   row.appendChild(av);
 
   const ds = el("div", "c-ds", s.dataset_name || "—");
+  if (s.dataset_count > 1) ds.appendChild(el("small", "ds-more", `+${s.dataset_count - 1} more datasets`));
   if (s.n_trials) {
     ds.appendChild(el("small", null, Math.round(s.success_rate * 100) + "% over " + s.n_trials));
   }
@@ -276,7 +280,8 @@ function handCell(s, stepIndex) {
   }
   [["L", "left"], ["R", "right"]].forEach(([label, hand]) => {
     const b = el("button", s.hand === hand ? "on" : null, label);
-    b.title = hand + " hand";
+    b.title = runActive ? "Locked while the robot runs this plan" : hand + " hand";
+    b.disabled = runActive;
     b.addEventListener("click", (ev) => {
       ev.stopPropagation();                      // do not open the detail popup
       if (s.hand === hand) return;
@@ -305,7 +310,7 @@ function renderMeta() {
 
   const box = $("#issues");
   box.textContent = "";
-  const blocking = new Set(["unknown_skill","unmet_precondition","embodiment_mismatch","empty_plan",
+  const blocking = new Set(["unknown_skill","unmet_precondition","embodiment_mismatch","empty_plan","wrong_flow",
                             "wrong_object"]);
   ((plan && plan.issues) || []).forEach((i) => {
     const d = el("div", "issue" + (blocking.has(i.kind) ? " block" : ""));
@@ -315,14 +320,68 @@ function renderMeta() {
 
   const btn = $("#install");
   btn.classList.toggle("hidden", !plan || steps.length === 0);
-  btn.disabled = !(plan && plan.valid && steps.length);
-  btn.firstElementChild.textContent =
-    plan && plan.valid && steps.length ? "Install & run" : "Blocked by validator";
+  const runnable = !runActive && !!(plan && plan.installable && steps.length);
+  btn.disabled = !runnable;
+  btn.firstElementChild.textContent = runActive ? "Running on the robot…"
+    : runnable ? "Install & run"
+    : plan && !plan.valid ? "Blocked by validator"
+    : "Not runnable: " + ((plan && plan.install_blockers) || []).join(" · ");
+}
+
+/* ---------------- keeping step indices straight ---------------- */
+/* Missing skills sit after a step index and hand choices are keyed by step
+   index, so every insert or reorder carries both along. `map(oldIndex)` gives
+   the step's new index. */
+function reindexSteps(map) {
+  const shifted = {};
+  Object.entries(handOverrides).forEach(([k, v]) => {
+    const to = map(Number(k));
+    if (to != null) shifted[to] = v;
+  });
+  handOverrides = shifted;
+  (plan.missing || []).forEach((m) => {
+    const a = m.insert_after == null ? -1 : m.insert_after;
+    if (a >= 0 && a < plan.steps.length) m.insert_after = map(a);
+  });
+}
+
+/* Insert a step where a "+" bar sits, `seqPos` rows down the list. Every gap
+   keeps its place in the list: its new insert_after is the number of steps
+   that end up above it, minus one. */
+function insertAtRow(seqPos, step) {
+  const rows = sequence();
+  const at = rows.slice(0, seqPos).filter((r) => !r.gap).length;
+  const before = [];
+  rows.forEach((r, d) => {
+    if (!r.gap) return;
+    const stepsAbove = rows.slice(0, d).filter((x) => !x.gap).length + (d >= seqPos ? 1 : 0);
+    before.push([r.data, stepsAbove - 1]);
+  });
+  const overrides = {};
+  Object.entries(handOverrides).forEach(([k, v]) => {
+    overrides[Number(k) >= at ? Number(k) + 1 : Number(k)] = v;
+  });
+  handOverrides = overrides;
+  plan.steps.splice(at, 0, step);
+  before.forEach(([m, after]) => { m.insert_after = after; });
+  return at;
+}
+
+function hideBalanceNote() {
+  const warn = $("#handwarn");
+  if (warn.classList.contains("balance-note")) {
+    warn.textContent = "";
+    warn.className = "handwarn hidden";
+  }
 }
 
 /* ---------------- drag to reorder ---------------- */
 let dragFrom = null;
 function wireDrag() {
+  if (runActive) {
+    document.querySelectorAll(".row[draggable='true']").forEach((r) => { r.draggable = false; });
+    return;
+  }
   document.querySelectorAll(".row[draggable='true']").forEach((row) => {
     row.addEventListener("dragstart", (e) => {
       dragFrom = Number(row.dataset.index);
@@ -331,6 +390,7 @@ function wireDrag() {
       try { e.dataTransfer.setData("text/plain", String(dragFrom)); } catch (_) {}
     });
     row.addEventListener("dragend", () => {
+      dragFrom = null;
       row.classList.remove("dragging");
       document.querySelectorAll(".row").forEach((r) => r.classList.remove("over"));
     });
@@ -341,11 +401,18 @@ function wireDrag() {
     row.addEventListener("drop", (e) => {
       e.preventDefault(); e.stopPropagation();
       const to = Number(row.dataset.index);
-      if (dragFrom === null || Number.isNaN(to) || dragFrom === to) return;
-      const [moved] = plan.steps.splice(dragFrom, 1);
-      plan.steps.splice(to, 0, moved);
+      const from = dragFrom;
       dragFrom = null;
-      handOverrides = {};        // indices shifted; let the planner reassign
+      if (from === null || Number.isNaN(to) || from === to) return;
+      const order = plan.steps.map((_, i) => i);
+      order.splice(to, 0, ...order.splice(from, 1));
+      const [moved] = plan.steps.splice(from, 1);
+      plan.steps.splice(to, 0, moved);
+      // Gaps stay after the step they followed; hand choices follow their step.
+      const newIndex = [];
+      order.forEach((old, i) => { newIndex[old] = i; });
+      reindexSteps((k) => newIndex[k]);
+      hideBalanceNote();
       draw();
       revalidate();
     });
@@ -690,6 +757,7 @@ function downstreamOf(nodes, index) {
 }
 
 function renderFlow3d(animate) {
+  stopPlay();                 // a redraw replaces the cards the player was lighting
   const stage = $("#flowstage");
   const stats = $("#flowstats");
   stage.textContent = "";
@@ -780,7 +848,8 @@ function renderFlow3d(animate) {
     if (n.hands_required === 1) {
       [["L", "left"], ["R", "right"]].forEach(([label, hand]) => {
         const b = el("button", "fn-hb " + hand + (n.hand === hand ? " on" : ""), label);
-        b.title = `Run on the ${hand} hand`;
+        b.title = runActive ? "Locked while the robot runs this plan" : `Run on the ${hand} hand`;
+        b.disabled = runActive;
         b.addEventListener("click", (ev) => {
           ev.stopPropagation();
           if (n.hand === hand) return;
@@ -917,7 +986,8 @@ $("#flowplay").addEventListener("click", () => {
 function renderCombo() {
   const wrap = $("#combo");
   const steps = (plan && plan.steps) || [];
-  const ok = plan && plan.valid && steps.length > 1;
+  // Only a chain the robot can run end to end is worth selling as one skill.
+  const ok = plan && plan.installable && steps.length > 1;
   wrap.classList.toggle("hidden", !ok);
   if (!ok) return;
   const name = plan.combo_name || "This Process";
@@ -946,18 +1016,33 @@ $("#compose").addEventListener("click", async () => {
 
 async function revalidate(changedStep) {
   $("#foot-note").textContent = "Re-checking…";
-  const body = await postJSON("/api/validate", {
+  let body;
+  try {
+    body = await postJSON("/api/validate", {
     steps: plan.steps.map((s) => ({ skill_id: s.skill_id, params: s.params,
                                     rationale: s.rationale || "",
                                     planned_hand: s.planned_hand || null })),
+    missing: plan.missing || [],
     robot_model: robot(), structure: STRUCTURE, plan_id: plan.plan_id,
     hand_overrides: handOverrides,
     changed_step: changedStep == null ? null : changedStep,
-  });
+    });
+  } catch (e) {
+    // The server refused (a run started, say). The page already moved the step
+    // locally, so take the server's copy back rather than show something else.
+    showError(e.message);
+    if (plan.plan_id) {
+      try { plan = await getJSON(`/api/plans/${plan.plan_id}`); } catch (_) {}
+      handOverrides = {};
+    }
+    draw();
+    return;
+  }
   Object.assign(plan, {
     valid: body.valid, issues: body.issues, steps: body.steps, graph: body.graph,
     hands: body.hands, depth: body.depth, max_parallel: body.max_parallel,
     total_price_eur: body.total_price_eur, executable_steps: body.executable_steps,
+    installable: body.installable, install_blockers: body.install_blockers || [],
   });
   const warn = $("#handwarn");
   if (changedStep != null) warn.classList.remove("balance-note");
@@ -972,7 +1057,7 @@ async function revalidate(changedStep) {
 }
 
 $("#balance").addEventListener("click", async () => {
-  if (!plan || !(plan.steps || []).length) return;
+  if (!plan || !(plan.steps || []).length || runActive) return;
   const btn = $("#balance");
   btn.disabled = true;
   const label = btn.textContent;
@@ -1013,6 +1098,11 @@ async function postJSON(url, payload) {
   catch (_) { throw new Error(`${url} returned non-JSON (HTTP ${r.status}): ${text.slice(0,180)}`); }
   if (!r.ok) {
     const d = body.detail;
+    // FastAPI input errors arrive as a list: say which field and why.
+    if (Array.isArray(d)) {
+      throw new Error(d.map((x) => `${(x.loc || []).slice(-1)[0] || "input"}: ${x.msg}`)
+        .join("; "));
+    }
     throw new Error(typeof d === "string" ? d : JSON.stringify(d || body).slice(0, 300));
   }
   return body;
@@ -1030,7 +1120,9 @@ async function getJSON(url) {
 /* ---------------- compile ---------------- */
 async function compile() {
   const prompt = $("#prompt").value.trim();
-  if (!prompt) return;
+  if (!prompt || compiling) return;
+  compiling = true;
+  stopFollowing();
   $("#go").disabled = true;
   $("#status").className = "status";
   $("#status").textContent = "Breaking it into skills…";
@@ -1048,6 +1140,7 @@ async function compile() {
     plan = null;
     draw();
   } finally {
+    compiling = false;
     $("#go").disabled = false;
   }
 }
@@ -1150,8 +1243,11 @@ async function openDetail(skillId) {
   hero.appendChild(ht);
   b.appendChild(hero);
 
-  const dsInfo = (d.dataset && d.dataset.detail) || null;
-  const trained = (d.dataset || {}).status === "trained_on";
+  // Caption the footage that is actually shown: the dataset the clip came
+  // from, which may be a candidate rather than the skill's primary dataset.
+  const shown = d.clip_dataset || null;
+  const dsInfo = (shown && shown.detail) || (d.dataset && d.dataset.detail) || null;
+  const trained = (shown || d.dataset || {}).status === "trained_on";
   b.appendChild(clipEl(d.clip, dsInfo
     ? `${trained ? "Demonstration data this skill was trained on" : "Candidate data source for this skill"}: ` +
       `${dsInfo.name}${d.clip && d.clip.repo_id ? " (" + d.clip.repo_id + ")" : ""}. ` +
@@ -1192,6 +1288,23 @@ async function openDetail(skillId) {
     body.appendChild(mrow("Episodes collected", String((d.dataset || {}).episodes || 0)));
   } else {
     body.appendChild(mrow("Dataset", "none identified — this one has to be recorded"));
+  }
+  // Every other open dataset that shows this motion, with what it shows.
+  const more = (d.datasets || []).filter((x) => !ds || x.id !== ds.id);
+  if (more.length) {
+    const list = el("div", "ds-list");
+    more.forEach((x) => {
+      const info = x.detail || {};
+      const item = el("div", "ds-item");
+      const a = el("a", null, info.name || x.id);
+      a.href = info.url || "#"; a.target = "_blank"; a.rel = "noopener";
+      item.appendChild(a);
+      item.appendChild(el("div", "m-sub", [info.robot, x.episodes ? x.episodes.toLocaleString() + " episodes" : null,
+        info.kind === "sim" ? "simulation" : null, info.license].filter(Boolean).join("  ·  ")));
+      if (x.match) item.appendChild(el("div", "m-sub ds-match", "“" + x.match + "”"));
+      list.appendChild(item);
+    });
+    body.appendChild(mrow(`More data (${more.length})`, list));
   }
 
   if (d.composed_of && d.composed_of.length) {
@@ -1249,10 +1362,10 @@ function openGapDetail(m) {
 
 /* ---------------- + insert a skill ---------------- */
 let pickAt = 0;
-function openPicker(at) {
-  pickAt = at;
+function openPicker(seqPos) {
+  pickAt = seqPos;
   $("#picker-where").textContent =
-    at === 0 ? "Insert before step 1" : "Insert after step " + at;
+    seqPos === 0 ? "Insert at the start" : "Insert after row " + seqPos;
   $("#picker-filter").value = "";
   drawPicker();
   $("#picker").classList.remove("hidden");
@@ -1289,7 +1402,8 @@ function drawPicker() {
 async function insertSkill(skillId) {
   $("#picker").classList.add("hidden");
   if (!plan) plan = { plan_id: null, steps: [], missing: [], issues: [], valid: false };
-  plan.steps.splice(pickAt, 0, { skill_id: skillId, params: {} });
+  insertAtRow(pickAt, { skill_id: skillId, params: {} });
+  hideBalanceNote();
   draw();
   if (plan.plan_id) await revalidate();
   else {
@@ -1305,17 +1419,42 @@ async function insertSkill(skillId) {
 
 /* ---------------- install + run ---------------- */
 $("#install").addEventListener("click", async () => {
-  if (!plan || !plan.valid) return;
+  if (!plan || !plan.installable) return;
   $("#install").disabled = true;
   try { await postJSON("/api/install", { plan_id: plan.plan_id }); }
   catch (e) { showError("Install refused: " + e.message); $("#install").disabled = false; return; }
   const log = $("#runlog");
   log.classList.remove("hidden"); log.textContent = "";
   const seen = new Set();
-  clearInterval(pollTimer);
+  const id = plan.plan_id;                 // follow this plan, whatever is compiled next
+  const started = Date.now();
+  let failures = 0, warned = false;
+  stopFollowing();
+  runActive = true;
+  draw();                                  // drop the + bars, drag and L/R
   pollTimer = setInterval(async () => {
+    if (Date.now() - started > RUN_FOLLOW_MS) {
+      log.appendChild(el("div", "no", "Stopped following after 30 minutes."));
+      finishRun(); return;
+    }
     try {
-      const s = await getJSON(`/api/plans/${plan.plan_id}/status`);
+      const s = await getJSON(`/api/plans/${id}/status`);
+      failures = 0;
+      if (s.status === "queued" && !warned && Date.now() - started > 15000) {
+        warned = true;
+        const note = el("div", null,
+          "Still queued: no runner has picked it up. Start one with " +
+          "python runner/runner.py --mock, or ");
+        const cancel = el("button", "linkish", "take it off the queue");
+        cancel.addEventListener("click", async () => {
+          try { await postJSON(`/api/plans/${id}/cancel`, {}); }
+          catch (e) { showError("Could not cancel: " + e.message); return; }
+          log.appendChild(el("div", null, "Taken off the queue."));
+          finishRun();
+        });
+        note.appendChild(cancel);
+        log.appendChild(note);
+      }
       s.runs.forEach((run) => {
         const key = `${run.step_index}:${run.created_at}:${run.success}`;
         if (seen.has(key)) return;
@@ -1327,18 +1466,35 @@ $("#install").addEventListener("click", async () => {
         log.appendChild(d); log.scrollTop = log.scrollHeight;
       });
       if (s.status === "done" || s.status === "failed") {
-        clearInterval(pollTimer);
-        $("#install").disabled = false;
+        finishRun();
         loadCatalog();
       }
-    } catch (_) {}
+    } catch (e) {
+      failures += 1;
+      if (failures >= 10) {
+        finishRun();
+        showError("Lost contact with the server while following the run: " + e.message);
+      }
+    }
   }, 500);
 });
+
+const RUN_FOLLOW_MS = 30 * 60 * 1000;
+function stopFollowing() {
+  clearInterval(pollTimer);
+  pollTimer = null;
+  if (runActive) { runActive = false; $("#install").disabled = false; }
+}
+function finishRun() {
+  stopFollowing();
+  if (plan) draw();
+}
 
 /* ---------------- catalog + datasets ---------------- */
 async function loadCatalog() {
   const body = await getJSON("/api/skills?robot_model=" + encodeURIComponent(robot()));
   catalogCache = body.skills;
+  if (plan) renderGit();      // the state flow needs each skill's deletes from here
   const n = (t) => catalogCache.filter((s) => s.availability === t).length;
   $("#catalog-count").textContent =
     `${body.count} skills · ${n("skill_and_data")} trained · ` +
@@ -1405,7 +1561,8 @@ function atomCard(s) {
   b.appendChild(av);
   const foot = el("div", "foot");
   foot.appendChild(el("span", null, eur(s.price_eur)));
-  foot.appendChild(el("span", "sub", s.dataset_name || "no dataset"));
+  foot.appendChild(el("span", "sub", (s.dataset_name || "no dataset") +
+    (s.dataset_count > 1 ? ` +${s.dataset_count - 1}` : "")));
   b.appendChild(foot);
   card.appendChild(b);
   card.addEventListener("click", () => openDetail(s.id));
@@ -1518,6 +1675,17 @@ async function loadGaps() {
     c.appendChild(el("span", "count", x.requests + "\u00d7"));
     c.appendChild(el("h4", null, x.name));
     c.appendChild(el("div", "gid", x.proposed_id));
+    if (x.covered_by) {
+      // Not a gap after all: the catalog already has this motion. Trained means
+      // the binder missed it; untrained means it is a data order, not a new skill.
+      const cb = x.covered_by;
+      const tag = el("div", "covered " + (cb.trained ? "trained" : "untrained"),
+        (cb.trained ? "already available: " : "listed, needs training: ") + cb.name);
+      tag.title = cb.trained
+        ? "A trained skill covers this; the compiler should bind to it."
+        : "The catalog lists this skill without a checkpoint; demand here is a data order for it.";
+      c.appendChild(tag);
+    }
     c.appendChild(el("p", null, x.description));
     x.example_prompts.forEach((q) =>
       c.appendChild(el("div", "quote", "\u201c" + q + "\u201d")));
@@ -1603,5 +1771,6 @@ async function loadBenchmark() {
 
 $("#robot").addEventListener("change", () => loadBenchmark().catch(() => {}));
 
-loadDatasets().then(loadCatalog).then(loadGaps).then(loadBenchmark)
-  .catch((e) => showError(e.message));
+// Independent, so one failing section does not leave the others blank.
+[loadDatasets, loadCatalog, loadGaps, loadBenchmark].forEach((load) =>
+  load().catch((e) => showError(e.message)));

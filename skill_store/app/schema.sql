@@ -53,3 +53,10 @@ CREATE TABLE IF NOT EXISTS compile_cache (
     plan_json     TEXT NOT NULL,
     created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Model-designed stand-in 3D props for objects the animation has no builder for.
+CREATE TABLE IF NOT EXISTS props (
+    name          TEXT PRIMARY KEY,
+    spec_json     TEXT NOT NULL,
+    created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);

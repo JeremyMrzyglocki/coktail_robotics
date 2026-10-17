@@ -100,6 +100,12 @@ function planToRecipe(p) {
   return { actions, slots, end: t, both };
 }
 
+// Names the scene kit draws itself; anything else is designed on demand.
+function propKnown(name) {
+  const k = window.POVScene && POVScene.propKind ? POVScene.propKind(name) : "box";
+  return k !== "box";
+}
+
 /* ---------------- lazy three.js ---------------- */
 let kitReady = null;
 function loadScript(src) {
@@ -153,13 +159,33 @@ async function renderAnim() {
   catch (e) { stage.appendChild(el("div", "empty", "The animation needs three.js: " + e.message)); return; }
   if (anim !== mine) return;          // a newer plan arrived while loading
 
+  // Objects the kit cannot draw get a model-designed stand-in: one call per new
+  // name, cached on the server, so the second plan with a "plant" is instant.
+  const unknown = [...new Set(recipe.actions.map((a) => String(a.target || "").toLowerCase().trim())
+    .filter((n) => n && !propKnown(n)))];
+  // The plan says how big each thing is (sized together, so a toy's wheel is
+  // smaller than the toy); the server scales its design to that.
+  const sizeOf = new Map(((plan && plan.objects) || [])
+    .map((o) => [String(o.name || "").toLowerCase().trim(), o.size_cm]));
+  let specs = {};
+  if (unknown.length) {
+    stage.appendChild(el("div", "empty", "Designing props: " + unknown.join(", ") + "\u2026"));
+    const sizes = unknown.map((n) => sizeOf.get(n) || "").join(",");
+    try {
+      specs = (await getJSON("/api/props?names=" + encodeURIComponent(unknown.join(",")) +
+                             "&sizes=" + encodeURIComponent(sizes))).props || {};
+    } catch (e) { specs = {}; }
+    if (anim !== mine) return;
+    stage.textContent = "";
+  }
+
   const canvas = el("canvas");
   stage.appendChild(canvas);
   drawLanes(recipe);
   drawAnimStats(recipe);
   const scrub = $("#animscrub");
   mine.scene = POVScene.create({
-    canvas, style: "plain", fit: "parent", plan: { actions: recipe.actions },
+    canvas, style: "plain", fit: "parent", plan: { actions: recipe.actions, specs },
     camera: { pos: [0, 1.0, 1.0], look: [0, 0.08, -0.17], fov: 30 },
     lead: 0, tail: 1.6,
     onError: () => stage.appendChild(el("div", "empty", "This view needs WebGL.")),

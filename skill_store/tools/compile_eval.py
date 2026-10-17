@@ -4,8 +4,9 @@
 The robot eval (run_eval.py) asks "does this skill work?". This asks "does the
 compiler turn an unfamiliar request into a plan a robot could follow?" -- the
 question that matters every time a customer types something new. Each request is
-compiled fresh (no cache, nothing written to the database) and scored by the
-same simulator the storefront uses:
+compiled fresh (no cache; no plans or demand are logged -- only the skills
+table is re-seeded from the catalog files, as the server does at start) and
+scored by the same simulator the storefront uses:
 
   valid        no blocking issue: every precondition met, every grasp fits its
                object's kind, nothing this robot's structure cannot run

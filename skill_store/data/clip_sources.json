@@ -1,7 +1,11 @@
 {
   "egocentric-10k": {
-    "kind": "none",
-    "why": "gated -- accept the terms and set HF_TOKEN"
+    "kind": "local",
+    "path": "clips/egocentric-10k.mp4",
+    "repo_id": "builddotai/Egocentric-10K",
+    "source": "factory_001/workers/worker_001/factory001_worker001_part00.tar::factory001_worker001_00000.mp4",
+    "start": 3.0,
+    "length": 6.0
   },
   "egocentric-10k-subset": {
     "kind": "local",
@@ -12,8 +16,12 @@
     "length": 6.0
   },
   "egocentric-100k": {
-    "kind": "none",
-    "why": "gated -- accept the terms and set HF_TOKEN"
+    "kind": "local",
+    "path": "clips/egocentric-100k.mp4",
+    "repo_id": "builddotai/Egocentric-100K",
+    "source": "factory001/worker001/part000.tar::factory_001_worker_001_0000.mp4",
+    "start": 3.0,
+    "length": 6.0
   },
   "egodex": {
     "kind": "none",
@@ -28,22 +36,20 @@
     "why": "not on the Hub (open)"
   },
   "svla_so101_pickplace": {
-    "kind": "stream",
-    "url": "https://huggingface.co/datasets/lerobot/svla_so101_pickplace/resolve/main/videos/observation.images.side/chunk-000/file-000.mp4",
+    "kind": "local",
+    "path": "clips/svla_so101_pickplace.mp4",
     "repo_id": "lerobot/svla_so101_pickplace",
     "source": "https://huggingface.co/datasets/lerobot/svla_so101_pickplace/resolve/main/videos/observation.images.side/chunk-000/file-000.mp4",
     "start": 3.0,
-    "length": 6.0,
-    "codec": "av1"
+    "length": 6.0
   },
   "svla_so100_sorting": {
-    "kind": "stream",
-    "url": "https://huggingface.co/datasets/lerobot/svla_so100_sorting/resolve/main/videos/observation.images.top/chunk-000/file-000.mp4",
+    "kind": "local",
+    "path": "clips/svla_so100_sorting.mp4",
     "repo_id": "lerobot/svla_so100_sorting",
     "source": "https://huggingface.co/datasets/lerobot/svla_so100_sorting/resolve/main/videos/observation.images.top/chunk-000/file-000.mp4",
     "start": 3.0,
-    "length": 6.0,
-    "codec": "av1"
+    "length": 6.0
   },
   "aloha_sim_insertion_human_image": {
     "kind": "local",
@@ -54,25 +60,1027 @@
     "length": 6.0
   },
   "high_quality_folding": {
-    "kind": "stream",
-    "url": "https://huggingface.co/datasets/lerobot/high_quality_folding/resolve/main/videos/observation.images.base/chunk-000/file-000.mp4",
+    "kind": "local",
+    "path": "clips/high_quality_folding.mp4",
     "repo_id": "lerobot/high_quality_folding",
     "source": "https://huggingface.co/datasets/lerobot/high_quality_folding/resolve/main/videos/observation.images.base/chunk-000/file-000.mp4",
     "start": 3.0,
-    "length": 6.0,
-    "codec": "av1"
+    "length": 6.0
   },
   "droid": {
-    "kind": "stream",
-    "url": "https://huggingface.co/datasets/lerobot/droid_1.0.1/resolve/main/videos/observation.images.exterior_1_left/chunk-000/file-000.mp4",
+    "kind": "local",
+    "path": "clips/droid.mp4",
     "repo_id": "lerobot/droid_1.0.1",
     "source": "https://huggingface.co/datasets/lerobot/droid_1.0.1/resolve/main/videos/observation.images.exterior_1_left/chunk-000/file-000.mp4",
     "start": 3.0,
-    "length": 6.0,
-    "codec": "av1"
+    "length": 6.0
   },
   "spirit-pickplace": {
     "kind": "none",
     "why": "no video or images served"
+  },
+  "villekuosmanen-agilex-shake-glass": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-shake-glass.mp4",
+    "repo_id": "villekuosmanen/agilex_shake_glass",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_shake_glass/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-ai2-alphabot-2-insert-straw": {
+    "kind": "local",
+    "path": "clips/robocoin-ai2-alphabot-2-insert-straw.mp4",
+    "repo_id": "RoboCOIN/AI2_Alphabot_2_insert_straw",
+    "source": "https://huggingface.co/datasets/RoboCOIN/AI2_Alphabot_2_insert_straw/resolve/main/videos/chunk-000/observation.images.cam_front_chest_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-straw-cafe-cup-l": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-straw-cafe-cup-l.mp4",
+    "repo_id": "villekuosmanen/agilex_straw_cafe_cup_l",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_straw_cafe_cup_l/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-straw-cafe-cup-m": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-straw-cafe-cup-m.mp4",
+    "repo_id": "villekuosmanen/agilex_straw_cafe_cup_m",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_straw_cafe_cup_m/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-grab-stick-into-bottle": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-grab-stick-into-bottle.mp4",
+    "repo_id": "villekuosmanen/agilex_grab_stick_into_bottle",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_grab_stick_into_bottle/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-cocktail-sunset-lemon": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-cocktail-sunset-lemon.mp4",
+    "repo_id": "villekuosmanen/agilex_cocktail_sunset_lemon",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_cocktail_sunset_lemon/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "jiahexu98-insert-marker-into-cup": {
+    "kind": "local",
+    "path": "clips/jiahexu98-insert-marker-into-cup.mp4",
+    "repo_id": "JiaheXu98/insert_marker_into_cup",
+    "source": "first 60 frames of the viewer",
+    "start": 0,
+    "length": 6.0
+  },
+  "lerobot-aloha-mobile-chair": {
+    "kind": "local",
+    "path": "clips/lerobot-aloha-mobile-chair.mp4",
+    "repo_id": "lerobot/aloha_mobile_chair",
+    "source": "https://huggingface.co/datasets/lerobot/aloha_mobile_chair/resolve/main/videos/observation.images.cam_high/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-push-chair": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-push-chair.mp4",
+    "repo_id": "villekuosmanen/agilex_push_chair",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_push_chair/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-pull-chair": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-pull-chair.mp4",
+    "repo_id": "villekuosmanen/agilex_pull_chair",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_pull_chair/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "daoyuanzhu-wb-pointed-chair-pull-push-rgb": {
+    "kind": "local",
+    "path": "clips/daoyuanzhu-wb-pointed-chair-pull-push-rgb.mp4",
+    "repo_id": "DaoyuanZhu/wb_pointed_chair_pull_push_rgb",
+    "source": "https://huggingface.co/datasets/DaoyuanZhu/wb_pointed_chair_pull_push_rgb/resolve/main/videos/chunk-000/observation.images.cam_chest/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-dex1-dualrobot-clean-table": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-dex1-dualrobot-clean-table.mp4",
+    "repo_id": "unitreerobotics/G1_Dex1_DualRobot_Clean_Table",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_Dex1_DualRobot_Clean_Table/resolve/main/videos/chunk-000/observation.images.cam_left_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-galbot-g1-clear-table-trash-1": {
+    "kind": "local",
+    "path": "clips/robocoin-galbot-g1-clear-table-trash-1.mp4",
+    "repo_id": "RoboCOIN/Galbot_G1_clear_table_trash_1",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Galbot_G1_clear_table_trash_1/resolve/main/videos/chunk-000/observation.images.cam_left_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-brainco-clean-tea-table-garbage": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-brainco-clean-tea-table-garbage.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Brainco_Clean_Tea_Table_Garbage",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Brainco_Clean_Tea_Table_Garbage/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-agilex-cobot-magic-close-drawer-upper": {
+    "kind": "local",
+    "path": "clips/robocoin-agilex-cobot-magic-close-drawer-upper.mp4",
+    "repo_id": "RoboCOIN/Agilex_Cobot_Magic_close_drawer_upper",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Agilex_Cobot_Magic_close_drawer_upper/resolve/main/videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-airbot-mmk2-close-drawer": {
+    "kind": "local",
+    "path": "clips/robocoin-airbot-mmk2-close-drawer.mp4",
+    "repo_id": "RoboCOIN/Airbot_MMK2_close_drawer",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Airbot_MMK2_close_drawer/resolve/main/videos/chunk-000/observation.images.cam_front_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-agilex-cobot-magic-close-drawer-bottom": {
+    "kind": "local",
+    "path": "clips/robocoin-agilex-cobot-magic-close-drawer-bottom.mp4",
+    "repo_id": "RoboCOIN/Agilex_Cobot_Magic_close_drawer_bottom",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Agilex_Cobot_Magic_close_drawer_bottom/resolve/main/videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-inspire-put-drinks-into-fridge": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-inspire-put-drinks-into-fridge.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Inspire_Put_Drinks_Into_Fridge",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Inspire_Put_Drinks_Into_Fridge/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-brainco-put-drinks-into-fridge": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-brainco-put-drinks-into-fridge.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Brainco_Put_Drinks_Into_Fridge",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Brainco_Put_Drinks_Into_Fridge/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-pick-place-water-bottle": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-pick-place-water-bottle.mp4",
+    "repo_id": "villekuosmanen/agilex_pick_place_water_bottle",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_pick_place_water_bottle/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-inspire-pick-up-drinks-v0": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-inspire-pick-up-drinks-v0.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Inspire_Pick_Up_Drinks_v0",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Inspire_Pick_Up_Drinks_v0/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-dex3-pickbottle-dataset": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-dex3-pickbottle-dataset.mp4",
+    "repo_id": "unitreerobotics/G1_Dex3_PickBottle_Dataset",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_Dex3_PickBottle_Dataset/resolve/main/videos/observation.images.cam_left_high/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-pour-water-cup-full": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-pour-water-cup-full.mp4",
+    "repo_id": "villekuosmanen/agilex_pour_water_cup_full",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_pour_water_cup_full/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-pour-water-cup-half": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-pour-water-cup-half.mp4",
+    "repo_id": "villekuosmanen/agilex_pour_water_cup_half",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_pour_water_cup_half/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-pour-water-cup-little": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-pour-water-cup-little.mp4",
+    "repo_id": "villekuosmanen/agilex_pour_water_cup_little",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_pour_water_cup_little/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "lerobot-aloha-mobile-wipe-wine": {
+    "kind": "local",
+    "path": "clips/lerobot-aloha-mobile-wipe-wine.mp4",
+    "repo_id": "lerobot/aloha_mobile_wipe_wine",
+    "source": "https://huggingface.co/datasets/lerobot/aloha_mobile_wipe_wine/resolve/main/videos/observation.images.cam_high/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-messy-pour-water": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-messy-pour-water.mp4",
+    "repo_id": "villekuosmanen/agilex_messy_pour_water",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_messy_pour_water/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-dex1-wipe-table": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-dex1-wipe-table.mp4",
+    "repo_id": "unitreerobotics/G1_Dex1_Wipe_Table",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_Dex1_Wipe_Table/resolve/main/videos/chunk-000/observation.images.cam_left_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-dex1-fold-towel": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-dex1-fold-towel.mp4",
+    "repo_id": "unitreerobotics/G1_Dex1_Fold_Towel",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_Dex1_Fold_Towel/resolve/main/videos/chunk-000/observation.images.cam_left_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-agilex-cobot-magic-fold-towel-brown": {
+    "kind": "local",
+    "path": "clips/robocoin-agilex-cobot-magic-fold-towel-brown.mp4",
+    "repo_id": "RoboCOIN/Agilex_Cobot_Magic_fold_towel_brown",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Agilex_Cobot_Magic_fold_towel_brown/resolve/main/videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-fold-towel": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-fold-towel.mp4",
+    "repo_id": "villekuosmanen/agilex_fold_towel",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_fold_towel/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "lerobot-aloha-static-towel": {
+    "kind": "local",
+    "path": "clips/lerobot-aloha-static-towel.mp4",
+    "repo_id": "lerobot/aloha_static_towel",
+    "source": "https://huggingface.co/datasets/lerobot/aloha_static_towel/resolve/main/videos/observation.images.cam_high/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-agilex-cobot-magic-storage-lemon-mango": {
+    "kind": "local",
+    "path": "clips/robocoin-agilex-cobot-magic-storage-lemon-mango.mp4",
+    "repo_id": "RoboCOIN/Agilex_Cobot_Magic_storage_lemon_mango",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Agilex_Cobot_Magic_storage_lemon_mango/resolve/main/videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-brainco-put-sink-towel": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-brainco-put-sink-towel.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Brainco_Put_Sink_Towel",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Brainco_Put_Sink_Towel/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-put-rag-on-laptop-blue": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-put-rag-on-laptop-blue.mp4",
+    "repo_id": "villekuosmanen/agilex_put_rag_on_laptop_blue",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_put_rag_on_laptop_blue/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "lerobot-aloha-static-vinh-cup": {
+    "kind": "local",
+    "path": "clips/lerobot-aloha-static-vinh-cup.mp4",
+    "repo_id": "lerobot/aloha_static_vinh_cup",
+    "source": "https://huggingface.co/datasets/lerobot/aloha_static_vinh_cup/resolve/main/videos/observation.images.cam_high/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-airbot-mmk2-stack-cup": {
+    "kind": "local",
+    "path": "clips/robocoin-airbot-mmk2-stack-cup.mp4",
+    "repo_id": "RoboCOIN/Airbot_MMK2_stack_cup",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Airbot_MMK2_stack_cup/resolve/main/videos/chunk-000/observation.images.cam_front_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-exchange-cup-position": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-exchange-cup-position.mp4",
+    "repo_id": "villekuosmanen/agilex_exchange_cup_position",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_exchange_cup_position/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "lerobot-svla-so100-pickplace": {
+    "kind": "local",
+    "path": "clips/lerobot-svla-so100-pickplace.mp4",
+    "repo_id": "lerobot/svla_so100_pickplace",
+    "source": "https://huggingface.co/datasets/lerobot/svla_so100_pickplace/resolve/main/videos/observation.images.top/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "lerobot-ucsd-pick-and-place-dataset": {
+    "kind": "local",
+    "path": "clips/lerobot-ucsd-pick-and-place-dataset.mp4",
+    "repo_id": "lerobot/ucsd_pick_and_place_dataset",
+    "source": "https://huggingface.co/datasets/lerobot/ucsd_pick_and_place_dataset/resolve/main/videos/observation.images.image/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-put-ice-scoop-in-box-tidy-table": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-put-ice-scoop-in-box-tidy-table.mp4",
+    "repo_id": "villekuosmanen/agilex_put_ice_scoop_in_box_tidy_table",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_put_ice_scoop_in_box_tidy_table/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-shovel-ice-into-cup": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-shovel-ice-into-cup.mp4",
+    "repo_id": "villekuosmanen/agilex_shovel_ice_into_cup",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_shovel_ice_into_cup/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-ai2-alphabot-2-stir-spoon": {
+    "kind": "local",
+    "path": "clips/robocoin-ai2-alphabot-2-stir-spoon.mp4",
+    "repo_id": "RoboCOIN/AI2_Alphabot_2_stir_spoon",
+    "source": "https://huggingface.co/datasets/RoboCOIN/AI2_Alphabot_2_stir_spoon/resolve/main/videos/chunk-000/observation.images.cam_front_chest_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-ai2-alphabot-2-shake-bottle": {
+    "kind": "local",
+    "path": "clips/robocoin-ai2-alphabot-2-shake-bottle.mp4",
+    "repo_id": "RoboCOIN/AI2_Alphabot_2_shake_bottle",
+    "source": "https://huggingface.co/datasets/RoboCOIN/AI2_Alphabot_2_shake_bottle/resolve/main/videos/chunk-000/observation.images.cam_front_chest_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-handover-pan": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-handover-pan.mp4",
+    "repo_id": "villekuosmanen/agilex_handover_pan",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_handover_pan/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "jensenyuan-dextacwam-cube-handover": {
+    "kind": "local",
+    "path": "clips/jensenyuan-dextacwam-cube-handover.mp4",
+    "repo_id": "JensenYuan/DexTacWAM_cube_handover",
+    "source": "first 30 frames of the viewer",
+    "start": 0,
+    "length": 3.0
+  },
+  "suz22-robotwin-handover-block-randomized": {
+    "kind": "local",
+    "path": "clips/suz22-robotwin-handover-block-randomized.mp4",
+    "repo_id": "suz22/RoboTwin_handover_block_randomized",
+    "source": "first 60 frames of the viewer",
+    "start": 0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-inspire-hang-up-clothes": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-inspire-hang-up-clothes.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Inspire_Hang_Up_Clothes",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Inspire_Hang_Up_Clothes/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-dex1-hang-pants": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-dex1-hang-pants.mp4",
+    "repo_id": "unitreerobotics/G1_Dex1_Hang_Pants",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_Dex1_Hang_Pants/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-hang-bag-on-hook": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-hang-bag-on-hook.mp4",
+    "repo_id": "villekuosmanen/agilex_hang_bag_on_hook",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_hang_bag_on_hook/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-brainco-put-plate-into-dishwasher": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-brainco-put-plate-into-dishwasher.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Brainco_Put_Plate_Into_Dishwasher",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Brainco_Put_Plate_Into_Dishwasher/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-brainco-collect-plates-into-dishwasher": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-brainco-collect-plates-into-dishwasher.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Brainco_Collect_Plates_Into_Dishwasher",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Brainco_Collect_Plates_Into_Dishwasher/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-inspire-walk-to-table-put-cups-and-rack-plates-in-dishwasher": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-inspire-walk-to-table-put-cups-and-rack-plates-in-dishwasher.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Inspire_Walk_To_Table_Put_Cups_And_Rack_Plates_In_Dishwasher",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Inspire_Walk_To_Table_Put_Cups_And_Rack_Plates_In_Dishwasher/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-agilex-cobot-magic-fold-towel-tray-twice": {
+    "kind": "local",
+    "path": "clips/robocoin-agilex-cobot-magic-fold-towel-tray-twice.mp4",
+    "repo_id": "RoboCOIN/Agilex_Cobot_Magic_fold_towel_tray_twice",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Agilex_Cobot_Magic_fold_towel_tray_twice/resolve/main/videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-pour-water-cup2jigger2glass": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-pour-water-cup2jigger2glass.mp4",
+    "repo_id": "villekuosmanen/agilex_pour_water_cup2jigger2glass",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_pour_water_cup2jigger2glass/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-pour-water-jigger2cup": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-pour-water-jigger2cup.mp4",
+    "repo_id": "villekuosmanen/agilex_pour_water_jigger2cup",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_pour_water_jigger2cup/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-cocktail-sunset-coconut": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-cocktail-sunset-coconut.mp4",
+    "repo_id": "villekuosmanen/agilex_cocktail_sunset_coconut",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_cocktail_sunset_coconut/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-ai2-alphabot-2-move-basket": {
+    "kind": "local",
+    "path": "clips/robocoin-ai2-alphabot-2-move-basket.mp4",
+    "repo_id": "RoboCOIN/AI2_Alphabot_2_move_basket",
+    "source": "https://huggingface.co/datasets/RoboCOIN/AI2_Alphabot_2_move_basket/resolve/main/videos/chunk-000/observation.images.cam_front_chest_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-agilex-cobot-magic-open-drawer-bottom": {
+    "kind": "local",
+    "path": "clips/robocoin-agilex-cobot-magic-open-drawer-bottom.mp4",
+    "repo_id": "RoboCOIN/Agilex_Cobot_Magic_open_drawer_bottom",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Agilex_Cobot_Magic_open_drawer_bottom/resolve/main/videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-put-object-into-drawer": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-put-object-into-drawer.mp4",
+    "repo_id": "villekuosmanen/agilex_put_object_into_drawer",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_put_object_into_drawer/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "lerobot-aloha-mobile-cabinet": {
+    "kind": "local",
+    "path": "clips/lerobot-aloha-mobile-cabinet.mp4",
+    "repo_id": "lerobot/aloha_mobile_cabinet",
+    "source": "https://huggingface.co/datasets/lerobot/aloha_mobile_cabinet/resolve/main/videos/observation.images.cam_high/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "lerobot-utokyo-pr2-opening-fridge": {
+    "kind": "local",
+    "path": "clips/lerobot-utokyo-pr2-opening-fridge.mp4",
+    "repo_id": "lerobot/utokyo_pr2_opening_fridge",
+    "source": "https://huggingface.co/datasets/lerobot/utokyo_pr2_opening_fridge/resolve/main/videos/observation.images.image/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-put-orange-into-microwave": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-put-orange-into-microwave.mp4",
+    "repo_id": "villekuosmanen/agilex_put_orange_into_microwave",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_put_orange_into_microwave/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-galbot-g1-pick-floor-trash": {
+    "kind": "local",
+    "path": "clips/robocoin-galbot-g1-pick-floor-trash.mp4",
+    "repo_id": "RoboCOIN/Galbot_G1_pick_floor_trash",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Galbot_G1_pick_floor_trash/resolve/main/videos/chunk-000/observation.images.cam_left_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-galbot-g1-load-floor-trash-3": {
+    "kind": "local",
+    "path": "clips/robocoin-galbot-g1-load-floor-trash-3.mp4",
+    "repo_id": "RoboCOIN/Galbot_G1_load_floor_trash_3",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Galbot_G1_load_floor_trash_3/resolve/main/videos/chunk-000/observation.images.cam_left_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-collect-litter": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-collect-litter.mp4",
+    "repo_id": "villekuosmanen/agilex_collect_litter",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_collect_litter/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-inspire-put-vegetables-into-basket-v0": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-inspire-put-vegetables-into-basket-v0.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Inspire_Put_Vegetables_Into_Basket_v0",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Inspire_Put_Vegetables_Into_Basket_v0/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-put-rubbish-in-carton": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-put-rubbish-in-carton.mp4",
+    "repo_id": "villekuosmanen/agilex_put_rubbish_in_carton",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_put_rubbish_in_carton/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-ai2-alphabot-2-sort-garbage-bag-and-box": {
+    "kind": "local",
+    "path": "clips/robocoin-ai2-alphabot-2-sort-garbage-bag-and-box.mp4",
+    "repo_id": "RoboCOIN/AI2_Alphabot_2_sort_garbage_bag_and_box",
+    "source": "https://huggingface.co/datasets/RoboCOIN/AI2_Alphabot_2_sort_garbage_bag_and_box/resolve/main/videos/chunk-000/observation.images.cam_front_chest_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-inspire-put-drinks-into-fridge-v0": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-inspire-put-drinks-into-fridge-v0.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Inspire_Put_Drinks_Into_Fridge_v0",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Inspire_Put_Drinks_Into_Fridge_v0/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-put-cup-front-laptop": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-put-cup-front-laptop.mp4",
+    "repo_id": "villekuosmanen/agilex_put_cup_front_laptop",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_put_cup_front_laptop/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-wipe-glass-water": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-wipe-glass-water.mp4",
+    "repo_id": "villekuosmanen/agilex_wipe_glass_water",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_wipe_glass_water/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "syun88-dual-scorpion-oc-polish-the-bowl1": {
+    "kind": "local",
+    "path": "clips/syun88-dual-scorpion-oc-polish-the-bowl1.mp4",
+    "repo_id": "syun88/dual_scorpion_oc_polish_the_bowl1",
+    "source": "https://huggingface.co/datasets/syun88/dual_scorpion_oc_polish_the_bowl1/resolve/main/videos/chunk-000/observation.images.left/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-ai2-alphabot-2-pour-mung-beans": {
+    "kind": "local",
+    "path": "clips/robocoin-ai2-alphabot-2-pour-mung-beans.mp4",
+    "repo_id": "RoboCOIN/AI2_Alphabot_2_pour_mung_beans",
+    "source": "https://huggingface.co/datasets/RoboCOIN/AI2_Alphabot_2_pour_mung_beans/resolve/main/videos/chunk-000/observation.images.cam_front_chest_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-galaxea-r1-lite-pour-solid-marble-bar-counter": {
+    "kind": "local",
+    "path": "clips/robocoin-galaxea-r1-lite-pour-solid-marble-bar-counter.mp4",
+    "repo_id": "RoboCOIN/Galaxea_R1_Lite_pour_solid_marble_bar_counter",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Galaxea_R1_Lite_pour_solid_marble_bar_counter/resolve/main/videos/chunk-000/observation.images.cam_head_left_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-r1-dex1-pour-popcorn-between-bowls": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-r1-dex1-pour-popcorn-between-bowls.mp4",
+    "repo_id": "unitreerobotics/R1_Dex1_Pour_Popcorn_Between_Bowls",
+    "source": "https://huggingface.co/datasets/unitreerobotics/R1_Dex1_Pour_Popcorn_Between_Bowls/resolve/main/videos/observation.images.cam_left_high/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-dex1-pour-drink": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-dex1-pour-drink.mp4",
+    "repo_id": "unitreerobotics/G1_Dex1_Pour_Drink",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_Dex1_Pour_Drink/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-galaxea-r1-lite-pour-liquid-mrable-bar-counter": {
+    "kind": "local",
+    "path": "clips/robocoin-galaxea-r1-lite-pour-liquid-mrable-bar-counter.mp4",
+    "repo_id": "RoboCOIN/Galaxea_R1_Lite_pour_liquid_mrable_bar_counter",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Galaxea_R1_Lite_pour_liquid_mrable_bar_counter/resolve/main/videos/chunk-000/observation.images.cam_head_left_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-pour-water-from-bottle-to-cup": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-pour-water-from-bottle-to-cup.mp4",
+    "repo_id": "villekuosmanen/agilex_pour_water_from_bottle_to_cup",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_pour_water_from_bottle_to_cup/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-agilex-cobot-magic-pour-drink-bottle-cup": {
+    "kind": "local",
+    "path": "clips/robocoin-agilex-cobot-magic-pour-drink-bottle-cup.mp4",
+    "repo_id": "RoboCOIN/Agilex_Cobot_Magic_pour_drink_bottle_cup",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Agilex_Cobot_Magic_pour_drink_bottle_cup/resolve/main/videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-press-alcohol-sanitizing": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-press-alcohol-sanitizing.mp4",
+    "repo_id": "villekuosmanen/agilex_press_alcohol_sanitizing",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_press_alcohol_sanitizing/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-get-cold-water": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-get-cold-water.mp4",
+    "repo_id": "villekuosmanen/agilex_get_cold_water",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_get_cold_water/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "pengyue-polaron-nyush-galaxea-a1-press-button-5s": {
+    "kind": "local",
+    "path": "clips/pengyue-polaron-nyush-galaxea-a1-press-button-5s.mp4",
+    "repo_id": "pengyue-polaron/nyush-galaxea-a1-press-button-5s",
+    "source": "https://huggingface.co/datasets/pengyue-polaron/nyush-galaxea-a1-press-button-5s/resolve/main/videos/chunk-000/observation.images.front/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-inspire-supermarket-shelf-organizing": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-inspire-supermarket-shelf-organizing.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Inspire_Supermarket_Shelf_Organizing",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Inspire_Supermarket_Shelf_Organizing/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "nmotion-initiative-unitzero-sort-household-objects-into-labeled-bins-yam-lerobot": {
+    "kind": "local",
+    "path": "clips/nmotion-initiative-unitzero-sort-household-objects-into-labeled-bins-yam-lerobot.mp4",
+    "repo_id": "NMotion-Initiative/unitzero-sort-household-objects-into-labeled-bins-yam-lerobot",
+    "source": "https://huggingface.co/datasets/NMotion-Initiative/unitzero-sort-household-objects-into-labeled-bins-yam-lerobot/resolve/a90855e57f53a516046719d825c0b536dd5383ec/videos/observation.images.env/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-insert-book-shelf": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-insert-book-shelf.mp4",
+    "repo_id": "villekuosmanen/agilex_insert_book_shelf",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_insert_book_shelf/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "kiroaiseoul-task11-place-beaker-on-the-shelf-gist-0804": {
+    "kind": "local",
+    "path": "clips/kiroaiseoul-task11-place-beaker-on-the-shelf-gist-0804.mp4",
+    "repo_id": "kiroaiseoul/task11_place_beaker_on_the_shelf_gist_0804",
+    "source": "https://huggingface.co/datasets/kiroaiseoul/task11_place_beaker_on_the_shelf_gist_0804/resolve/main/videos/observation.images.cam_high/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-wash-cup-1": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-wash-cup-1.mp4",
+    "repo_id": "villekuosmanen/agilex_wash_cup_1",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_wash_cup_1/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-wash-cup-2": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-wash-cup-2.mp4",
+    "repo_id": "villekuosmanen/agilex_wash_cup_2",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_wash_cup_2/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "lerobot-aloha-mobile-wash-pan": {
+    "kind": "local",
+    "path": "clips/lerobot-aloha-mobile-wash-pan.mp4",
+    "repo_id": "lerobot/aloha_mobile_wash_pan",
+    "source": "https://huggingface.co/datasets/lerobot/aloha_mobile_wash_pan/resolve/main/videos/observation.images.cam_high/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-press-socket-button": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-press-socket-button.mp4",
+    "repo_id": "villekuosmanen/agilex_press_socket_button",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_press_socket_button/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "jchandru08-so100-press-red-button": {
+    "kind": "local",
+    "path": "clips/jchandru08-so100-press-red-button.mp4",
+    "repo_id": "jchandru08/so100_press_red_button",
+    "source": "https://huggingface.co/datasets/jchandru08/so100_press_red_button/resolve/main/videos/chunk-000/observation.images.back/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-cocktail-sunset-ice": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-cocktail-sunset-ice.mp4",
+    "repo_id": "villekuosmanen/agilex_cocktail_sunset_ice",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_cocktail_sunset_ice/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "jellyho-droid-subsets-scooping": {
+    "kind": "none",
+    "why": "no video or images served"
+  },
+  "robocoin-airbot-mmk2-cover-lid": {
+    "kind": "local",
+    "path": "clips/robocoin-airbot-mmk2-cover-lid.mp4",
+    "repo_id": "RoboCOIN/Airbot_MMK2_cover_lid",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Airbot_MMK2_cover_lid/resolve/main/videos/chunk-000/observation.images.cam_front_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-cover-spary-lid": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-cover-spary-lid.mp4",
+    "repo_id": "villekuosmanen/agilex_cover_spary_lid",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_cover_spary_lid/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-airbot-mmk2-close-lid": {
+    "kind": "local",
+    "path": "clips/robocoin-airbot-mmk2-close-lid.mp4",
+    "repo_id": "RoboCOIN/Airbot_MMK2_close_lid",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Airbot_MMK2_close_lid/resolve/main/videos/chunk-000/observation.images.cam_front_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "moaibo-handover-scene1-2-giver-receiver-merged-pos-vel": {
+    "kind": "local",
+    "path": "clips/moaibo-handover-scene1-2-giver-receiver-merged-pos-vel.mp4",
+    "repo_id": "MoAIBo/handover_scene1_2_giver_receiver_merged_pos_vel",
+    "source": "https://huggingface.co/datasets/MoAIBo/handover_scene1_2_giver_receiver_merged_pos_vel/resolve/main/videos/observation.images.camera_d455/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "masato-ka-lekiwi-dounut-serve-full": {
+    "kind": "local",
+    "path": "clips/masato-ka-lekiwi-dounut-serve-full.mp4",
+    "repo_id": "masato-ka/lekiwi_dounut_serve_full",
+    "source": "https://huggingface.co/datasets/masato-ka/lekiwi_dounut_serve_full/resolve/main/videos/chunk-000/observation.images.front/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "lerobot-aloha-static-fork-pick-up": {
+    "kind": "local",
+    "path": "clips/lerobot-aloha-static-fork-pick-up.mp4",
+    "repo_id": "lerobot/aloha_static_fork_pick_up",
+    "source": "https://huggingface.co/datasets/lerobot/aloha_static_fork_pick_up/resolve/main/videos/observation.images.cam_high/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "suz22-robotwin-shake-bottle-randomized": {
+    "kind": "local",
+    "path": "clips/suz22-robotwin-shake-bottle-randomized.mp4",
+    "repo_id": "suz22/RoboTwin_shake_bottle_randomized",
+    "source": "first 60 frames of the viewer",
+    "start": 0,
+    "length": 6.0
+  },
+  "robocoin-airbot-mmk2-slide-block": {
+    "kind": "local",
+    "path": "clips/robocoin-airbot-mmk2-slide-block.mp4",
+    "repo_id": "RoboCOIN/Airbot_MMK2_slide_block",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Airbot_MMK2_slide_block/resolve/main/videos/chunk-000/observation.images.cam_front_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "lerobot-aloha-static-ziploc-slide": {
+    "kind": "local",
+    "path": "clips/lerobot-aloha-static-ziploc-slide.mp4",
+    "repo_id": "lerobot/aloha_static_ziploc_slide",
+    "source": "https://huggingface.co/datasets/lerobot/aloha_static_ziploc_slide/resolve/main/videos/observation.images.cam_high/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "lerobot-pusht": {
+    "kind": "local",
+    "path": "clips/lerobot-pusht.mp4",
+    "repo_id": "lerobot/pusht",
+    "source": "https://huggingface.co/datasets/lerobot/pusht/resolve/main/videos/observation.image/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-wbt-inspire-sort-fruit": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-wbt-inspire-sort-fruit.mp4",
+    "repo_id": "unitreerobotics/G1_WBT_Inspire_Sort_Fruit",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Inspire_Sort_Fruit/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-ai2-alphabot-2-stack-cups": {
+    "kind": "local",
+    "path": "clips/robocoin-ai2-alphabot-2-stack-cups.mp4",
+    "repo_id": "RoboCOIN/AI2_Alphabot_2_stack_cups",
+    "source": "https://huggingface.co/datasets/RoboCOIN/AI2_Alphabot_2_stack_cups/resolve/main/videos/chunk-000/observation.images.cam_front_chest_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-stack-cup": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-stack-cup.mp4",
+    "repo_id": "villekuosmanen/agilex_stack_cup",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_stack_cup/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-put-paper-cup-jsh": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-put-paper-cup-jsh.mp4",
+    "repo_id": "villekuosmanen/agilex_put_paper_cup_jsh",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_put_paper_cup_jsh/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-stir-liquid-inside-cup": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-stir-liquid-inside-cup.mp4",
+    "repo_id": "villekuosmanen/agilex_stir_liquid_inside_cup",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_stir_liquid_inside_cup/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-ai2-alphabot-2-stir-water": {
+    "kind": "local",
+    "path": "clips/robocoin-ai2-alphabot-2-stir-water.mp4",
+    "repo_id": "RoboCOIN/AI2_Alphabot_2_stir_water",
+    "source": "https://huggingface.co/datasets/RoboCOIN/AI2_Alphabot_2_stir_water/resolve/main/videos/chunk-000/observation.images.cam_front_chest_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-airbot-mmk2-sweep-peaper": {
+    "kind": "local",
+    "path": "clips/robocoin-airbot-mmk2-sweep-peaper.mp4",
+    "repo_id": "RoboCOIN/Airbot_MMK2_sweep_peaper",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Airbot_MMK2_sweep_peaper/resolve/main/videos/chunk-000/observation.images.cam_front_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-agilex-cobot-magic-sweep-coffee-beans": {
+    "kind": "local",
+    "path": "clips/robocoin-agilex-cobot-magic-sweep-coffee-beans.mp4",
+    "repo_id": "RoboCOIN/Agilex_Cobot_Magic_sweep_coffee_beans",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Agilex_Cobot_Magic_sweep_coffee_beans/resolve/main/videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-ai2-alphabot-2-shake-beaker": {
+    "kind": "local",
+    "path": "clips/robocoin-ai2-alphabot-2-shake-beaker.mp4",
+    "repo_id": "RoboCOIN/AI2_Alphabot_2_shake_beaker",
+    "source": "https://huggingface.co/datasets/RoboCOIN/AI2_Alphabot_2_shake_beaker/resolve/main/videos/chunk-000/observation.images.cam_front_chest_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-unscrew-cap": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-unscrew-cap.mp4",
+    "repo_id": "villekuosmanen/agilex_unscrew_cap",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_unscrew_cap/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-airbot-mmk2-unscrew-bottle-cap": {
+    "kind": "local",
+    "path": "clips/robocoin-airbot-mmk2-unscrew-bottle-cap.mp4",
+    "repo_id": "RoboCOIN/Airbot_MMK2_unscrew_bottle_cap",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Airbot_MMK2_unscrew_bottle_cap/resolve/main/videos/chunk-000/observation.images.cam_front_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "jensenyuan-dextacwam-unscrew-bottle-cap": {
+    "kind": "local",
+    "path": "clips/jensenyuan-dextacwam-unscrew-bottle-cap.mp4",
+    "repo_id": "JensenYuan/DexTacWAM_unscrew_bottle_cap",
+    "source": "first 30 frames of the viewer",
+    "start": 0,
+    "length": 3.0
+  },
+  "unitreerobotics-g1-dex1-open-bottle-cap": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-dex1-open-bottle-cap.mp4",
+    "repo_id": "unitreerobotics/G1_Dex1_Open_Bottle_Cap",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_Dex1_Open_Bottle_Cap/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-wipe-desk": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-wipe-desk.mp4",
+    "repo_id": "villekuosmanen/agilex_wipe_desk",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_wipe_desk/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-water-plant-1": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-water-plant-1.mp4",
+    "repo_id": "villekuosmanen/agilex_water_plant_1",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_water_plant_1/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-water-plant-4": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-water-plant-4.mp4",
+    "repo_id": "villekuosmanen/agilex_water_plant_4",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_water_plant_4/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "sucrammal-plant-pour-data": {
+    "kind": "local",
+    "path": "clips/sucrammal-plant-pour-data.mp4",
+    "repo_id": "sucrammal/plant_pour_data",
+    "source": "https://huggingface.co/datasets/sucrammal/plant_pour_data/resolve/main/videos/chunk-000/observation.images.phone/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "unitreerobotics-g1-dex1-wipe-board": {
+    "kind": "local",
+    "path": "clips/unitreerobotics-g1-dex1-wipe-board.mp4",
+    "repo_id": "unitreerobotics/G1_Dex1_Wipe_Board",
+    "source": "https://huggingface.co/datasets/unitreerobotics/G1_Dex1_Wipe_Board/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "robocoin-galbot-g1-wipe-mirror": {
+    "kind": "local",
+    "path": "clips/robocoin-galbot-g1-wipe-mirror.mp4",
+    "repo_id": "RoboCOIN/Galbot_G1_wipe_mirror",
+    "source": "https://huggingface.co/datasets/RoboCOIN/Galbot_G1_wipe_mirror/resolve/main/videos/chunk-000/observation.images.cam_left_head_rgb/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-wipe-laptop-water": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-wipe-laptop-water.mp4",
+    "repo_id": "villekuosmanen/agilex_wipe_laptop_water",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_wipe_laptop_water/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-wipe-table-l2r": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-wipe-table-l2r.mp4",
+    "repo_id": "villekuosmanen/agilex_wipe_table_l2r",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_wipe_table_l2r/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
+  },
+  "villekuosmanen-agilex-wipe-whiteboard": {
+    "kind": "local",
+    "path": "clips/villekuosmanen-agilex-wipe-whiteboard.mp4",
+    "repo_id": "villekuosmanen/agilex_wipe_whiteboard",
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_wipe_whiteboard/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+    "start": 3.0,
+    "length": 6.0
   }
 }

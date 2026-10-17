@@ -409,6 +409,68 @@ Known limits, from the eval:
 - On gpt-4.1-mini, stage 1 still sometimes writes an outcome as a movement
   ("operate blender") or skips a trained skill (`wipe_surface`).
 
+## 9c. Install gate, runner refusal, skill aliases (same day, later)
+
+Tested 14 fresh prompts: 7 feasible, 5 "valid" but wrong, 2 failed. Fixes:
+
+- **Install gate.** `PlanResponse.installable` / `install_blockers`: a plan with
+  gaps or any step without a checkpoint is not queueable; `/api/install` returns
+  409 "not runnable: 2 gaps (…)" and the button reads "Not runnable: …".
+  `valid` still only means the preconditions chain.
+- **Runner refuses untrained steps.** `run_job` checks every step has a
+  checkpoint before any motion; otherwise it completes the plan as failed with
+  nothing run and nothing logged -- the mock can no longer write a rating for a
+  skill that was never performed (it had: run_blender 100% from one mock run).
+- **Skill aliases** (`ALIASES` in tools/make_catalog.py, `aliases` in the manifest,
+  `aka` in the binder's catalog block). "drag the cloth over the table" now
+  binds to wipe_surface instead of a gap; COMPILER_VERSION is 4 so old cached
+  plans recompile.
+- **Gap dedupe.** `catalog.covering_skill(gap, catalog)` matches a proposed gap
+  to a skill by alias words (single generic verbs never match alone). The repair
+  loop sends matches back to the binder; `/api/gaps` adds `covered_by`
+  (trained = binder miss, untrained = data order) and the Demand page shows a
+  badge. 15 of 38 logged gaps were covered -- the #1 item, operate_blender ×41,
+  was run_blender all along.
+
+## 9d. Contents ledger: pours go from the held vessel into the target
+
+The smoothie plan ended with grasp_glass(glass) → move_to_station(blender) →
+pour_into(glass): the glass tipped into the blender. The predicate model cannot
+see it -- `holding` + `positioned` hold either way round -- so the validator now
+keeps a ledger: which object each hand holds (set by grasps), and what each
+object contains (bottles start full, glasses and shakers empty; pours and
+releases move contents). Skills declare `flow` in the manifest (`FLOW` in
+tools/make_catalog.py): pours are `held->target`, release/place_in_bin are
+`object->target`. `wrong_flow` is blocking and fires on: pouring into the thing
+being held, pouring from an empty glass/shaker, pouring onto the table. The
+binder prompt states the direction; COMPILER_VERSION is 5.
+
+## 9e. Generated props and the repair model
+
+- **Props on demand.** The ANIMATION tab had builders for bottles, glasses,
+  fruit, cloth, a blender; anything else was a grey cube. `app/props.py` now
+  asks the model to design an unknown object once as a list of primitives
+  (box/cylinder/sphere/cone/torus, metres, grey shades, how a hand holds it),
+  bounds every number, caches it in the `props` table and serves it from
+  `/api/props?names=a,b`. The browser assembles the primitives
+  (`PROPS.generated` in scene-kit.js); no generated code is ever executed.
+  Three objects took 2.6 s and a few hundred tokens; the second plan naming them
+  is instant. To redo one, delete its row from `props`.
+- **REPAIR_MODEL.** The first bind stays on COMPILER_MODEL (gpt-4.1-mini); repair
+  rounds go to REPAIR_MODEL (gpt-4.1 in .env) because that is where the small
+  model fails on 25-step plans. A wrong_flow earns one extra repair round.
+
+## 9f. Footage for every dataset
+
+133 of 138 datasets have a local 6 s clip in `app/static/clips/` (36 MB,
+gitignored -- ship the folder when deploying). `tools/fetch_clips.py` now: uses
+Homebrew's ffmpeg (`ffmpeg_bin()` in fetch_media.py; Anaconda's shadows it on
+PATH and cannot decode AV1), pulls Build AI's gated sets out of their tar shards
+with HF_TOKEN from .env, saves progress after every dataset, and skips what is
+already local (`--only <id>` redoes one). Skill popups show the first of their
+datasets that has footage and caption it by name. Still without footage: EgoDex,
+Ego-Exo4D, EPIC-KITCHENS (off the Hub), Spirit pickplace, droid-scooping subset.
+
 ## 10. Gotchas that cost time
 
 - **Browser caching.** Asset URLs are stamped with mtime and the HTML is sent `no-store`, but some browsers still hold the document. If an edit does not appear, add `?r=1` to the URL. Changing only the `#fragment` does **not** reload.

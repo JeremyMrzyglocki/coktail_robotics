@@ -476,3 +476,20 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:rgba(0,0
 .row.anim-on{background:#1f2a22;box-shadow:inset 0 0 0 2px var(--a2);}
 .row.gap.anim-on{background:#2a1714;box-shadow:inset 0 0 0 2px var(--a0);}
 @media (max-width:720px){ .anim{position:static;} }
+
+/* ---------- more datasets per skill ---------- */
+.c-ds small.ds-more{color:var(--a2);}
+.ds-list{display:flex;flex-direction:column;gap:9px;}
+.ds-item a{color:inherit;font-weight:600;text-decoration:underline;text-decoration-color:rgba(0,0,0,.25);}
+.ds-item a:hover{color:var(--orange);}
+.ds-match{font-style:italic;}
+
+/* ---------- demand: gaps the catalog already covers ---------- */
+.gapcard .covered{font-size:10.5px;letter-spacing:.04em;padding:3px 7px;margin:2px 0 8px;
+  display:inline-block;border:1px solid;}
+.gapcard .covered.trained{color:#1f7a4f;border-color:#35C07F;background:rgba(53,192,127,.08);}
+.gapcard .covered.untrained{color:#9a6a12;border-color:#E5A53F;background:rgba(229,165,63,.1);}
+
+/* a button that reads as a link inside running text (run log) */
+.linkish{background:none;border:0;padding:0;font:inherit;color:var(--orange);
+  text-decoration:underline;cursor:pointer;}

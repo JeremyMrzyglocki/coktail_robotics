@@ -19,6 +19,7 @@ import argparse
 import json
 import os
 import signal
+import socket
 import sys
 import threading
 import time
@@ -28,6 +29,32 @@ import urllib.request
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from runner.executor import MockExecutor, Outcome  # noqa: E402
+
+# Set by the first Ctrl-C. An operator stop is not a skill failure: nothing more
+# is reported, the arm is not sent home, and the runner exits after this job.
+STOP = threading.Event()
+
+
+def _never_arrived(exc: BaseException) -> bool:
+    """True when the request certainly never reached the server (refused or
+    unresolvable), so sending it again cannot record anything twice."""
+    reason = getattr(exc, "reason", exc)
+    return isinstance(reason, (ConnectionRefusedError, socket.gaierror))
+
+
+def _retry(fn, *args, attempts: int = 3, idempotent: bool = True, **kw):
+    """Call the API, riding out a short network blip. Raises if it never answers.
+
+    A run report is not idempotent: after a timeout the row may already be
+    written, and a second send would count the attempt twice in the ratings. So
+    a non-idempotent call is only retried when the request never arrived."""
+    for n in range(attempts):
+        try:
+            return fn(*args, **kw)
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
+            if n == attempts - 1 or (not idempotent and not _never_arrived(exc)):
+                raise
+            time.sleep(0.5 * 2 ** n)
 
 
 class Api:
@@ -77,24 +104,34 @@ def run_step(api: Api, ex, step: dict, args, plan_id: int, robot_model: str,
     timeout = float(step.get("est_duration_s", 12.0)) * args.timeout_factor
 
     for attempt in range(1, args.retries + 2):
+        if STOP.is_set():
+            return False
         try:
             ex.load(step)
             outcome: Outcome = ex.run(step, timeout)
         except Exception as exc:  # noqa: BLE001
             outcome = Outcome(False, 0.0, f"{type(exc).__name__}: {exc}")
+        if STOP.is_set():
+            log(f"  {label} stopped by operator")
+            return False
 
         suffix = "" if attempt == 1 else f" retry {attempt - 1}"
         log(f"  {label}{suffix} {'PASS' if outcome.success else 'FAIL'} "
             f"{outcome.duration_s:.1f}s {outcome.notes}")
         # Every attempt is logged. Ratings are computed from these rows, so a
         # quietly dropped failure would inflate them.
-        api.report(
-            plan_id=plan_id, step_index=idx, skill_id=step["skill_id"],
-            robot_model=robot_model, success=outcome.success,
-            duration_s=outcome.duration_s, notes=outcome.notes,
-        )
+        try:
+            _retry(api.report, idempotent=False,
+                   plan_id=plan_id, step_index=idx, skill_id=step["skill_id"],
+                   robot_model=robot_model, success=outcome.success,
+                   duration_s=outcome.duration_s, notes=outcome.notes)
+        except Exception as exc:  # noqa: BLE001
+            # The attempt happened; only its record is lost. Say so loudly.
+            log(f"  {label} WARNING: could not report this attempt ({exc})")
         if outcome.success:
             return True
+        if STOP.is_set():        # a stop that arrived while reporting: no homing
+            return False
         ex.home()
     return False
 
@@ -106,6 +143,16 @@ def run_job(api: Api, ex, job: dict, args) -> bool:
     parallel = getattr(ex, "supports_parallel", False) and not args.serial
 
     print(f"\n=== plan {plan_id}: {job.get('task','')}")
+
+    # A step with no checkpoint has no policy to run. Executing it anyway (the
+    # mock would) logs a success rate for a skill that was never performed, so
+    # the whole job is refused before any motion starts.
+    untrained = sorted({s["skill_id"] for s in job["steps"] if not s.get("checkpoint")})
+    if untrained:
+        print(f"    refused: no checkpoint for {', '.join(untrained)} -- nothing run")
+        _retry(api.complete, plan_id, "failed")
+        return False
+
     print(f"    {len(job['steps'])} steps in {len(waves)} waves, "
           f"widest {job.get('max_parallel', 1)} "
           f"({'parallel' if parallel else 'sequential'})")
@@ -132,8 +179,12 @@ def run_job(api: Api, ex, job: dict, args) -> bool:
             threads = []
             for step in wave:
                 def work(st=step):
-                    results[st["step_index"]] = run_step(
-                        api, ex, st, args, plan_id, robot_model, log)
+                    ok = False
+                    try:
+                        ok = run_step(api, ex, st, args, plan_id, robot_model, log)
+                    except Exception as exc:  # noqa: BLE001
+                        log(f"  [{st['step_index'] + 1}] crashed: {exc}")
+                    results[st["step_index"]] = ok
                 t = threading.Thread(target=work, daemon=True)
                 t.start()
                 threads.append(t)
@@ -148,16 +199,23 @@ def run_job(api: Api, ex, job: dict, args) -> bool:
         serial_time += sum(float(s.get("est_duration_s", 12.0)) for s in wave) / max(
             args.speed if args.mock else 1.0, 0.01)
 
-        if not all(results.values()):
-            failed = [i + 1 for i, ok in sorted(results.items()) if not ok]
-            log(f"  wave {w} failed at step(s) {failed} -- aborting plan")
+        # A step with no result (its thread died) failed; never count it as passed.
+        failed = [s["step_index"] + 1 for s in wave if not results.get(s["step_index"])]
+        if failed:
+            why = "stopped by operator" if STOP.is_set() else f"failed at step(s) {failed}"
+            log(f"  wave {w} {why} -- aborting plan")
             all_ok = False
             break
         log(f"  -- wave {w} done in {time.time() - t_wave:.1f}s")
 
     wall = time.time() - t_start
-    ex.home()
-    api.complete(plan_id, "done" if all_ok else "failed")
+    if not STOP.is_set():
+        ex.home()          # never move the arm after the operator said stop
+    try:
+        _retry(api.complete, plan_id, "done" if all_ok else "failed")
+    except Exception as exc:  # noqa: BLE001
+        print(f"    WARNING: could not mark plan {plan_id} finished ({exc}); "
+              "the server fails it after its stale-run timeout")
     print(f"=== plan {plan_id}: {'done' if all_ok else 'failed'} in {wall:.1f}s")
     if parallel and serial_time > 0:
         saved = max(0.0, 1 - wall / serial_time)
@@ -196,14 +254,17 @@ def main() -> int:
     ex = build_executor(args)
 
     def handle_sigint(signum, frame):  # noqa: ARG001
-        print("\nstopping ...")
+        if STOP.is_set():
+            raise KeyboardInterrupt      # second Ctrl-C: leave now
+        print("\nstopping: no further steps, no homing (Ctrl-C again to quit at once)")
+        STOP.set()
         ex.stop()
     signal.signal(signal.SIGINT, handle_sigint)
 
     mode_label = "MOCK" if args.mock else f"MOZ1 ({args.structure})"
     print(f"runner up [{mode_label}] -> {args.api}, polling every {args.poll}s")
     try:
-        while True:
+        while not STOP.is_set():
             try:
                 job = api.next_job()
             except urllib.error.HTTPError as exc:
@@ -222,9 +283,21 @@ def main() -> int:
                 time.sleep(args.poll)
                 continue
 
-            run_job(api, ex, job, args)
+            try:
+                run_job(api, ex, job, args)
+            except Exception as exc:  # noqa: BLE001
+                print(f"plan {job.get('plan_id')} crashed: {type(exc).__name__}: {exc}")
+                try:
+                    _retry(api.complete, job["plan_id"], "failed")
+                except Exception:  # noqa: BLE001
+                    pass             # the server's stale-run timeout catches it
             if args.once:
                 return 0
+        print("stopped.")
+        return 0
+    except KeyboardInterrupt:
+        print("\nquit.")
+        return 130
     finally:
         ex.close()
 
