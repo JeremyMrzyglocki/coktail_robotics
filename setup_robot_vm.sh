@@ -15,8 +15,8 @@ set -euo pipefail
 
 FD=1
 SKIP_CAN=0
-PROJECT="${HOME}/pour_skill"
-[ -d /media/psf/Home/pour_skill ] && PROJECT=/media/psf/Home/pour_skill   # dossier partagé Parallels
+PROJECT="${HOME}/pour_skill"          # copie synchronisée depuis le Mac (sync_to_vm.sh)
+[ -d "$PROJECT" ] || { [ -d /media/psf/Home/pour_skill ] && PROJECT=/media/psf/Home/pour_skill; }  # dossier partagé Parallels
 VENV="${HOME}/venvs/pour"
 IFACES=(can0 can1)
 
@@ -42,7 +42,7 @@ say "Système : $(. /etc/os-release && echo "$PRETTY_NAME") / $(uname -m) / noya
 
 say "Paquets de base"
 sudo apt-get update
-sudo apt-get install -y software-properties-common git curl can-utils iproute2 usbutils \
+sudo apt-get install -y software-properties-common git curl rsync openssh-server can-utils iproute2 usbutils \
   python3-venv python3-dev python3-pip build-essential cmake pkg-config
 
 say "Paquets OpenArm (ppa:openarm/main, arm64 et amd64 disponibles)"
@@ -71,6 +71,10 @@ for m in gs_usb peak_usb kvaser_usb slcan; do   # candleLight/CANable, PEAK, Kva
   sudo modprobe "$m" 2>/dev/null || true
 done
 lsmod | grep -E '^(can|can_raw|can_dev|gs_usb|peak_usb|slcan)\b' || true
+# Bus virtuel pour tester le sniff sans robot (tests/sniff_selftest.py). Isolé de can0/can1.
+if sudo modprobe vcan 2>/dev/null && ! ip link show vcan0 &>/dev/null; then
+  sudo ip link add dev vcan0 type vcan && sudo ip link set up vcan0 && echo "vcan0 créé (test)"
+fi
 
 say "Environnement Python : $VENV"
 mkdir -p "$(dirname "$VENV")"
@@ -123,6 +127,7 @@ say "Terminé. Tests SANS RISQUE (aucune trame moteur envoyée) :"
 cat <<EOF
   candump -t d can0                      # trafic brut (vide si personne ne pilote)
   source $VENV/bin/activate && cd $PROJECT
+  python tests/sniff_selftest.py --iface vcan0           # sniff sur bus VIRTUEL (sans robot)
   python log_torque.py --backend sniff --duration 20     # écoute passive + couples décodés
 
 Test qui interroge les moteurs (trames de lecture, moteurs NON armés) :

@@ -6,8 +6,8 @@ skills ne parlent jamais au CAN directement.
 
 Backends :
   - "mock"    : simulation (macOS OK). Gravité, bruit et quantification des
-                moteurs Damiao, et une bouteille de riz qui se vide quand on
-                l'incline (avec l'effet "avalanche" du riz).
+                moteurs Damiao, bouteilles de M&M's (une couleur chacune) qui se
+                vident dans un même verre quand on les incline.
   - "openarm" : vrai robot via openarm_driver (Linux + SocketCAN). Lecture seule
                 par défaut ; `enable=True` pour arme les moteurs et commander.
   - "sniff"   : écoute PASSIVE du bus CAN (socket brut, stdlib Python). N'envoie
@@ -93,65 +93,93 @@ class SafetyStop(RuntimeError):
 # --------------------------------------------------------------------------- #
 
 class MockBackend:
-    """Simulation simple mais "honnête" sur ce qui compte pour le couple.
+    """Simulation simple mais "honnête" sur ce qui compte pour le couple et le versement.
 
-    Ce que le mock reproduit volontairement :
+    Reproduit volontairement :
       - quantification 12 bits du couple par type de moteur ;
       - bruit blanc + frottement sec avec hystérésis (le couple statique dépend
         du sens d'arrivée : c'est LE piège de la pesée par le couple) ;
-      - riz : rien ne sort sous l'angle critique, puis une avalanche, puis un
-        débit qui dépend de l'inclinaison ; l'angle critique augmente quand la
-        bouteille se vide ; ~0.3 s de vol entre la bouteille et le verre.
+      - le centre de gravité de la bouteille qui se décale quand elle penche
+        (le couple bouge même sans écoulement) ;
+      - M&M's : plusieurs bouteilles d'une couleur chacune, une seule en main ;
+        rien ne sort sous un angle critique qui augmente quand la bouteille se
+        vide (≈45° pleine, ≈105° vide), puis un débit régulier qui croît avec
+        l'inclinaison, par billes de 0.9 g ; ~0.25 s de vol jusqu'au verre ;
+      - un seul verre où les couches de couleurs s'empilent.
     """
 
     read_only = False
     G = 9.81
+    DEFAULT_BOTTLES = {"red": 120.0, "yellow": 120.0, "blue": 120.0}
 
-    def __init__(self, arms=ARMS, seed=0, bottle_empty_g=120.0, content_g=200.0,
-                 glass_capacity_g=180.0, pour_arm="right_arm", pour_joint=6, tilt_sign=1.0):
+    def __init__(self, arms=ARMS, seed=0, bottles=None, empty_mass_g=40.0, bottle_capacity_g=120.0,
+                 glass_capacity_g=300.0, mm_unit_g=0.9, pour_arm="right_arm", pour_joint=6,
+                 tilt_sign=1.0, upright_angle=-0.6, content_g=None, **_ignored):
         self.rng = np.random.default_rng(seed)
         self.arms = tuple(arms)
         self.lock = threading.Lock()
         home = np.array([0.0, 0.25, 0.0, 1.3, 0.0, 0.0, 0.0, -0.3])
+        home[pour_joint] = upright_angle
         self.q = {a: home.copy() for a in self.arms}
         self.dq = {a: np.zeros(N_JOINTS) for a in self.arms}
         self.cmd = {a: home.copy() for a in self.arms}
         self.enabled = {a: False for a in self.arms}
         self.fric_sign = {a: np.ones(N_JOINTS) for a in self.arms}
         self.t_last = time.monotonic()
-        # Bouteille / verre
         self.pour_arm, self.pour_joint, self.tilt_sign = pour_arm, pour_joint, tilt_sign
-        self.bottle_empty_kg = bottle_empty_g / 1000
-        self.content0_kg = self.content_kg = content_g / 1000
+        self.upright_angle = upright_angle
+        # Bouteilles : couleur -> contenu (kg). content_g : une seule bouteille "test" en main.
+        bottles = dict(self.DEFAULT_BOTTLES if bottles is None else bottles)
+        if content_g is not None:
+            bottles = {"test": content_g}
+        self.content_kg = {c: g / 1000 for c, g in bottles.items()}
+        self.empty_kg = empty_mass_g / 1000
+        self.capacity_kg = bottle_capacity_g / 1000
+        self.onset_offset = {c: self.rng.normal(0, 3) for c in bottles}  # formes différentes
+        self.attached: str | None = "test" if content_g is not None else None
+        self.unit_kg = mm_unit_g / 1000
         self.glass_capacity_kg = glass_capacity_g / 1000
-        self.glass_kg = 0.0
-        self.in_flight: list[tuple[float, float]] = []  # (t_arrivée, kg)
-        self.flowing = False
-        self.burst_left_kg = 0.0
-        self.upright_angle = home[pour_joint]
+        self.glass_layers: list[list] = []  # [[couleur, kg], ...] du fond vers le haut
+        self.in_flight: list[tuple[float, str, float]] = []
         # Paramètres "physiques" (ordres de grandeur, pas une identification)
         self.lever_m = np.array([0.0, 0.40, 0.0, 0.22, 0.0, 0.0, 0.0, 0.0])
         self.arm_tau = np.array([0.0, 6.0, 0.3, 2.5, 0.05, 0.3, 0.05, 0.0])
         self.noise = np.array([0.06, 0.06, 0.04, 0.05, 0.015, 0.015, 0.015, 0.01])
         self.fric = np.array([0.15, 0.15, 0.35, 0.35, 0.05, 0.05, 0.05, 0.02])
-        self.com_offset_m = 0.06  # décalage du CdG de la bouteille / axe de basculement
+        self.com_offset_m = 0.06   # CdG de la bouteille / axe de basculement (poignet)
+        self.com_shift_j2_m = 0.02  # décalage horizontal du CdG vu par J2 quand on penche
 
-    # -- API mock spécifique (pour les capteurs simulés) --
-    def glass_fill(self) -> float:
+    # -- API mock spécifique (capteurs simulés, vérité terrain) --
+    def attach_bottle(self, color: str | None):
+        """Simule le résultat du pick : `color` est maintenant dans la pince (None = pince vide)."""
+        with self.lock:
+            if color is not None and color not in self.content_kg:
+                raise KeyError(color)
+            self.attached = color
+
+    def bottle_g(self, color: str) -> float:
+        with self.lock:
+            return self.content_kg[color] * 1000
+
+    def set_bottle(self, color: str, content_g: float):
+        with self.lock:
+            self.content_kg[color] = content_g / 1000
+
+    def glass_grams(self) -> float:
         with self.lock:
             self._step()
-            return self.glass_kg / self.glass_capacity_kg
+            return sum(kg for _, kg in self.glass_layers) * 1000
 
-    def poured_g(self) -> float:
-        with self.lock:
-            return (self.content0_kg - self.content_kg) * 1000
+    def glass_fill(self) -> float:
+        return self.glass_grams() / (self.glass_capacity_kg * 1000)
 
-    def set_bottle(self, content_g: float, bottle_empty_g: float | None = None):
+    def glass_layers_g(self) -> list[tuple[str, float]]:
         with self.lock:
-            self.content0_kg = self.content_kg = content_g / 1000
-            if bottle_empty_g is not None:
-                self.bottle_empty_kg = bottle_empty_g / 1000
-            self.glass_kg, self.in_flight, self.flowing = 0.0, [], False
+            return [(c, kg * 1000) for c, kg in self.glass_layers]
+
+    def empty_glass(self):
+        with self.lock:
+            self.glass_layers, self.in_flight = [], []
 
     # -- interface backend --
     def enable(self, arm):
@@ -204,35 +232,35 @@ class MockBackend:
         return self.tilt_sign * (self.q[a][self.pour_joint] - self.upright_angle) if a in self.q else 0.0
 
     def _flow(self, now, dt):
-        tilt = math.degrees(self._tilt())
-        frac_left = self.content_kg / self.content0_kg if self.content0_kg > 0 else 0.0
-        theta_c = 40 + 40 * (1 - frac_left)  # 40° plein -> 80° presque vide
-        if not self.flowing and tilt > theta_c + 3 and self.content_kg > 0:
-            self.flowing = True
-            self.burst_left_kg = min(self.content_kg, 0.08 * self.content0_kg)  # avalanche
-        elif self.flowing and tilt < theta_c - 2:
-            self.flowing = False
-            self.burst_left_kg = 0.0
-        out = 0.0
-        if self.flowing:
-            out = 0.004 * max(tilt - theta_c + 2, 0) ** 1.2 * dt  # kg (≈ 4 g/s/° )
-            burst = min(self.burst_left_kg, 0.25 * dt / 0.3 * self.content0_kg)
-            self.burst_left_kg -= burst
-            out = min(out + burst, self.content_kg)
-            self.content_kg -= out
-        if out > 0:
-            self.in_flight.append((now + 0.3, out))
-        landed = [m for (ta, m) in self.in_flight if ta <= now]
-        self.in_flight = [(ta, m) for (ta, m) in self.in_flight if ta > now]
-        self.glass_kg += sum(landed)
+        c = self.attached
+        if c is not None and self.content_kg[c] > 0:
+            tilt = math.degrees(self._tilt())
+            frac = self.content_kg[c] / self.capacity_kg
+            theta_c = 45 + 60 * (1 - min(frac, 1.0)) + self.onset_offset[c]
+            if tilt > theta_c:
+                rate_kg = min(2.0 * (tilt - theta_c), 40.0) / 1000  # g/s par degré, plafonné par le goulot
+                n = self.rng.poisson(rate_kg * dt / self.unit_kg)
+                out = min(n * self.unit_kg, self.content_kg[c])
+                if out > 0:
+                    self.content_kg[c] -= out
+                    self.in_flight.append((now + 0.25, c, out))
+        landed = [(col, kg) for (ta, col, kg) in self.in_flight if ta <= now]
+        self.in_flight = [f for f in self.in_flight if f[0] > now]
+        for col, kg in landed:
+            if self.glass_layers and self.glass_layers[-1][0] == col:
+                self.glass_layers[-1][1] += kg
+            else:
+                self.glass_layers.append([col, kg])
 
     def _torque(self, arm) -> np.ndarray:
         q, dq = self.q[arm], self.dq[arm]
         tau = self.arm_tau.copy() * (1 if arm == "right_arm" else -1)
-        if arm == self.pour_arm:
-            m = self.bottle_empty_kg + self.content_kg
+        if arm == self.pour_arm and self.attached is not None:
+            m = self.empty_kg + self.content_kg[self.attached]
+            tilt = self._tilt()
             tau += m * self.G * self.lever_m
-            tau[self.pour_joint] += m * self.G * self.com_offset_m * math.sin(self._tilt())
+            tau[1] += m * self.G * self.com_shift_j2_m * math.sin(tilt)
+            tau[self.pour_joint] += m * self.G * self.com_offset_m * math.sin(tilt)
         if self.enabled[arm]:
             tau += 0.5 * (self.cmd[arm] - q) * np.array([70, 70, 70, 60, 10, 10, 10, 10])
             tau += self.fric * self.fric_sign[arm] * np.where(np.abs(dq) > 1e-3, 1.0, 0.6)
@@ -347,22 +375,27 @@ class CanSnifferBackend:
                 frame = s.recv(72)
             except socket.timeout:
                 continue
-            can_id, length = struct.unpack_from("=IB", frame)
-            if can_id & self.CAN_ERR_FLAG:
-                continue
-            idx = (can_id & self.CAN_EFF_MASK) - RECV_IDS[0]
-            d = frame[8:8 + length]
-            if not 0 <= idx < N_JOINTS or len(d) < 8:
-                continue
-            if d[2] in (0x33, 0x55) and d[1] == 0 and (d[0] >> 4) == 0:
-                continue  # réponse à une lecture de paramètre, pas un état
-            q, dq, tau = decode_state(idx, d)
-            with self.lock:
-                st = self.state[arm]
-                st[0][idx] = q - (JOINT_OFFSETS[arm][idx] if self.apply_offsets else 0.0)
-                st[1][idx], st[2][idx], st[3][idx] = dq, tau, d[6]
-                st[4] = time.time()
-                self.frames[arm] += 1
+            self.handle_frame(arm, frame)
+
+    def handle_frame(self, arm, frame: bytes) -> bool:
+        """Décode une trame brute SocketCAN (16 octets classique, 72 octets CAN-FD)."""
+        can_id, length = struct.unpack_from("=IB", frame)
+        if can_id & self.CAN_ERR_FLAG:
+            return False
+        idx = (can_id & self.CAN_EFF_MASK) - RECV_IDS[0]
+        d = frame[8:8 + length]
+        if not 0 <= idx < N_JOINTS or len(d) < 8:
+            return False
+        if d[2] in (0x33, 0x55) and d[1] == 0 and (d[0] >> 4) == 0:
+            return False  # réponse à une lecture de paramètre, pas un état
+        q, dq, tau = decode_state(idx, d)
+        with self.lock:
+            st = self.state[arm]
+            st[0][idx] = q - (JOINT_OFFSETS[arm][idx] if self.apply_offsets else 0.0)
+            st[1][idx], st[2][idx], st[3][idx] = dq, tau, d[6]
+            st[4] = time.time()
+            self.frames[arm] += 1
+        return True
 
     def enable(self, arm):
         raise ReadOnlyError("backend sniff : lecture seule")

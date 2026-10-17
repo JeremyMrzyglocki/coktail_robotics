@@ -100,3 +100,38 @@ bouteille verticale, sens de basculement) à mettre dans `PourConfig`.
 - Moteurs muets mais bus OK : alimentation 24 V coupée ou arrêt d'urgence enfoncé.
 - Gigue USB dans la VM : rester vers 100 Hz de commande (c'est le défaut de `Robot`).
   Si des trames se perdent, regarder les compteurs `ip -s link show can0`.
+
+## 7. Tout piloter depuis le Mac (ssh robotvm)
+
+**Une fois, dans le terminal de la VM** (la clé publique est celle générée sur le Mac,
+`~/.ssh/id_ed25519_robotvm.pub`) :
+```bash
+sudo apt update && sudo apt install -y openssh-server rsync
+sudo systemctl enable --now ssh
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+echo '<contenu de ~/.ssh/id_ed25519_robotvm.pub du Mac>' >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+echo "USER=$(whoami)  IP=$(hostname -I)"
+```
+L'IP du réseau partagé Parallels ressemble à 10.211.55.x. Avec les Parallels Tools,
+`prlctl list -a -o name,ip` la donne aussi depuis le Mac.
+
+**Sur le Mac** :
+```bash
+./sync_to_vm.sh --configure <user> <ip>     # renseigne l'alias robotvm (~/.ssh/config)
+ssh robotvm true && echo OK                  # test de connexion
+./sync_to_vm.sh --setup                      # 1re fois : installe tout (mot de passe sudo de la VM)
+./run_on_vm.sh tests/sniff_selftest.py --iface vcan0           # sniff sur bus virtuel
+./run_on_vm.sh log_torque.py --backend sniff --duration 20     # sniff sur le vrai bus
+```
+- `sync_to_vm.sh` fait un rsync vers `~/pour_skill`, sans `.venv`, `vendor`, `.git`, ni les
+  dossiers produits sur la VM (`data`, `plots`, `config`, `state`). Il lance le setup si le venv
+  est absent.
+- `run_on_vm.sh <script> [args]` synchronise, exécute le script dans `~/venvs/pour`, affiche la
+  sortie en direct (Ctrl+C transmis), puis rapatrie `data/ plots/ config/ state/` dans
+  `./results/`. `./run_on_vm.sh -- <commande>` lance une commande arbitraire.
+- **Garde-fou** : `--i-understand-motors-will-be-armed`, `--hold`, ou une commande
+  `openarm-can-cli monitor/enable/...` demandent de taper `OUI`. Sans terminal interactif, c'est
+  refusé.
+- Les fenêtres OpenCV (`glass_level.py --calibrate`) s'ouvrent sur l'écran de la VM (`DISPLAY=:0`).
+  Si rien ne s'affiche (session Wayland), lancer la calibration directement dans le terminal de la VM.

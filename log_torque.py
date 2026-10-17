@@ -3,7 +3,7 @@
 LECTURE SEULE PAR DÉFAUT : aucune commande n'est envoyée.
 
   # Mac, données simulées (une "pesée" de 3 s avec 50 g de riz en plus)
-  python log_torque.py --backend mock --mass-g 50 --duration 3
+  python log_torque.py --backend mock --mass-g 60 --duration 3 --approach-side
 
   # VM robot, pendant que la téléop d'un coéquipier pilote le bras :
   # écoute passive du bus, zéro trame envoyée.
@@ -15,7 +15,7 @@ LECTURE SEULE PAR DÉFAUT : aucune commande n'est envoyée.
 
   # Pesée statique : arme le bras et tient la position actuelle.
   # Envoie des commandes ! Bras soutenu à la main au démarrage.
-  python log_torque.py --backend openarm --hold --i-understand-motors-will-be-armed --mass-g 50
+  python log_torque.py --backend openarm --hold --approach-side --i-understand-motors-will-be-armed --mass-g 60
 
 Colonnes : t, t_rel, label, mass_g, q_J1..q_gripper, dq_*, tau_*.
 """
@@ -46,6 +46,9 @@ def parse_args():
     p.add_argument("--mass-g", type=float, default=None, help="masse ajoutée connue (calibration)")
     p.add_argument("--out", default=None, help="CSV de sortie (défaut data/torque_<date>.csv)")
     p.add_argument("--hold", action="store_true", help="arme le bras et tient la position (envoie des commandes)")
+    p.add_argument("--approach-side", action="store_true",
+                   help="avec --hold/mock : petit aller-retour de J2 et J4 vers le bas avant de mesurer, "
+                        "pour arriver toujours par le même côté (frottement sec)")
     p.add_argument("--i-understand-motors-will-be-armed", dest="confirm", action="store_true")
     p.add_argument("--quiet", action="store_true")
     return p.parse_args()
@@ -76,6 +79,18 @@ def main() -> int:
         print(">>> lecture seule : moteurs non armés, le couple lu sera ~0.")
     elif a.backend == "sniff":
         print(">>> écoute passive : rien n'est envoyé sur le bus.")
+
+    if a.approach_side:
+        if not robot.is_enabled(a.arm):
+            print("--approach-side nécessite --hold (bras armé).", file=sys.stderr)
+            return 2
+        q0 = robot.get_targets(a.arm)
+        bump = q0.copy()
+        bump[[1, 3]] -= 0.05
+        robot.move_joints(a.arm, bump, speed=0.15)
+        robot.move_joints(a.arm, q0, speed=0.15)
+        time.sleep(0.5)
+        print(">>> pose atteinte par le même côté (aller-retour J2/J4 de 0.05 rad)")
 
     out = Path(a.out or f"data/torque_{datetime.now():%Y%m%d_%H%M%S}.csv")
     out.parent.mkdir(parents=True, exist_ok=True)

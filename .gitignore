@@ -7,3 +7,5 @@ data/*.csv
 plots/
 .DS_Store
 config/torque_calib.json
+results/
+state/

@@ -89,14 +89,21 @@ def summarize(files: list[Path]) -> pd.DataFrame:
             row[f"std_{j}"] = x.std(ddof=1)
             row[f"sem_{j}"] = block_sem(x, st["t_rel"].to_numpy())
         rows.append(row)
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    # Différence par rapport à la bouteille VIDE (masse 0) : c'est ce qu'on calibre.
+    ref = df[df["mass_g"] == 0]
+    for j in ARM_JOINTS:
+        base = ref[f"mean_{j}"].mean() if len(ref) else np.nan
+        df[f"delta_{j}"] = df[f"mean_{j}"] - base
+    return df
 
 
 def fit_joint(summary: pd.DataFrame, j: str) -> dict:
     s = summary.dropna(subset=["mass_g"])
     if s["mass_g"].nunique() < 2:
         return {}
-    m, y = s["mass_g"].to_numpy(), s[f"mean_{j}"].to_numpy()
+    ycol = f"delta_{j}" if s[f"delta_{j}"].notna().all() else f"mean_{j}"
+    m, y = s["mass_g"].to_numpy(), s[ycol].to_numpy()
     w = 1 / np.maximum(s[f"sem_{j}"].fillna(s[f"std_{j}"]).to_numpy(), 1e-4)
     a, b = np.polyfit(m, y, 1, w=w)
     resid = y - (a * m + b)
@@ -139,13 +146,14 @@ def plot_calibration(summary, fit, out: Path):
     j = fit["joint"]
     s = summary.dropna(subset=["mass_g"])
     fig, ax = plt.subplots(figsize=(12, 6.75))
-    ax.errorbar(s["mass_g"], s[f"mean_{j}"], yerr=2 * s[f"sem_{j}"].fillna(0), fmt="o", ms=9,
+    ycol = f"delta_{j}" if s[f"delta_{j}"].notna().all() else f"mean_{j}"
+    ax.errorbar(s["mass_g"], s[ycol], yerr=2 * s[f"sem_{j}"].fillna(0), fmt="o", ms=9,
                 color=BLUE, ecolor=BLUE, elinewidth=2, capsize=0, mec="white", mew=2, zorder=3)
     xs = np.linspace(0, s["mass_g"].max() * 1.05, 50)
     ax.plot(xs, fit["slope_Nm_per_g"] * xs + fit["intercept_Nm"], color=INK2, lw=2, ls="--", zorder=2)
-    ax.set_title(f"Peser au couple : {j} voit la masse de riz")
-    ax.set_xlabel("masse de riz dans la bouteille (g)")
-    ax.set_ylabel(f"couple moyen {j} (N·m)")
+    ax.set_title(f"Peser au couple : {j} voit les M&M's dans la bouteille")
+    ax.set_xlabel("masse de M&M's dans la bouteille (g)")
+    ax.set_ylabel(f"Δ couple {j} vs bouteille vide (N·m)" if ycol.startswith("delta") else f"couple moyen {j} (N·m)")
     txt = (f"pente {fit['slope_Nm_per_g'] * 1000:.2f} mN·m / g   ·   R² {fit['r2']:.3f}\n"
            f"résolution ≈ {fit['mass_resolution_g']:.1f} g   ·   bruit brut {fit['noise_std_Nm']:.3f} N·m"
            f"   ·   pas de quantif. {TAU_LSB[JOINT_NAMES.index(j)]:.3f} N·m")
@@ -165,7 +173,7 @@ def plot_noise(summary, out: Path, fits: dict):
     sens = [abs(fits[j]["slope_Nm_per_g"]) * 50 if fits.get(j) else 0 for j in ARM_JOINTS]
     wbar = 0.38
     ax.bar(x - wbar / 2 - 0.01, noise, wbar, color=MUTED, label="bruit à l'arrêt (écart-type)")
-    ax.bar(x + wbar / 2 + 0.01, sens, wbar, color=BLUE, label="signal de 50 g de riz")
+    ax.bar(x + wbar / 2 + 0.01, sens, wbar, color=BLUE, label="signal de 50 g de M&M's")
     ax.set_xticks(x, ARM_JOINTS)
     ax.set_ylabel("N·m")
     ax.set_title("Signal 50 g vs bruit, par articulation")
@@ -178,7 +186,7 @@ def plot_noise(summary, out: Path, fits: dict):
 def plot_pour(csv: Path, out: Path):
     df = pd.read_csv(csv)
     t = df["t_rel"]
-    panels = [("tilt_deg", "inclinaison (°)", BLUE), ("fill", "remplissage verre", AQUA)]
+    panels = [("tilt_deg", "inclinaison (°)", BLUE), ("added_g", "grammes versés", AQUA)]
     tau_col = next((c for c in ("tau_weigh", "tau_J2") if c in df), None)
     if tau_col:
         panels.append((tau_col, "couple pesée (N·m)" if tau_col == "tau_weigh" else "couple J2 (N·m)", ORANGE))
@@ -188,9 +196,10 @@ def plot_pour(csv: Path, out: Path):
         ax.plot(t, y, color=c, lw=1 if col.startswith("tau") else 2, alpha=0.5 if col.startswith("tau") else 1)
         if col.startswith("tau"):
             ax.plot(t, y.rolling(25, center=True, min_periods=1).mean(), color=c, lw=2)
-        if col == "fill" and "target" in df:
-            ax.axhline(df["target"].iloc[0], color=INK2, ls="--", lw=1.5)
-            ax.text(t.iloc[0], df["target"].iloc[0], " cible", va="bottom", color=INK2, fontsize=11)
+        if col == "added_g" and "goal_g" in df and df["goal_g"].notna().any():
+            goal = df["goal_g"].dropna().iloc[0]
+            ax.axhline(goal, color=INK2, ls="--", lw=1.5)
+            ax.text(t.iloc[0], goal, " cible", va="bottom", color=INK2, fontsize=11)
         ax.set_ylabel(lab)
     if "state" in df:  # bandes d'état discrètes en haut
         for st, g in df.groupby((df["state"] != df["state"].shift()).cumsum()):
@@ -198,7 +207,7 @@ def plot_pour(csv: Path, out: Path):
                          fontsize=9, color=MUTED, rotation=20)
             for ax in axes:
                 ax.axvline(g["t_rel"].iloc[0], color=GRID, lw=1)
-    axes[0].set_title("Versement en boucle fermée", pad=28)
+    axes[0].set_title(f"Versement en boucle fermée : {csv.stem}", pad=28)
     axes[-1].set_xlabel("temps (s)")
     fig.tight_layout()
     fig.savefig(out, dpi=150)
@@ -207,9 +216,10 @@ def plot_pour(csv: Path, out: Path):
 
 # ----------------------------------------------------------------------------- démo
 
-def make_demo_data(outdir: Path, masses=(0, 25, 50, 100, 150, 200), seconds=3.0) -> list[Path]:
-    """Pesées simulées. Chaque essai arrive à la pose de mesure par un côté
-    aléatoire, pour faire apparaître l'hystérésis de frottement."""
+def make_demo_data(outdir: Path, masses=(0, 30, 60, 90, 120), seconds=3.0, same_side=True) -> list[Path]:
+    """Pesées simulées (protocole EXPERIMENT.md). same_side=True : on arrive à la pose
+    de mesure toujours par le même côté ; False : côté aléatoire, pour montrer
+    l'hystérésis de frottement sur les slides."""
     from robot_io import Robot
 
     rng = np.random.default_rng(1)
@@ -219,7 +229,8 @@ def make_demo_data(outdir: Path, masses=(0, 25, 50, 100, 150, 200), seconds=3.0)
         robot.enable("right_arm")
         q0 = robot.get_targets("right_arm")
         bump = q0.copy()
-        bump[[1, 3]] += rng.choice([-1, 1], size=2) * 0.05  # côté d'arrivée aléatoire sur J2 et J4
+        side = -np.ones(2) if same_side else rng.choice([-1, 1], size=2)
+        bump[[1, 3]] += side * 0.05  # arrivée sur J2 et J4 par le même côté (ou aléatoire)
         robot.move_joints("right_arm", bump, speed=0.2)
         robot.move_joints("right_arm", q0, speed=0.2)
         rows, t0 = [], time.time()
@@ -230,7 +241,7 @@ def make_demo_data(outdir: Path, masses=(0, 25, 50, 100, 150, 200), seconds=3.0)
             rows.append(r)
             time.sleep(0.01)
         robot.close()
-        f = outdir / f"demo_weigh_{m:03d}g.csv"
+        f = outdir / f"demo_weigh_{'same' if same_side else 'random'}_{m:03d}g.csv"
         pd.DataFrame(rows).to_csv(f, index=False)
         files.append(f)
         print(f"  demo {m:3d} g -> {f}")
@@ -240,8 +251,11 @@ def make_demo_data(outdir: Path, masses=(0, 25, 50, 100, 150, 200), seconds=3.0)
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("files", nargs="*", type=Path)
-    p.add_argument("--joint", default=None, help="articulation à calibrer (défaut : la meilleure)")
+    p.add_argument("--joint", default="J2",
+                   help="articulation à calibrer (défaut J2 : DM8009 QDD 9:1, peu de frottement ; "
+                        "le mock ne sait pas que J3-J4 en 40:1 frottent beaucoup plus). 'auto' = meilleure résolution")
     p.add_argument("--demo", action="store_true", help="génère des pesées mock puis analyse")
+    p.add_argument("--demo-random-side", action="store_true", help="démo avec côté d'arrivée aléatoire (hystérésis)")
     p.add_argument("--pour", type=Path, default=None, help="trace CSV d'un versement à tracer")
     p.add_argument("--plots", type=Path, default=Path("plots"))
     p.add_argument("--calib-out", type=Path, default=Path("config/torque_calib.json"))
@@ -257,7 +271,7 @@ def main() -> int:
 
     files = a.files
     if a.demo:
-        files = make_demo_data(Path("data"))
+        files = make_demo_data(Path("data"), same_side=not a.demo_random_side)
     if not files:
         p.print_help()
         return 1
@@ -281,7 +295,7 @@ def main() -> int:
     for j, f in usable.items():
         print(f"  {j:5} {f['slope_Nm_per_g'] * 1000:8.3f} {f['r2']:6.3f} {f['mass_resolution_g']:9.1f}"
               f" {f['noise_std_Nm']:10.4f} {TAU_LSB[JOINT_NAMES.index(j)]:8.4f}")
-    joint = a.joint or min(usable, key=lambda j: usable[j]["mass_resolution_g"])
+    joint = min(usable, key=lambda j: usable[j]["mass_resolution_g"]) if a.joint == "auto" else a.joint
     fit = usable[joint]
     print(f"\n>>> articulation retenue : {joint}  (résolution ≈ {fit['mass_resolution_g']:.1f} g)")
 
