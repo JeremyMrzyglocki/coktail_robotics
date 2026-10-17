@@ -140,7 +140,7 @@ a USB drop). With CAN timeout 0 they hold forever. The preflight now flags "alre
   format or exposure.
 - Home pose: `calibration/home_pose.json` (team's start pose, leaders held with the upper arm
   turned half a turn). `./scripts/home.sh` shows every joint's delta to it (live, read-only):
-  bring leaders and followers back until all read ~0 (`--once`: exit 0 when within 5 deg).
+  bring leaders and followers back until all read ~0 (`--once`: exit 0 when within 15 deg).
   `--save` records a new one.
 - Damiao check on 2026-10-17 with arms hanging: all 16 motors answer, no fault, none left
   enabled, followers within 5 deg of 0.

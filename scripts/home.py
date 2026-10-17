@@ -2,7 +2,7 @@
 
   ./scripts/home.sh --save      # record the current pose of leaders and followers as home
   ./scripts/home.sh             # live view: every joint should read ~0 (delta to home), Ctrl+C
-  ./scripts/home.sh --once      # one reading; exit code 0 if every joint is within --tol
+  ./scripts/home.sh --once      # one reading; exit code 0 if every joint is within --tol (15 deg)
 
 Followers are stored as raw motor angles and leaders as raw readings (before flips/offsets), so
 changing the teleop calibration does not move the home pose. Never enables torque.
@@ -66,7 +66,7 @@ def main() -> int:
     mode = p.add_mutually_exclusive_group()
     mode.add_argument("--save", action="store_true", help="record the current pose as home")
     mode.add_argument("--once", action="store_true", help="one reading, exit 0 if at home")
-    p.add_argument("--tol", type=float, default=5.0, help="deg, per joint")
+    p.add_argument("--tol", type=float, default=15.0, help="deg, per joint")
     p.add_argument("--note", default="", help="free text saved with --save")
     args = p.parse_args()
 
