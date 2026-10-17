@@ -17,9 +17,11 @@ Before the robot comes back:
 ./scripts/watch.sh              # live table; move each leader: its own column must change
 ```
 If a leader drives the wrong column, swap `LEFT_LEADER` / `RIGHT_LEADER` in `scripts/ports.sh`.
-Also check the sides: `ports.sh` assumes the robot's right arm is on `can0` (the OpenArm SDK's
-convention, used by `skills/pour`). The side picks the joint limits and the leader's joint flips,
-so a wrong side shows up as joint_2 and the wrist moving the wrong way.
+Also check the sides: on this robot the right follower is on `can1` and the left on `can0`, the
+opposite of the OpenArm SDK default used by `skills/pour` (it must pass
+`can_interfaces={"right_arm": "can1", "left_arm": "can0"}`). Leader sides come from their gripper
+calibration (closed reads 0 only with the leader's own file). The side picks the joint limits and
+the leader's joint flips: a wrong side shows up as joints moving the mirrored way.
 
 ## 2. Joint directions (read-only)
 

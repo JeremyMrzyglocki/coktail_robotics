@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit(scripts/teleop_safe.py)"
+    ]
+  }
+}

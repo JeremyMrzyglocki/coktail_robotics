@@ -56,6 +56,7 @@ KP = dict(zip(NAMES, [240.0, 240.0, 240.0, 240.0, 24.0, 31.0, 25.0, 25.0]))
 KD = dict(zip(NAMES, [5.0, 5.0, 3.0, 5.0, 0.3, 0.3, 0.3, 0.3]))
 
 ALIGN_TOL_DEG = 10.0  # leader/follower gaps above this are flagged; closed at the approach speed
+TARGET_FAR_DEG = 20.0  # a target this far past a limit is a bad reading (wrap, calibration): refuse
 LIMIT_MARGIN_DEG = 5.0  # follower may start this far outside its limits: brought back at approach speed
 TRACKING_ERROR_DEG = 60.0  # commanded vs measured gap that triggers a stop while running
 LEADER_JUMP_DEG = 45.0  # leader change in one cycle no hand can make (bad read, angle wrap): stop
@@ -163,7 +164,9 @@ def preflight(arm: Arm, target: dict[str, float] | None = None) -> tuple[bool, t
             problems.append(s.status_name)
         if not lo - LIMIT_MARGIN_DEG <= f <= hi + LIMIT_MARGIN_DEG:
             problems.append("follower outside limits")
-        if not lo <= leader[name] <= hi:
+        if not lo - TARGET_FAR_DEG <= leader[name] <= hi + TARGET_FAR_DEG:
+            problems.append(f"target > {TARGET_FAR_DEG:.0f} deg outside limits: check the leader")
+        elif not lo <= leader[name] <= hi:
             problems.append("target outside limits (clipped)")
         if max(s.t_mos, s.t_rotor) > MAX_TEMP_C:
             problems.append("hot")
@@ -280,6 +283,32 @@ class Teleop:
         self.missed = {arm.side: {n: 0 for n in NAMES} for arm in arms}
         self.last_target: dict[str, dict[str, float]] = {}
         self.synced = False
+        self.reset_stats()
+
+    def reset_stats(self):
+        """Start a new tracking measurement (counted only once synced, see summary())."""
+        self.stats = {arm.side: {n: {"err_sum": 0.0, "err_max": 0.0, "capped": 0} for n in NAMES}
+                      for arm in self.arms}
+        self.stat_cycles = 0
+
+    def summary(self) -> str:
+        """Per joint: command vs measured error (low gains -> sag, lag) and share of cycles at the
+        speed cap (high -> --max-speed is what limits the follower)."""
+        if not self.stat_cycles:
+            return "No tracking stats (never in sync)."
+        lines = [f"Tracking over {self.stat_cycles} cycles ({self.max_speed:.0f} deg/s cap, "
+                 f"gains x{self.gain_scale}):",
+                 f"  {'joint':<9}" + "".join(f"{arm.side + ' err mean/max':>22}{'at cap':>8}" for arm in self.arms)]
+        for name in NAMES:
+            row = f"  {name:<9}"
+            for arm in self.arms:
+                s = self.stats[arm.side][name]
+                row += (f"{s['err_sum'] / self.stat_cycles:>14.1f} /{s['err_max']:>5.1f}"
+                        f"{100 * s['capped'] / self.stat_cycles:>7.0f}%")
+            lines.append(row)
+        lines.append("  err: command - measured, deg (a few deg max is good; more -> raise GAIN_SCALE).\n"
+                     "  at cap: share of cycles limited by the speed cap (often high -> raise MAX_SPEED).")
+        return "\n".join(lines)
 
     def _check(self, arm: Arm, states):
         for name in NAMES:
@@ -298,6 +327,10 @@ class Teleop:
             err = self.cmd[arm.side][name] - self.measured[arm.side][name]
             if abs(err) > TRACKING_ERROR_DEG:
                 raise RuntimeError(f"{arm.side} {name}: tracking error {err:.1f} deg")
+            if self.synced:
+                st = self.stats[arm.side][name]
+                st["err_sum"] += abs(err)
+                st["err_max"] = max(st["err_max"], abs(err))
 
     def start(self):
         """Phase 1: hold the current pose while the gains ramp up from 0."""
@@ -333,7 +366,11 @@ class Teleop:
                 prev = self.cmd[arm.side][name]
                 self.cmd[arm.side][name] = prev + min(max(goal - prev, -step), step)
                 reached &= abs(goal - prev) <= step
+                if self.synced and abs(goal - prev) > step:
+                    self.stats[arm.side][name]["capped"] += 1
             self._check(arm, arm.command(self.cmd[arm.side], self.gain_scale))
+        if self.synced:
+            self.stat_cycles += 1
         if reached and not self.synced:
             self.synced = True
             print(f"In sync. Teleop running ({self.max_speed:.0f} deg/s cap, gains x{self.gain_scale}).")
@@ -372,10 +409,13 @@ def run(arms: list[Arm], fps: float, max_speed: float, approach_speed: float, ga
     teleop = Teleop(arms, fps, max_speed, approach_speed, gain_scale, ramp_s)
     teleop.start()
     print("Ctrl+C to stop.")
-    while True:
-        start = time.monotonic()
-        teleop.step()
-        time.sleep(max(0.0, teleop.dt - (time.monotonic() - start)))
+    try:
+        while True:
+            start = time.monotonic()
+            teleop.step()
+            time.sleep(max(0.0, teleop.dt - (time.monotonic() - start)))
+    finally:
+        print("\n" + teleop.summary())
 
 
 def parse_pair(value: str) -> tuple[str, str]:

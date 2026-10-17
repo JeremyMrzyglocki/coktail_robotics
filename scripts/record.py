@@ -119,6 +119,7 @@ def main():
                   "Enter = end, r = redo, q = save and quit")
             t0, redo = time.monotonic(), False
             worst, late = 0.0, 0
+            teleop.reset_stats()
             while time.monotonic() - t0 < args.episode_time:
                 start = tick()
                 images = {c: cam.read_latest() for c, cam in cameras.items()}
@@ -144,7 +145,7 @@ def main():
             else:
                 dataset.save_episode()
                 saved += 1
-                print(f"Saved ({time.monotonic() - t0:.1f} s, {timing}).")
+                print(f"Saved ({time.monotonic() - t0:.1f} s, {timing}).\n{teleop.summary()}")
             if stop or saved == args.episodes:
                 break
             print("Reset the scene (teleop still on, not recording). "

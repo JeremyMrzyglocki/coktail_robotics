@@ -12,4 +12,4 @@ case "$1" in
     *) echo "usage: $0 left|right|both [--run | --watch | --directions]"; exit 1 ;;
 esac
 shift
-exec .venv/bin/python scripts/teleop_safe.py "${ARMS[@]}" "$@" 2> >(grep -v '^INFO' >&2)
+exec .venv/bin/python scripts/teleop_safe.py "${ARMS[@]}" --max-speed "$MAX_SPEED" --gain-scale "$GAIN_SCALE" "$@" 2> >(grep -v '^INFO' >&2)
