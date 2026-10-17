@@ -1,0 +1,17 @@
+[project]
+name = "coktail-robotics"
+version = "0.1.0"
+description = "Cocktail Robotics — OpenArm + OpenArm Mini teleoperation (HackZurich)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "lerobot[feetech,damiao]",
+    "mujoco>=3.3",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+# Pinned to the LeRobot main commit tested with our OpenArm Mini (0.6.2, has openarm_mini).
+lerobot = { git = "https://github.com/huggingface/lerobot.git", rev = "146d8474932c8b566717eb2738ba459337ab71c4" }
