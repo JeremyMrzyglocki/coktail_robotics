@@ -56,7 +56,22 @@ OFFSETS_FILE = ROOT / "calibration" / "teleop_offsets.json"
 # 90 deg apart that mapping is wrong and [["joint_6", "joint_7"]] undoes it.
 SWAPS_FILE = ROOT / "calibration" / "teleop_swaps.json"
 DIRECTION_MIN_DEG = 5.0  # a joint must move at least this much on both arms to be judged
-JOINT_LIMITS = {"left": LEFT_DEFAULT_JOINTS_LIMITS, "right": RIGHT_DEFAULT_JOINTS_LIMITS}
+# Per side, joint ranges measured on this robot (scripts/measure_range.py, minus a margin) that
+# replace LeRobot's generic limits joint by joint: a command past a real mechanical stop makes the
+# motor push into it at full torque and overheat (right joint_3 reached 81 C that way).
+LIMITS_FILE = ROOT / "calibration" / "joint_limits.json"
+
+
+def load_joint_limits() -> dict[str, dict[str, tuple[float, float]]]:
+    limits = {"left": dict(LEFT_DEFAULT_JOINTS_LIMITS), "right": dict(RIGHT_DEFAULT_JOINTS_LIMITS)}
+    if LIMITS_FILE.exists():
+        for side, joints in json.loads(LIMITS_FILE.read_text()).items():
+            for name, (lo, hi) in joints.items():
+                limits[side][name] = (float(lo), float(hi))
+    return limits
+
+
+JOINT_LIMITS = load_joint_limits()
 NAMES = [name for name, _, _ in ARM_MOTORS]
 # LeRobot openarm_follower position gains, scaled down by --gain-scale.
 KP = dict(zip(NAMES, [240.0, 240.0, 240.0, 240.0, 24.0, 31.0, 25.0, 25.0]))
