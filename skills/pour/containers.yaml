@@ -1,0 +1,43 @@
+# Profils des bouteilles et du verre. Une bouteille = une couleur de M&M's = une "boisson".
+# Valeurs marquées MESURER : à relever sur place (balance de cuisine, règle).
+# Le code lit ce fichier via bar_state.load_bar_config().
+
+mm_unit_g: 0.9                 # masse d'un M&M's
+
+glass:
+  capacity_g: 300              # contenance utile (M&M's) du grand verre
+  calib: config/glass_grams_calib.json   # hauteur -> grammes (glass_level.py --add-point)
+  mouth_radius_m: 0.04         # MESURER : rayon de l'ouverture (contrôle "goulot hors du verre")
+
+defaults:                      # valeurs par défaut de chaque bouteille
+  capacity_g: 120
+  initial_g: 120               # contenu au début de la session (MESURER à la balance)
+  empty_mass_g: 40             # MESURER : bouteille vide
+  neck_length_m: 0.03          # longueur du goulot
+  neck_offset_m: [0.0, 0.0, 0.12]  # bout du goulot dans le repère de la pince (x, y, z), m
+  tilt_speed_dps: 4.0          # rampe lente tant que rien ne coule
+  max_tilt_deg: 120.0          # inclinaison max demandée (bornée par la butée de l'articulation)
+  pre_tilt_deg: 35.0           # rapide jusqu'ici quand on ne connaît pas encore l'angle de départ
+  flow_rate_gps: 12.0          # débit visé loin de la cible (g/s)
+  slow_rate_gps: 5.0           # débit visé à l'approche de la cible
+  approach_pose: null          # pose articulaire (8 valeurs, rad) au-dessus du verre ; null = pose actuelle
+
+containers:
+  red:
+    drink: grenadine
+    hsv: [[[0, 120, 70], [8, 255, 255]], [[170, 120, 70], [179, 255, 255]]]   # le rouge "boucle" en H
+  yellow:
+    drink: citron
+    hsv: [[[18, 120, 120], [35, 255, 255]]]
+  blue:
+    drink: curaçao
+    hsv: [[[95, 120, 50], [125, 255, 255]]]
+    # exemple de bouteille de forme différente :
+    # empty_mass_g: 55
+    # neck_offset_m: [0.0, 0.0, 0.15]
+    # tilt_speed_dps: 3.0
+
+cocktails:                     # proposés par le LLM ; grammes par couleur, versés dans l'ordre
+  mojito: {red: 60, yellow: 90}
+  lagon_bleu: {blue: 90, yellow: 60}
+  sunset: {yellow: 60, red: 30, blue: 30}
