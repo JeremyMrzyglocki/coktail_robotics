@@ -35,7 +35,11 @@ END_TO_END_ROBOTS = {r.strip() for r in os.environ.get("END_TO_END_ROBOTS", "Ope
 def _skill_clip(skill: dict[str, Any]) -> dict[str, Any]:
     clips = _clips()
     first_none = None
-    for ref in cat.skill_datasets(skill):
+    # A reference marked `"preview": true` in data/skill_datasets.json goes
+    # first: its footage was checked to show this skill's motion, which a
+    # generic candidate primary (pick-and-place, say) does not.
+    refs = sorted(cat.skill_datasets(skill), key=lambda r: not r.get("preview"))
+    for ref in refs:
         clip = clips.get(ref["detail"]["id"])
         if clip and clip.get("kind") != "none":
             return {"clip": clip, "clip_dataset": ref}
@@ -150,7 +154,8 @@ def _schedule(steps, catalog, structure, overrides=None, plan=None):
         step.hand = hand
     issues, _ = validate(steps, catalog, structure, hands,
                          kinds=plan.kinds() if plan else None,
-                         gaps=plan.missing if plan else None)
+                         gaps=plan.missing if plan else None,
+                         keep=plan.end_holding if plan else None)
     graph = dependency_graph(steps, catalog, hands, gaps=plan.missing if plan else None)
     width: dict[int, int] = {}
     for node in graph:

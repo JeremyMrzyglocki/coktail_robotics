@@ -331,9 +331,12 @@ def validate(
     hands: list[str | None] | None = None,
     kinds: dict[str, str] | None = None,
     gaps: list[Any] | None = None,
+    keep: list[str] | None = None,
 ) -> tuple[list[ValidationIssue], set[str]]:
     """Simulate the plan, per hand. Returns (issues, final world state).
 
+    `keep` names objects the request wants still in hand at the end; a hand
+    left holding one of those is the goal, not a loose end.
     `kinds` maps target names to object kinds, for the acts_on check. `gaps` are
     the plan's missing skills: they are simulated in place with the effects they
     declare (their preconditions are not checked -- they are proposals), so a
@@ -489,6 +492,8 @@ def validate(
     for h in HANDS:
         left_over = sorted(p for p in ("holding", "object_located")
                            if f"{p}@{h}" in state)
+        if left_over == ["holding"] and held.get(h) in set(keep or []):
+            continue
         if left_over:
             last = max((i for i, x in enumerate(hands) if x == h), default=None)
             what = "still holding something" if "holding" in left_over \

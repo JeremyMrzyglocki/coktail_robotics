@@ -121,6 +121,13 @@ nav{margin-left:auto;display:flex;gap:24px;}
   border-left:5px solid var(--a1);margin-bottom:6px;}
 .issue.block{border-left-color:var(--a0);}
 .install{margin-top:16px;}
+.runrobot{margin-top:16px;position:relative;overflow:hidden;isolation:isolate;
+  min-width:11em;justify-content:center;}      /* room for "Running… 100%" */
+/* The loading bar: --p (0..1) is set from app.js while the robot runs. */
+.runrobot::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--orange);
+  transform:scaleX(var(--p,0));transform-origin:left center;}
+.runrobot.loading{cursor:progress;font-variant-numeric:tabular-nums;}
+.runrobot.loading .arrow{display:none;}
 .runlog{margin-top:12px;background:var(--panel);color:#fff;padding:12px 16px;
   font-family:ui-monospace,Menlo,monospace;font-size:12.5px;max-height:220px;overflow:auto;}
 .runlog div{padding:3px 0;}

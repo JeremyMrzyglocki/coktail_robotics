@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -61,8 +62,9 @@ DEMO = [
 
 def score(prompt: str, catalog: dict, structure: str) -> dict:
     t0 = time.monotonic()
+    trace: list[dict] = []
     try:
-        plan = compile_plan(prompt, catalog, structure=structure)
+        plan = compile_plan(prompt, catalog, structure=structure, trace=trace)
     except CompileError as exc:
         return {"prompt": prompt, "error": str(exc), "seconds": time.monotonic() - t0}
     seconds = time.monotonic() - t0
@@ -82,7 +84,26 @@ def score(prompt: str, catalog: dict, structure: str) -> dict:
                  for m in plan.missing],
         "objects": {o.name: o.kind for o in plan.objects},
         "goal": plan.goal,
+        # Issues at the start of each repair round (round 0 = first binding),
+        # then the final plan's: the per-round validity curve comes from here.
+        "trace": trace + [{"round": "final",
+                           "blocking": [i.kind for i in issues if is_blocking(i)],
+                           "advisory": [i.kind for i in issues if i.kind in
+                                        ("loose_end", "pointless_move")]}],
+        "set": "novel" if prompt in NOVEL else "demo",
     }
+
+
+def config() -> dict:
+    """Which models produced these numbers -- recorded with every run."""
+    from app.llm import active_provider, default_model
+    provider = active_provider()
+    base = default_model(provider)
+    return {"provider": provider, "bind_model": base,
+            "act_model": os.environ.get("COMPILER_ACT_MODEL", "").strip() or base,
+            "repair_model": os.environ.get("REPAIR_MODEL", "").strip() or base,
+            "effort": os.environ.get("COMPILER_EFFORT", "medium") if provider == "anthropic"
+            else None}
 
 
 def rate(rows: list[dict], key: str) -> str:
@@ -132,6 +153,7 @@ def main() -> None:
     ap.add_argument("--runs", type=int, default=1)
     ap.add_argument("--structure", default="dualarm")
     ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--tag", default="", help="label for this run, kept in the file name")
     args = ap.parse_args()
 
     db.init_db()
@@ -143,9 +165,11 @@ def main() -> None:
         rows = list(ex.map(lambda p: score(p, catalog, args.structure), jobs))
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
-    raw = ROOT / "data" / f"compile_eval_{stamp}.json"
-    md = ROOT / "reports" / f"compile_eval_{stamp}.md"
-    raw.write_text(json.dumps(rows, indent=2) + "\n")
+    name = f"compile_eval_{stamp}" + (f"_{args.tag}" if args.tag else "")
+    raw = ROOT / "data" / f"{name}.json"
+    md = ROOT / "reports" / f"{name}.md"
+    raw.write_text(json.dumps({"config": config(), "runs": args.runs, "rows": rows},
+                              indent=2) + "\n")
     md.write_text(report(rows, args) + "\n")
     print(report(rows, args).split("\n## ")[0])
     print(f"-> {md.relative_to(ROOT)}")

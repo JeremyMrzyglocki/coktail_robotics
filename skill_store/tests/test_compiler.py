@@ -87,3 +87,18 @@ def test_a_gap_that_restates_a_catalog_skill_is_caught(catalog):
         MissingSkill(proposed_id="dip_into", name="", description="",
                      preconditions=["holding"], postconditions=["tool_loaded"])])
     assert _duplicate_gaps(plan, catalog) == [("grasp_item", "grasp_object")]
+
+
+def test_repair_rounds_are_traced(catalog, monkeypatch):
+    from app import compiler
+    script = {"objects": [{"name": "glass", "kind": "glass"}, {"name": "juice", "kind": "bottle"},
+                          {"name": "table", "kind": "fixed"}], "goal": "", "phases": []}
+    wrong = {"summary": "", "combo_name": "", "sequence": [
+        item("locate_object", "glass"), item("grasp_glass", "glass"),
+        item("move_to_station", "juice"), item("pour_into", "juice"),
+        item("move_to_station", "table"), item("release_object", "table")]}
+    monkeypatch.setattr(compiler, "structured_call", lambda *a, **k: wrong)
+    trace = []
+    compiler._repair(_to_plan(wrong, script), script, catalog, "dualarm", "s", "u", {},
+                     budget=1, trace=trace)
+    assert trace[0]["round"] == 0 and "wrong_flow" in trace[0]["blocking"]

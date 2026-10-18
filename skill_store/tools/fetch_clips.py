@@ -16,6 +16,12 @@ possible the clip falls back, in order:
 Every clip is recorded with its exact source in data/clip_sources.json, so the UI
 can say where it came from.
 
+The first video at START seconds often misses the motion: the task happens later
+in the episode, or another camera shows it. A dataset in data/datasets.json can
+name the window to cut instead, chosen by looking at the footage:
+
+    "clip_window": {"video": "<path in the repo>", "start": 10.0, "why": "..."}
+
     python tools/fetch_clips.py                 # every dataset on the Hub
     python tools/fetch_clips.py --only droid    # one
 """
@@ -42,11 +48,11 @@ SOURCES = ROOT / "data" / "clip_sources.json"
 START, LENGTH = 3.0, 6.0
 
 
-def cut(url: str, dest: Path) -> tuple[bool, str]:
-    """Cut LENGTH seconds at START, re-encoded to H.264. Returns (ok, stderr)."""
+def cut(url: str, dest: Path, start: float = START) -> tuple[bool, str]:
+    """Cut LENGTH seconds at `start`, re-encoded to H.264. Returns (ok, stderr)."""
     if not ffmpeg_bin():
         return False, "ffmpeg not installed"
-    cmd = [ffmpeg_bin(), "-nostdin", "-loglevel", "error", "-ss", str(START), "-t", str(LENGTH),
+    cmd = [ffmpeg_bin(), "-nostdin", "-loglevel", "error", "-ss", str(start), "-t", str(LENGTH),
            "-i", url, "-an", "-vf", "scale=640:-2", "-c:v", "libx264", "-pix_fmt", "yuv420p",
            "-crf", "28", "-movflags", "+faststart", "-y", str(dest)]
     try:
@@ -140,6 +146,15 @@ def fetch(ds: dict, token: str | None) -> dict:
     if not repo:
         return {"kind": "none", "why": f"not on the Hub ({ds.get('access')})"}
     dest = CLIPS / f"{ds['id']}.mp4"
+    window = ds.get("clip_window")
+    if window:
+        url = f"https://huggingface.co/datasets/{repo}/resolve/main/{window['video']}"
+        start = float(window.get("start", START))
+        ok, err = cut(url, dest, start)
+        if ok:
+            return {"kind": "local", "path": f"clips/{dest.name}", "repo_id": repo,
+                    "source": url, "start": start, "length": LENGTH}
+        return {"kind": "none", "why": f"could not cut the clip window: {err.strip()[:120]}"}
     rows = viewer_rows(repo, token)
     videos: list[str] = []
     images: list[str] = []

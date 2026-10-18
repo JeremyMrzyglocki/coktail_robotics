@@ -33,7 +33,7 @@ from .llm import LLMError, structured_call
 from .models import CompiledPlan, MissingSkill, PlanObject, Step
 
 # Part of the cache key: a plan compiled by an older pipeline is not reused.
-COMPILER_VERSION = "7"
+COMPILER_VERSION = "8"
 GAP = "GAP"
 
 
@@ -44,7 +44,8 @@ robot can already do. Describe the physical work, not products or skills.
 
 Start state: both hands empty. Everything the request names is within reach on \
 the table unless the request says otherwise. A glass already stands on a coaster \
-on the table. Things are in the everyday state a person would find them on a \
+on the table; a drink served in something else (tea or coffee in a cup) starts \
+from that empty vessel standing on the table instead. Things are in the everyday state a person would find them on a \
 counter: bottles open and ready to pour, food as it is sold (a banana still in \
 its peel), appliances (a blender, a kettle, a toaster) standing ready on their \
 base. Operating an appliance is pressing its control with a free hand; its jar or \
@@ -84,7 +85,8 @@ written once, in order, with repeats=true on each movement of the cycle.
 - Do not move a thing that is already where the work needs it, and keep holding \
 a thing from one phase to the next when the next phase uses it again. A thing \
 that only receives another (the glass poured into, the bowl filled, the bottom \
-cup of a stack) stays where it stands and is not picked up.
+cup of a stack) stays where it stands and is not picked up -- unless it is held \
+out to the customer (below).
 - Every phase changes something in the world; looking alone is not a phase, \
 and neither is "both hands are empty".
 - Look for a thing only right before picking it up. A destination is not \
@@ -101,6 +103,10 @@ request is to hand something over or keep holding it. Setting a thing down \
 where the work puts it (on the table, in the bowl, on top of another thing) \
 already empties the hand: never pick it back up or undo the work to end \
 empty-handed.
+- When the customer says they will finish part of the work themselves (pour \
+the water, add the milk), do everything before that and hold out what they will \
+work on: one hand picks it up first and keeps holding it while the other hand \
+does the rest, and the work ends with it still in that hand.
 - When the request is about several things of one kind (stack the cups, put \
 the apples in the bowl), name each one (cup1, cup2, ...) and handle each in \
 turn.
@@ -109,6 +115,9 @@ happens, or "". For carry and set down, place is the destination -- the other \
 thing when X goes onto or into it.
 
 goal -- one sentence: what is true when the work is done.
+
+end_holding -- the objects still in a hand when the work is done because the \
+request wants them held (held out to the customer, handed over). Usually none.
 
 Example. "pour me a glass of juice":
   objects: juice (bottle, 25 cm), glass (glass, 12 cm), table (fixed, 120 cm)
@@ -296,8 +305,9 @@ def _act_schema() -> dict[str, Any]:
                 },
             },
             "goal": {"type": "string"},
+            "end_holding": {"type": "array", "items": {"type": "string"}},
         },
-        "required": ["objects", "phases", "goal"],
+        "required": ["objects", "phases", "goal", "end_holding"],
         "additionalProperties": False,
     }
 
@@ -456,7 +466,9 @@ def _to_plan(raw: dict[str, Any], script: dict[str, Any]) -> CompiledPlan:
                for o in script.get("objects", [])]
     return CompiledPlan(summary=raw.get("summary", ""), combo_name=raw.get("combo_name", ""),
                         steps=steps, missing=missing, objects=objects,
-                        goal=script.get("goal", ""))
+                        goal=script.get("goal", ""),
+                        end_holding=[n for n in script.get("end_holding") or []
+                                     if n in {o.name for o in objects}])
 
 
 def compile_plan(
@@ -465,8 +477,14 @@ def compile_plan(
     robot_model: str = "Spirit AI Moz1",
     structure: str = "dualarm",
     repairs: int = 2,
+    trace: list[dict[str, Any]] | None = None,
 ) -> CompiledPlan:
-    """Act the request out, bind it to the catalog, repair. Raises CompileError."""
+    """Act the request out, bind it to the catalog, repair. Raises CompileError.
+
+    `trace`, when given, receives one entry per repair round with the issues the
+    simulator raised at its start (round 0 is the first binding) -- what the
+    evaluation uses to measure how much each round of feedback fixes.
+    """
     # Composed skills are sold whole; the compiler builds from atoms, otherwise a
     # request collapses into one opaque, unexecutable step.
     catalog = {k: v for k, v in catalog.items() if v.get("category") != "composite"}
@@ -496,7 +514,7 @@ def compile_plan(
     if unknown:
         raise CompileError(f"compiler named skills outside the catalog: {unknown}")
 
-    return _repair(plan, script, catalog, structure, system, user, schema, repairs)
+    return _repair(plan, script, catalog, structure, system, user, schema, repairs, trace)
 
 
 def _producers_hint(issue: Any, plan: CompiledPlan,
@@ -606,7 +624,7 @@ def _render(plan: CompiledPlan) -> str:
 def _repair(plan: CompiledPlan, script: dict[str, Any],
             catalog: dict[str, dict[str, Any]], structure: str,
             system: str, user: str, schema: dict[str, Any],
-            budget: int) -> CompiledPlan:
+            budget: int, trace: list[dict[str, Any]] | None = None) -> CompiledPlan:
     """Hand the validator's complaints back to the binder and let it try again.
 
     A small model gets step ordering wrong often enough that one-shot output is
@@ -620,8 +638,13 @@ def _repair(plan: CompiledPlan, script: dict[str, Any],
     while rounds < max(budget, 0):
         rounds += 1
         issues = [i for i in validate(plan.steps, catalog, structure,
-                                      kinds=plan.kinds(), gaps=plan.missing)[0]
+                                      kinds=plan.kinds(), gaps=plan.missing,
+                                      keep=plan.end_holding)[0]
                   if is_blocking(i) or i.kind in ("loose_end", "pointless_move")]
+        if trace is not None:
+            trace.append({"round": rounds - 1,
+                          "blocking": [i.kind for i in issues if is_blocking(i)],
+                          "advisory": [i.kind for i in issues if not is_blocking(i)]})
         # A pour the wrong way round is cheap to fix and expensive to ship:
         # worth one extra round on its own.
         if any(i.kind == "wrong_flow" for i in issues) and rounds == budget \
