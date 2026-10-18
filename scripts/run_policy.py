@@ -19,7 +19,9 @@ Usage:
 
 --remote runs the policy on a Hugging Face GPU (scripts/remote_policy.py deploys it): the robot
 executes each chunk while the next one is computed from a fresh observation, sent --refill s before
-the end; the steps that went by during the round trip are skipped. If no chunk arrives the arm holds
+the end; the steps that went by during the round trip are skipped, and the new chunk takes over
+from the old one with a linear cross-fade over --blend s (two chunks can disagree by tens of degrees
+at the same instant, which a plain swap turns into a one-step jump). If no chunk arrives the arm holds
 its last target, and after --remote-timeout s the run stops as on Enter (pose held, torque on).
 """
 
@@ -164,7 +166,8 @@ class RemoteDriver(PolicyDriver):
     thread. A chunk computed from the observation of tick k is applied from the current tick on.
     """
 
-    def __init__(self, space: str, path: str, arms, cameras, specs, task: str, fps: float, refill_s: float):
+    def __init__(self, space: str, path: str, arms, cameras, specs, task: str, fps: float, refill_s: float,
+                 blend_s: float = 0.33):
         from remote_policy import RemotePolicy
 
         self.path = resolve_policy(path, weights=False)  # config files only: the feature check
@@ -182,6 +185,8 @@ class RemoteDriver(PolicyDriver):
         if served and not self.path.endswith(served):
             print(f"  note: features checked on {self.path}, the Space serves {served} (pushed since?)")
         self.refill = max(1, round(refill_s * fps))
+        self.blend = max(0, round(blend_s * fps))
+        self.max_swap = 0.0  # biggest old-vs-new chunk disagreement at a swap, deg
         self.pool = ThreadPoolExecutor(max_workers=1)
         self.round_trips: list[float] = []
         self.last = None  # only the very first chunk is waited for: later on, a missing one holds this
@@ -208,7 +213,15 @@ class RemoteDriver(PolicyDriver):
                 raise
             return
         self.round_trips.append(time.monotonic() - t0)
-        self.queue = deque(actions[self.tick - sent_tick:])  # the steps that went by are skipped
+        new = list(actions[self.tick - sent_tick:])  # the steps that went by are skipped
+        old = list(self.queue) or ([self.last] if self.last is not None else [])
+        if old and new:
+            self.max_swap = max(self.max_swap, float(np.max(np.abs(new[0] - old[0]))))
+            n = min(self.blend, len(new))
+            for i in range(n):  # weight of the new chunk: 1/n ... 1
+                w = (i + 1) / n
+                new[i] = (1 - w) * old[min(i, len(old) - 1)] + w * new[i]
+        self.queue = deque(new)
 
     @property
     def starved_s(self) -> float:
@@ -230,7 +243,8 @@ class RemoteDriver(PolicyDriver):
         if not self.round_trips:
             return "no remote chunk received"
         rt = np.array(self.round_trips) * 1000
-        return f"{len(rt)} remote chunks, round trip p50 {np.median(rt):.0f} ms, max {rt.max():.0f} ms"
+        return (f"{len(rt)} remote chunks, round trip p50 {np.median(rt):.0f} ms, max {rt.max():.0f} ms; "
+                f"biggest chunk disagreement at a swap {self.max_swap:.1f} deg (cross-faded)")
 
 
 def main():
@@ -249,6 +263,8 @@ def main():
                    help="run the policy on this GPU Space (NAMESPACE/NAME or URL, scripts/remote_policy.py)")
     p.add_argument("--refill", type=float, default=1.0,
                    help="--remote: ask for the next chunk when this many s of actions are left")
+    p.add_argument("--blend", type=float, default=0.33,
+                   help="--remote: cross-fade from the old chunk to the new one over this many s")
     p.add_argument("--remote-timeout", type=float, default=3.0,
                    help="--remote: stop (holding the pose) after this many s without actions")
     args = p.parse_args()
@@ -258,7 +274,7 @@ def main():
     if args.remote:
         print(f"Connecting to the remote policy {args.policy} on {args.remote}...")
         driver = RemoteDriver(args.remote, args.policy, arms, cameras, args.camera, args.task,
-                              args.fps, args.refill)
+                              args.fps, args.refill, args.blend)
     else:
         device = pick_device(args.device)
         print(f"Loading policy {args.policy} on {device}...")
