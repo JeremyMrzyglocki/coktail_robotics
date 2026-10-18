@@ -18,6 +18,9 @@ LEFT_CAN=can0
 # back = HBV HD CAMERA (USB, by-id path survives replugs); ~11 fps measured in the VM.
 CAMERAS=(front=realsense:151422253450,rotate=180,zoom=1.1 back=/dev/v4l/by-id/usb-HBV_HD_CAMERA_HBV_HD_CAMERA-video-index0)
 
+# Task text of the dataset (record.sh --task): keep it identical for every episode, PI0.5 reads it.
+TASK="Pick up the tea bag with the right arm, pick up the cup with the left arm, and put the tea bag in the cup"
+
 # Follower tuning for teleop.sh, record.sh and grasp.sh (a command-line option still wins).
 # Raise step by step once the joint directions are validated, reading the tracking summary printed
 # at the end of each run / episode:
