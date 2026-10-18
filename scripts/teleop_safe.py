@@ -467,9 +467,10 @@ class Teleop:
         self.last_target = {arm.side: targets(arm) for arm in self.arms}
 
 
-def confirm_start(arms: list[Arm], approach_speed: float, targets=None) -> bool:
+def confirm_start(arms: list[Arm], approach_speed: float, targets=None, ask: bool = True) -> bool:
     """Preflight every arm (against its leader, or targets(arm)), show the startup moves and ask
-    for GO. True only if torque may go on."""
+    for GO (ask=False: the caller already got the operator's go, e.g. the skill store's deploy
+    button). True only if the preflight passed and torque may go on."""
     checks = [preflight(arm, None if targets is None else targets(arm)) for arm in arms]
     if not all(ok for ok, _ in checks):
         print("\nPreflight failed: not enabling torque.")
@@ -482,6 +483,9 @@ def confirm_start(arms: list[Arm], approach_speed: float, targets=None) -> bool:
     print(f"Zero offsets: {ZERO_FILE.name} of {zero['saved']}, up to {biggest:.1f} deg (re-run "
           "./scripts/zero_check.sh if another team calibrated the robot since)" if zero else
           "Zero offsets: none (motor zero = ours). After another team's calibration: ./scripts/zero_check.sh")
+    if not ask:
+        print("\nPreflight OK, started from the deploy: torque on.")
+        return True
     # Prompt on stdout ourselves: input() may write it to stderr, which watch/teleop.sh filter.
     print("\nTorque will be enabled on the follower. Type GO and press Enter to start: ", end="", flush=True)
     if input().strip() != "GO":

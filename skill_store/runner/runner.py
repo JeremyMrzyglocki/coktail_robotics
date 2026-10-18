@@ -275,7 +275,7 @@ def main() -> int:
     ap.add_argument("--model", help="--openarm: policy (Hub repo id, OWNER/REPO/SUBFOLDER or local dir)")
     ap.add_argument("--remote", help="--openarm: run the policy on this GPU Space (scripts/remote_policy.py)")
     ap.add_argument("--max-time", type=float, default=60.0, help="--openarm: policy time limit, s")
-    ap.add_argument("--grasp-args", default="", help='--openarm: more grasp.sh options, e.g. "--sim"')
+    ap.add_argument("--grasp-args", default="", help='--openarm: more grasp.sh options, e.g. --grasp-args=--sim')
     ap.add_argument("--robot-model", default=None, help="default: Spirit AI Moz1, or OpenArm v10 with --openarm")
     ap.add_argument("--structure", default="dualarm")
     ap.add_argument("--retries", type=int, default=1,
