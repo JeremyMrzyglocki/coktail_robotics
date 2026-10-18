@@ -13,9 +13,10 @@ LEFT_CAN=can0
 # Cameras for record.sh / grasp.sh, NAME=SOURCE[,rotate=DEG][,depth] (see rig.py; find them with
 # `uv run lerobot-find-cameras realsense|opencv` or scripts/usb_camera_preview.py --list).
 # Use the same list for recording and for running the policy: NAME is the dataset key.
-# front = RealSense D455 (serial 151422253450), mounted upside down, RGB only (PI0.5 ignores depth).
+# front = RealSense D455 (serial 151422253450), mounted upside down, digital zoom x1.1, RGB only
+# (PI0.5 ignores depth).
 # back = HBV HD CAMERA (USB, by-id path survives replugs); ~11 fps measured in the VM.
-CAMERAS=(front=realsense:151422253450,rotate=180 back=/dev/v4l/by-id/usb-HBV_HD_CAMERA_HBV_HD_CAMERA-video-index0)
+CAMERAS=(front=realsense:151422253450,rotate=180,zoom=1.1 back=/dev/v4l/by-id/usb-HBV_HD_CAMERA_HBV_HD_CAMERA-video-index0)
 
 # Follower tuning for teleop.sh, record.sh and grasp.sh (a command-line option still wins).
 # Raise step by step once the joint directions are validated, reading the tracking summary printed

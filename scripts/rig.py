@@ -97,7 +97,7 @@ class SimCamera:
 
 @dataclass
 class CameraSpec:
-    """NAME=SOURCE[,rotate=DEG][,depth] from the command line.
+    """NAME=SOURCE[,rotate=DEG][,zoom=X][,depth] from the command line.
 
     SOURCE: an OpenCV index or /dev/video* path, or realsense[:SERIAL] (librealsense; the only
     way to get depth). The D455 colour stream also works as a plain OpenCV/UVC device, which needs
@@ -108,6 +108,7 @@ class CameraSpec:
     source: str
     rotate: int = 0
     depth: bool = False
+    zoom: float = 1.0  # centre crop of 1/zoom of the image, resized back: same frame size
 
     @property
     def realsense(self) -> bool:
@@ -122,7 +123,7 @@ def parse_camera(value: str) -> CameraSpec:
     name, sep, rest = value.partition("=")
     if not sep or not rest:
         raise argparse.ArgumentTypeError(
-            "expected NAME=SOURCE[,rotate=180][,depth], e.g. top=0, top=/dev/video4,rotate=180 "
+            "expected NAME=SOURCE[,rotate=180][,zoom=1.1][,depth], e.g. top=0, top=/dev/video4,rotate=180 "
             "or top=realsense,rotate=180,depth")
     source, *opts = rest.split(",")
     spec = CameraSpec(name, source)
@@ -132,8 +133,11 @@ def parse_camera(value: str) -> CameraSpec:
             spec.rotate = int(val)
         elif key == "depth" and not val:
             spec.depth = True
+        elif key == "zoom" and val.replace(".", "", 1).isdigit() and float(val) >= 1.0:
+            spec.zoom = float(val)
         else:
-            raise argparse.ArgumentTypeError(f"camera {name}: unknown option '{opt}' (rotate=0|90|180|270, depth)")
+            raise argparse.ArgumentTypeError(
+                f"camera {name}: unknown option '{opt}' (rotate=0|90|180|270, zoom=X with X >= 1, depth)")
     if spec.depth and not spec.realsense:
         raise argparse.ArgumentTypeError(f"camera {name}: depth needs a realsense source")
     return spec
@@ -171,14 +175,27 @@ def image_features(specs: list[CameraSpec], width: int, height: int) -> dict[str
     return out
 
 
+def zoom_center(img: np.ndarray, factor: float, nearest: bool = False) -> np.ndarray:
+    """Digital zoom: keep the central 1/factor of the image and resize it back to the same size."""
+    if factor <= 1.0:
+        return img
+    import cv2
+
+    h, w = img.shape[:2]
+    ch, cw = round(h / factor), round(w / factor)
+    y, x = (h - ch) // 2, (w - cw) // 2
+    out = cv2.resize(img[y:y + ch, x:x + cw], (w, h), interpolation=cv2.INTER_NEAREST if nearest else cv2.INTER_LINEAR)
+    return out.reshape(img.shape)
+
+
 def read_images(cameras: dict, specs: list[CameraSpec]) -> dict:
-    """{feature name: frame}: RGB for every camera, plus NAME_depth for depth cameras."""
+    """{feature name: frame}: RGB for every camera, plus NAME_depth for depth cameras (zoom applied)."""
     out = {}
     for spec in specs:
         cam = cameras[spec.name]
-        out[spec.name] = cam.read_latest()
+        out[spec.name] = zoom_center(cam.read_latest(), spec.zoom)
         if spec.depth:
-            out[f"{spec.name}_depth"] = cam.read_latest_depth()
+            out[f"{spec.name}_depth"] = zoom_center(cam.read_latest_depth(), spec.zoom, nearest=True)
     return out
 
 
