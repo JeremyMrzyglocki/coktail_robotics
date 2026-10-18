@@ -28,6 +28,7 @@ import sys
 import threading
 import time
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 
@@ -62,6 +63,26 @@ JOINT_LIMITS = {
                           [-1.5708, 1.5708], [-0.7854, 0.7854], [-1.5708, 1.5708], [-0.4, 1.0472]]),
 }
 VEL_LIMITS = np.array([2.0, 2.0, 3.3, 3.3, 6.3, 6.3, 6.3, 20.0])  # rad/s
+
+# Ce robot (cocktail, v10) : bras droit sur can1 (l'inverse du SDK), zéro moteur = bras pendant
+# (aucun décalage de gabarit), limites mesurées. config/openarm_cocktail.yaml remplace les
+# valeurs ci-dessus et sert de config au driver : la skill et le driver bornent pareil.
+ROBOT_CONFIG = Path(__file__).resolve().parent / "config" / "openarm_cocktail.yaml"
+
+
+def _load_robot_config(path=ROBOT_CONFIG):
+    if not path.exists():
+        return
+    import yaml
+
+    cfg = yaml.safe_load(path.read_text())
+    DEFAULT_CAN.update(cfg["can_interface"])
+    for arm in ARMS:  # modifiés sur place : les `from robot_io import JOINT_LIMITS` les voient
+        JOINT_OFFSETS[arm] = np.array(cfg["joint_offsets"][arm], dtype=float)
+        JOINT_LIMITS[arm] = np.array(cfg["joint_limits"][arm], dtype=float)
+
+
+_load_robot_config()
 
 
 @dataclass
@@ -295,8 +316,10 @@ class OpenArmBackend:
             def _on_stop(self):
                 return True
 
-        cfg = od.Config(config) if isinstance(config, str) else config
-        can_interfaces = can_interfaces or {}
+        if config is None and ROBOT_CONFIG.exists():
+            config = ROBOT_CONFIG
+        cfg = od.Config(str(config)) if isinstance(config, (str, Path)) else config
+        can_interfaces = {**DEFAULT_CAN, **(can_interfaces or {})}
         self.drivers = {a: _NoTrajectoryDriver(a, config=cfg, can_interface=can_interfaces.get(a))
                         for a in arms}
         self.enabled = {a: False for a in arms}

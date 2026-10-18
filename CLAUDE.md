@@ -27,7 +27,8 @@ Bimanual OpenArm (Enactic, v10) that grasps a bottle and a glass, stops in a fix
   hands over with torque kept on). `scripts/rig.py`: shared setup and `--sim` fakes.
 - `scripts/usb_camera_preview.py` / `scripts/realsense_preview.py`: camera previews (no robot).
 - Wrappers read `scripts/ports.sh` (leaders by USB serial, CAN channels, cameras):
-  `setup_can.sh`, `teleop.sh`, `watch.sh`, `record.sh`, `grasp.sh`; `train_act.sh` on a GPU box.
+  `setup_can.sh`, `teleop.sh`, `watch.sh`, `record.sh`, `grasp.sh`, `cocktail.sh MODEL_LINK` (grasp
+  then pour; `/cocktail` skill in `.claude/skills/`); `train_act.sh` on a GPU box.
   Full flow in `docs/PIPELINE.md`.
 - LeRobot's own `openarm_follower` enables torque on connect and goes straight to the target with
   full gains (and calibrates by zeroing the motors if no file): not used for motion here.
