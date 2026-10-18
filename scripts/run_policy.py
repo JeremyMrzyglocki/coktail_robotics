@@ -261,6 +261,8 @@ def main():
                    help="done when the policy's targets move less than --settle-deg for this long, s")
     p.add_argument("--settle-deg", type=float, default=1.0)
     p.add_argument("--then", help="command to run after the grasp, torque kept on (e.g. the pour script)")
+    p.add_argument("--auto-start", action="store_true",
+                   help="no typed GO (the preflight still has to pass): for skill_store's deploy button")
     p.add_argument("--remote", metavar="SPACE",
                    help="run the policy on this GPU Space (NAMESPACE/NAME or URL, scripts/remote_policy.py)")
     p.add_argument("--refill", type=float, default=1.0,
@@ -296,7 +298,8 @@ def main():
             raise RuntimeError(f"no answer from {missing}")
         driver.reset()
         first = driver.act({s: {n: float(np.degrees(st[n].q)) for n in NAMES} for s, st in states.items()})
-        if not args.sim and not confirm_start(arms, args.approach_speed, targets=lambda arm: first[arm.side]):
+        if not args.sim and not confirm_start(arms, args.approach_speed, targets=lambda arm: first[arm.side],
+                                              ask=not args.auto_start):
             return
         started = True
         keys = stdin_lines()
