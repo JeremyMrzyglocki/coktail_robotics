@@ -167,8 +167,20 @@ def test(api: HfApi, args) -> None:
     print(f"policy {info['checkpoint']} ({info['type']}) on {info['gpu'] or info['device']}, "
           f"{info['n_action_steps']} actions per chunk, cameras {sorted(info['cameras'])}")
     state = np.zeros(info["input_features"]["observation.state"], dtype=np.float32)
+    # Smooth frames with a little noise: JPEG sizes close to the real cameras' (pure noise is ~10x bigger).
     rng = np.random.default_rng(0)
-    images = {k: rng.integers(0, 255, (s[1], s[2], 3), dtype=np.uint8) for k, s in info["cameras"].items()}
+    images = {}
+    for k, s in info["cameras"].items():
+        y, x = np.mgrid[0:s[1], 0:s[2]]
+        img = np.stack([x * 255 // s[2], y * 255 // s[1], (x + y) * 127 // (s[1] + s[2])], axis=-1)
+        images[k] = np.clip(img + rng.normal(0, 4, img.shape), 0, 255).astype(np.uint8)
+    kb = sum(len(cv2.imencode(".jpg", v, [cv2.IMWRITE_JPEG_QUALITY, 95])[1]) for v in images.values()) / 1000
+    ping = []
+    for _ in range(5):
+        t0 = time.perf_counter()
+        client.health()
+        ping.append((time.perf_counter() - t0) * 1000)
+    print(f"ping (GET /health) p50 {np.median(ping):.0f} ms; {kb:.0f} kB of JPEG per request")
     rtt, infer = [], []
     for _ in range(args.n):
         t0 = time.perf_counter()
