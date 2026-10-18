@@ -140,7 +140,7 @@ pi0.5 (3B) is too slow for the VM CPU: it runs in a private Docker Space with a 
 - Same pipeline as on the VM (`prepare_observation_for_inference`, the policy's processors, same
   LeRobot 0.6.2), the cameras' rotate/crop/zoom applied on the robot side; frames travel as JPEG q95.
 - The server returns the whole chunk (50 actions = 1.7 s for pi0.5). The robot asks for the next
-  one 0.6 s before the end (`--refill`) from a fresh observation and skips the steps that went by
+  one 1 s before the end (`--refill`) from a fresh observation and skips the steps that went by
   during the round trip: no pause at the chunk boundary.
 - No chunk (network, server down): the arm holds its last target; after `--remote-timeout` (3 s)
   the run stops as on Enter, pose held with torque on. Tested in `--sim` by killing the server

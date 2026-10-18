@@ -201,7 +201,7 @@ def main():
     p.add_argument("--then", help="command to run after the grasp, torque kept on (e.g. the pour script)")
     p.add_argument("--remote", metavar="SPACE",
                    help="run the policy on this GPU Space (NAMESPACE/NAME or URL, scripts/remote_policy.py)")
-    p.add_argument("--refill", type=float, default=0.6,
+    p.add_argument("--refill", type=float, default=1.0,
                    help="--remote: ask for the next chunk when this many s of actions are left")
     p.add_argument("--remote-timeout", type=float, default=3.0,
                    help="--remote: stop (holding the pose) after this many s without actions")
