@@ -38,6 +38,15 @@ def make_arms(args) -> list:
     return [Arm(side, *pair) for side, pair in pairs]
 
 
+def connect(arms):
+    for arm in arms:
+        try:
+            arm.connect()
+        except OSError as e:
+            sys.exit(f"{arm.side} arm: CAN channel {arm.can_channel} unavailable ({e.strerror}). Is the PCAN "
+                     "attached to the VM (Parallels Devices > USB)? Then run ./scripts/setup_can.sh")
+
+
 def read_pose(arms) -> dict:
     out = {}
     for arm in arms:
@@ -51,8 +60,7 @@ def read_pose(arms) -> dict:
 
 def record(args) -> int:
     arms = make_arms(args)
-    for arm in arms:
-        arm.connect()
+    connect(arms)
     try:
         if not args.sim:
             for arm in arms:
@@ -156,8 +164,7 @@ def play(args) -> int:
 
     current = pose_at(traj, 0.0, sides)
     started = False
-    for arm in arms:
-        arm.connect()
+    connect(arms)
     try:
         if not args.sim and not confirm_start(arms, args.approach_speed, targets=lambda arm: current[arm.side]):
             return 1
