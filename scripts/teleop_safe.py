@@ -216,14 +216,19 @@ def preflight(arm: Arm, target: dict[str, float] | None = None) -> tuple[bool, t
             # program's command goes limp for a moment. Support it or disable it first.
             problems.append("already ENABLED (another program?): support the arm")
         if not lo - LIMIT_MARGIN_DEG <= f <= hi + LIMIT_MARGIN_DEG:
-            problems.append("follower outside limits")
+            if name == "gripper" and f > hi:
+                # Squeezed past closed (held tight, pushed by hand): not blocking, the start brings
+                # it back to the closed limit at the approach speed like any other gap.
+                problems.append("gripper past closed: brought back to closed")
+            else:
+                problems.append("follower outside limits")
         if not lo - TARGET_FAR_DEG <= leader[name] <= hi + TARGET_FAR_DEG:
             problems.append(f"target > {TARGET_FAR_DEG:.0f} deg outside limits: check the leader")
         elif not lo <= leader[name] <= hi:
             problems.append("target outside limits (clipped)")
         if max(s.t_mos, s.t_rotor) > MAX_TEMP_C:
             problems.append("hot")
-        ok &= all("clipped" in p or "already ENABLED" in p for p in problems)
+        ok &= all("clipped" in p or "already ENABLED" in p or "past closed" in p for p in problems)
         if abs(gap) > ALIGN_TOL_DEG:
             problems.append("slow approach")
         if abs(gap) > abs(biggest[1]):
