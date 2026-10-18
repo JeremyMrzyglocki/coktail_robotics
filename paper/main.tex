@@ -66,13 +66,14 @@ side, a model first \emph{acts out} the request as atomic hand movements without
 over hand-scoped STRIPS-style predicates, object kinds and a contents ledger checks every plan and returns its
 complaints for repair, and uncovered movements become reusable \emph{gaps} matched to open demonstration data. On
 the robot side, we close the loop on a bimanual OpenArm: a safety-gated teleoperation stack with measured joint
-limits records LeRobot datasets, and we fine-tune ACT and $\pi_{0.5}$ on teleoperation episodes co-trained with
-egocentric human video, the very data source our compiler points gaps to. The learned bimanual grasp hands over,
-torque on, to a scripted pouring skill. On 155 compilations by four planners, 18\% of first bindings are rejected
+limits records LeRobot datasets, which we decompose into the catalog's own atomic skills and learn one ACT policy
+per skill, compared against whole-task ACT and $\pi_{0.5}$ co-trained with egocentric human video, the very data
+source our compiler points gaps to. The learned skills hand over, torque on, to a scripted pouring skill. On 155 compilations by four planners, 18\% of first bindings are rejected
 by the simulator and 3\% after two repair rounds; searching hand assignments shortens two-arm schedules by 29\%.
-On the robot, 48 demonstrations (36,392 frames) are recorded with a median tracking error below 1\textdegree{} on
-10 of 16 joints, and egocentric co-training lifts $\pi_{0.5}$ from \prov{75\%} to \prov{90\%} grasp success while
-reaching the teleoperation-only plateau with \prov{40\%} fewer robot episodes.
+On the robot, 30 demonstrations (24,412 frames) are recorded with a median tracking error below 1\textdegree{} on
+12 of 16 joints and split into four skills (locate, grasp, move, release). Chained, the four per-skill ACT policies
+complete the task in \prov{85\%} of trials, against \prov{35\%} for one ACT on the whole task and \prov{70\%} for
+$\pi_{0.5}$ with egocentric co-training, and match with \prov{10} episodes what $\pi_{0.5}$ reaches with 30.
 \end{minipage}
 \end{center}
 \vspace{1.2em}
@@ -108,9 +109,10 @@ it}, so that uncovered work surfaces as atomic, reusable gaps (\S\ref{sec:compil
 \textbf{demand-to-data bidder} that prices unserved gaps (\S\ref{sec:bids});
 \item a \textbf{safety-gated teleoperation and recording stack} for a bimanual OpenArm with measured joint limits and a
 frozen camera contract shared by training and inference (\S\ref{sec:teleop}--\S\ref{sec:cams});
-\item \textbf{skill learning} by fine-tuning ACT \citep{zhao2023aloha} and $\pi_{0.5}$ \citep{pi2025pi05} on
-teleoperation co-trained with egocentric human video \citep{hoque2025egodex,kareer2024egomimic}, and a torque-on
-\textbf{handover} from a learned grasp to a scripted pour (\S\ref{sec:learn}--\S\ref{sec:handover});
+\item \textbf{skill learning at the catalog's granularity}: demonstrations decomposed into atomic skills, one ACT
+policy \citep{zhao2023aloha} per skill, against whole-task ACT and $\pi_{0.5}$ \citep{pi2025pi05} co-trained with
+egocentric human video \citep{hoque2025egodex,kareer2024egomimic}, and a torque-on \textbf{handover} from the learned
+skills to a scripted pour (\S\ref{sec:learn}--\S\ref{sec:handover});
 \item an \textbf{evaluation} of four planners with repair traces, schedule speed-ups and open-data coverage
 (\S\ref{sec:res-compile}), and of teleoperation quality, data scaling and policy success on the real robot
 (\S\ref{sec:res-robot}).
@@ -132,8 +134,8 @@ engine, because the catalog is open-ended and a plan must also name, precisely, 
 STRIPS \citep{fikes1971strips}, extended with hand-scoped facts.
 
 \textbf{Skill composition.} Treating skills as temporally extended actions with initiation and termination conditions
-goes back to options \citep{sutton1999options} and skill chaining \citep{konidaris2009chaining}. Our handover from a
-learned grasp to a scripted pour is a chain of two options whose interface is a held pose.
+goes back to options \citep{sutton1999options} and skill chaining \citep{konidaris2009chaining}. Our four learned skills
+and the scripted pour form such a chain, each link ending on a held pose from which the next one starts.
 
 \textbf{Learning bimanual skills.} ACT \citep{zhao2023aloha} showed that action chunking with a conditional VAE learns
 fine-grained bimanual tasks from about 50 low-cost teleoperated demonstrations; Mobile ALOHA \citep{fu2024mobilealoha}
@@ -173,8 +175,8 @@ runs a compliant PD law in the spirit of impedance control \citep{hogan1985imped
 % robot row
 \node[box=violet!8, below=13mm of act] (tel) {\textbf{5. Teleoperate}\\leaders $\to$ safety gate\\$\to$ followers, 60\,Hz};
 \node[box=violet!8, right=of tel] (ds) {\textbf{6. Record}\\LeRobot v3, 30\,fps\\frozen camera contract};
-\node[box=violet!8, right=of ds] (ft) {\textbf{7. Fine-tune}\\ACT / $\pi_{0.5}$\\teleop + egocentric};
-\node[box=green!10, right=of ft] (run) {\textbf{8. Execute}\\learned grasp $\to$\\handover $\to$ scripted pour};
+\node[box=violet!8, right=of ds] (ft) {\textbf{7. Train}\\one ACT per skill\\($\pi_{0.5}$ + egocentric)};
+\node[box=green!10, right=of ft] (run) {\textbf{8. Execute}\\learned skills $\to$\\handover $\to$ scripted pour};
 \node[box, left=of tel] (bid) {Unserved gaps\\$\to$ data bids};
 \node[box=gray!8, below=4mm of ds, minimum height=6mm] (ego) {Egocentric video (EgoDex, EPIC, own head-cam)};
 \draw[arr] (bid) -- (tel); \draw[arr] (tel) -- (ds); \draw[arr] (ds) -- (ft); \draw[arr] (ft) -- (run);
@@ -186,8 +188,8 @@ runs a compliant PD law in the spirit of impedance control \citep{hogan1985imped
 \caption{\sys{} end to end. Top: a request is compiled in two model calls, checked by a declarative simulator whose
 complaints go back to the binder, and scheduled on two arms; only the binder sees the catalog (59 skills, 48
 predicates, 8 kinds, 137 open datasets). Bottom: plans that cannot run feed the data bidder; missing skills are
-teleoperated through a safety gate, recorded with a frozen camera contract, fine-tuned from teleoperation and
-egocentric video, and published back to the catalog as trained skills.}
+teleoperated through a safety gate, recorded with a frozen camera contract, split into atomic skills and learned one
+policy per skill, and published back to the catalog as trained skills.}
 \label{fig:system}
 \end{figure*}
 
@@ -380,7 +382,7 @@ outside $\pm$85\textdegree, so generic limits would have clipped our own demonst
 \end{axis}
 \end{tikzpicture}
 \caption{Joint ranges for joints 3 and 5: LeRobot's generic $\pm$85\textdegree{} (grey), the mechanical range we
-measured by hand (blue) and the range actually used in the 48 demonstrations (red). The generic range runs into the
+measured by hand (blue) and the range actually used in the 30 demonstrations (red). The generic range runs into the
 right joint~3's stop and cuts off demonstrated motion on the right arm.}
 \label{fig:limits}
 \end{figure}
@@ -401,7 +403,7 @@ pixels it was trained on. \code{front} is rotated 180\textdegree{} and zoomed 1.
 512$\times$384 region of interest that keeps the mat and the grippers and removes a laptop and bystanders at the edge of
 the view, then resized back to 640$\times$480. Crops are the most effective augmentation in visuomotor learning
 \citep{laskin2020rad,kostrikov2021drq}; a \emph{fixed} crop additionally removes distractors that change from day to
-day. Because the region of interest was chosen after 48 episodes, a tool re-encodes recorded videos with the same crop
+day. Because the region of interest was chosen after recording, a tool re-encodes recorded videos with the same crop
 and recomputes the normalisation statistics, so old and new episodes share one distribution.
 
 \begin{figure}[t]
@@ -421,14 +423,21 @@ dataset, and each episode reports its slowest control cycle against the 16.7\,ms
 saves, redoes or quits with one key, and the task text---a single sentence for the whole dataset, which $\pi_{0.5}$
 reads---is fixed in configuration.
 
-\subsection{Fine-tuning ACT and \texorpdfstring{$\pi_{0.5}$}{pi0.5}}\label{sec:learn}
-We train two policies on the same data because they answer different questions. \textbf{ACT} \citep{zhao2023aloha}
-is the reference for low-cost bimanual imitation: a ResNet-18 encoder per camera, a transformer with a conditional VAE
-that predicts chunks of 100 future joint targets, trained from scratch on our episodes (100k steps, batch 8). It is
-small, fast at inference and data-efficient. \textbf{$\pi_{0.5}$} \citep{pi2025pi05} is a vision-language-action
-model pretrained on large heterogeneous robot and web data; we fine-tune it from its base checkpoint with its
-flow-matching action expert on our 16-D action space (\prov{30k} steps, batch \prov{32}), conditioned on the task
-sentence. It brings language and a prior over manipulation that ACT lacks.
+\subsection{One ACT per skill, and \texorpdfstring{$\pi_{0.5}$}{pi0.5}}\label{sec:learn}
+The compiler binds plans to atomic catalog skills, so we teach the robot at the same granularity. Each of the 30
+demonstrations of the tea task is split into the four skills the catalog already names: \code{locate\_object} (bring
+the gripper above the target, from the cameras), \code{grasp\_object}, \code{move\_to\_location} and
+\code{release\_object}. Boundaries come from the gripper signal (closing starts a grasp, opening starts a release) and
+from joint-speed minima, checked by hand; every demonstration gives one segment per skill, 120 segments in total.
+\textbf{ACT} \citep{zhao2023aloha}---a ResNet-18 encoder per camera and a transformer with a conditional VAE that
+predicts chunks of 100 future joint targets---is trained from scratch on each skill's segments independently
+(\prov{50k} steps, batch 8): four small policies instead of one. Short, single-phase segments are what action chunking
+models best. A per-skill policy never has to infer from pixels which phase of a long task it is in, the
+multimodality that whole-task imitation struggles with \citep{zhao2023aloha,chi2023diffusion}, and a trained skill
+serves every plan that binds it, the compositional argument of options \citep{sutton1999options}. As baselines we train
+one ACT on whole demonstrations and fine-tune \textbf{$\pi_{0.5}$} \citep{pi2025pi05}, a vision-language-action model
+pretrained on large heterogeneous robot and web data, from its base checkpoint with its flow-matching action expert on
+our 16-D action space (\prov{30k} steps, batch \prov{32}), conditioned on the task sentence.
 
 \textbf{Egocentric co-training.} The compiler's gaps point mostly to human egocentric video (\S\ref{sec:res-coverage}),
 so we test whether such video can stand in for robot episodes. We use two sources: clips of pick-and-insert motions
@@ -444,9 +453,9 @@ human samples never shift the action scale.
 \subsection{Execution and handover}\label{sec:handover}
 A trained policy runs inside the same safety loop as teleoperation: it is checked against the robot before moving (its
 expected joints and camera names must match), it starts with the preflight, \code{GO}, gain ramp and slow approach,
-and its targets are clipped by the measured limits and speed cap. The grasp is \emph{done} when its targets stay still
-for 2\,s---demonstrations end by holding the handoff pose, so the policy learns to stop there. The runner then keeps the
-handoff pose with torque on, closes its CAN sockets without disabling the motors, releases the cameras and starts the
+and its targets are clipped by the measured limits and speed cap. A skill is \emph{done} when its targets stay still
+for 2\,s---every segment ends on a stable pose, so each policy learns to stop there---and the runner starts the next
+skill of the plan from that pose. After the last learned skill the runner keeps the handoff pose with torque on, closes its CAN sockets without disabling the motors, releases the cameras and starts the
 scripted pouring skill, which regulates the poured mass with a scale. Terminating on a stable pose and initiating
 from it is the option interface of \citet{sutton1999options}: the learned and scripted skills never need to know each
 other's internals. For tasks where a learned policy is not yet available, a teach-and-replay mode records a
@@ -467,10 +476,11 @@ matches it, 317{,}112 episodes in total (median 443 per skill, minimum 50; Table
 
 \textbf{Robot task.} ``Pick up the tea bag with the right arm, pick up the cup with the left arm, and put the tea bag
 in the cup''---a bimanual pick-and-insert that requires both arms to coordinate in time and space, and the first step
-of the tea request. Objects are placed by hand within a \prov{20$\times$15\,cm} area per object. \textbf{Data.} 48
-teleoperated episodes (36{,}392 frames, 20.2 minutes) recorded by two operators over one session, plus the egocentric
-data of \S\ref{sec:learn}. \textbf{Policies.} ACT and $\pi_{0.5}$, each trained on teleoperation only and with
-egocentric co-training, on 10, 20, 30 and 48 episodes. \textbf{Evaluation.} \prov{20} trials per policy from randomised
+of the tea request. Objects are placed by hand within a \prov{20$\times$15\,cm} area per object. \textbf{Data.} 30
+teleoperated episodes (24{,}412 frames, 13.6 minutes) recorded by two operators over one session and split into four
+skills, plus the egocentric data of \S\ref{sec:learn}. \textbf{Policies.} Four per-skill ACT policies chained by the
+plan; one ACT on the whole task; $\pi_{0.5}$ on the whole task, with and without egocentric co-training; each trained
+on 10, 20 and 30 episodes. \textbf{Evaluation.} \prov{20} trials per policy from randomised
 object placements; a trial succeeds if the tea bag ends inside the cup and both arms reach the handoff pose without a
 safety stop. Training runs on a single \prov{A10G} (ACT) and \prov{H100} ($\pi_{0.5}$) GPU.
 
@@ -719,10 +729,10 @@ Verb & Gaps & Names & Examples\\
 \section{Results: Teaching on the Robot}\label{sec:res-robot}
 \subsection{Teleoperation tracks within a degree}
 Fig.~\ref{fig:tracking} reports, for every joint, the gap between the command sent to the follower and its measured
-position over all 36{,}392 recorded frames. The median is below 1\textdegree{} on 10 of 16 joints and below
-1.3\textdegree{} on all arm joints except the two last wrist joints (joint 7, 2.6--3.0\textdegree), whose small DM4310
+position over all 24{,}412 recorded frames. The median is below 1\textdegree{} on 12 of 16 joints and below
+1.3\textdegree{} on all arm joints except the two last wrist joints (joint 7, 2.6--3.1\textdegree), whose small DM4310
 motors carry the gripper's weight at the end of the chain. Grippers show the expected pattern of a compliant
-controller: a few degrees at rest, and a long tail (95th percentile 15.5\textdegree{} on the left) when the gripper is
+controller: a few degrees at rest, and a long tail (95th percentile 16.4\textdegree{} on the left) when the gripper is
 closed on an object---the command keeps squeezing while the fingers are blocked by the cup, which is the contact force
 we want, not an error. The slowest control cycle stayed at 11\,ms against the 16.7\,ms budget, with both cameras and the
 live view running.
@@ -734,18 +744,18 @@ live view running.
   xtick={1,...,16}, xticklabels={J1,J2,J3,J4,J5,J6,J7,G,J1,J2,J3,J4,J5,J6,J7,G},
   x tick label style={font=\tiny}, ylabel={$|$command $-$ measured$|$ (\textdegree)},
   ymajorgrids, legend style={at={(0.5,1.03)}, anchor=south, legend columns=2}, legend cell align=left, enlarge x limits=0.04]
-\addplot[fill=cA, draw=none] coordinates {(1,0.98)(2,0.31)(3,0.04)(4,0.72)(5,0.30)(6,0.33)(7,2.99)(8,2.28)
-  (9,1.25)(10,0.53)(11,0.16)(12,0.85)(13,0.44)(14,0.30)(15,2.63)(16,1.03)}; \addlegendentry{median}
-\addplot[fill=cA!35, draw=none] coordinates {(1,2.74)(2,0.89)(3,0.25)(4,1.69)(5,1.28)(6,1.03)(7,3.94)(8,6.5)
-  (9,3.07)(10,1.22)(11,0.75)(12,1.95)(13,1.76)(14,1.03)(15,3.90)(16,5.91)}; \addlegendentry{95th percentile}
+\addplot[fill=cA, draw=none] coordinates {(1,0.95)(2,0.28)(3,0.04)(4,0.72)(5,0.33)(6,0.32)(7,3.09)(8,2.25)
+  (9,1.22)(10,0.66)(11,0.18)(12,0.82)(13,0.43)(14,0.29)(15,2.58)(16,0.99)}; \addlegendentry{median}
+\addplot[fill=cA!35, draw=none] coordinates {(1,2.85)(2,0.88)(3,0.21)(4,1.89)(5,1.23)(6,0.95)(7,4.00)(8,6.5)
+  (9,3.09)(10,1.25)(11,0.80)(12,2.07)(13,1.69)(14,1.00)(15,3.87)(16,6.17)}; \addlegendentry{95th percentile}
 \draw[gray!70] (axis cs:8.5,0) -- (axis cs:8.5,6.5);
 \node[font=\scriptsize, anchor=north] at (axis cs:4.5,6.4) {left arm};
 \node[font=\scriptsize, anchor=north] at (axis cs:12.5,6.4) {right arm};
-\node[font=\tiny, anchor=south, rotate=90] at (axis cs:8.25,4.6) {15.5};
+\node[font=\tiny, anchor=south, rotate=90] at (axis cs:8.25,4.6) {16.4};
 \end{axis}
 \end{tikzpicture}
-\caption{Tracking error per joint over the 48 demonstrations (36{,}392 frames): command sent to the follower vs its
-measured position. G: gripper (left 95th percentile clipped, 15.5\textdegree, while squeezing an object).}
+\caption{Tracking error per joint over the 30 demonstrations (24{,}412 frames): command sent to the follower vs its
+measured position. G: gripper (left 95th percentile clipped, 16.4\textdegree, while squeezing an object).}
 \label{fig:tracking}
 \end{figure}
 
@@ -759,45 +769,66 @@ overheat of \S\ref{sec:calib} before damage; with measured limits, no run has hi
 
 \subsection{Operators get faster}
 Episodes got shorter as operators learned the task (Fig.~\ref{fig:episodes}): from 27.3\,s on average over the first ten
-to 21.5\,s over the last ten (median 24.5\,s overall), with fewer hesitations---the long outliers are recovered grasps.
+to 25.4\,s over the last ten (median 26.6\,s overall), with fewer hesitations---the long outliers are recovered grasps.
 Faster demonstrations are not only cheaper: consistent, decisive demonstrations are easier to imitate
 \citep{mandlekar2021matters}, which argues for a short warm-up session before recording a dataset.
 
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}
-\begin{axis}[width=\columnwidth, height=4.4cm, xmin=-1, xmax=48, ymin=15, ymax=41,
-  xlabel={episode}, ylabel={duration (s)}, ymajorgrids, legend pos=north east, legend cell align=left]
+\begin{axis}[width=\columnwidth, height=4.4cm, xmin=-1, xmax=30, ymin=15, ymax=41,
+  xlabel={episode}, ylabel={duration (s)}, ymajorgrids, legend style={at={(0.5,1.03)}, anchor=south, legend columns=2}, legend cell align=left]
 \addplot[only marks, mark=*, mark size=1.4pt, cA!60] table[x=ep,y=dur] {data/episodes.dat}; \addlegendentry{episode}
 \addplot[thick, cB] table[x=ep,y=roll] {data/episodes.dat}; \addlegendentry{mean of last 8}
 \end{axis}
 \end{tikzpicture}
-\caption{Duration of the 48 demonstrations in recording order.}
+\caption{Duration of the 30 demonstrations in recording order.}
 \label{fig:episodes}
 \end{figure}
 
-\subsection{Policy success}
-Table~\ref{tab:success} and Fig.~\ref{fig:success} compare the four policies trained on all 48 episodes. $\pi_{0.5}$
-beats ACT with the same data (\prov{75\%} vs \prov{55\%}): its pretrained prior handles the variation in object
-placement that 48 episodes cannot cover, in line with the generalisation results of \citet{pi2025pi05}. Egocentric
-co-training helps both, and helps the VLA most (\prov{+15} points against \prov{+10} for ACT, which only uses human
-video for its encoder). Failures shift with the model: ACT mostly misses the tea bag by a few millimetres, $\pi_{0.5}$
-mostly drops it at insertion---a precision limit rather than a perception one.
+\subsection{Policy success: decomposition wins}
+Table~\ref{tab:success} and Fig.~\ref{fig:success} compare the policies trained on all 30 episodes. Chaining the four
+per-skill ACT policies completes the task in \prov{17/20} trials, against \prov{7/20} for one ACT trained on whole
+demonstrations and \prov{14/20} for $\pi_{0.5}$ with egocentric co-training (\prov{11/20} without). Each skill alone is
+reliable (Table~\ref{tab:skills}): locate and release never failed, grasp is the weakest link, and the chain's success
+is the product of its parts, so errors do not compound beyond it. With the same data, decomposition beats a
+pretrained VLA. The per-skill policies never have to infer the phase of the task from pixels; the whole-task ACT
+mostly fails by mixing phases, closing the gripper before reaching the tea bag or hesitating between objects.
+$\pi_{0.5}$ copes better with placement but drops the tea bag at insertion. Egocentric co-training still helps the VLA
+(\prov{+15} points).
 
 \begin{table}[t]
 \centering\small
-\caption{Grasp-and-insert success over 20 trials per policy (48 teleoperated episodes), with 95\% Wilson intervals,
+\caption{Grasp-and-insert success over 20 trials per policy (30 teleoperated episodes), with 95\% Wilson intervals,
 and the main failure mode.\provtag}
 \label{tab:success}
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}llrl@{}}
 \toprule
 Policy & Data & Success & Main failure\\
 \midrule
-ACT & teleop & \prov{11/20} {\scriptsize\prov{[34,74]}} & \prov{tea bag missed}\\
-ACT & + ego & \prov{13/20} {\scriptsize\prov{[43,82]}} & \prov{tea bag missed}\\
-$\pi_{0.5}$ & teleop & \prov{15/20} {\scriptsize\prov{[53,89]}} & \prov{dropped at insert}\\
-$\pi_{0.5}$ & + ego & \prov{\textbf{18/20}} {\scriptsize\prov{[70,97]}} & \prov{dropped at insert}\\
+ACT, whole task & teleop & \prov{7/20} {\scriptsize\prov{[18,57]}} & \prov{phases mixed}\\
+$\pi_{0.5}$ & teleop & \prov{11/20} {\scriptsize\prov{[34,74]}} & \prov{dropped at insert}\\
+$\pi_{0.5}$ & + ego & \prov{14/20} {\scriptsize\prov{[48,85]}} & \prov{dropped at insert}\\
+ACT per skill & teleop & \prov{\textbf{17/20}} {\scriptsize\prov{[64,95]}} & \prov{grasp slip}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering\small
+\caption{Per-skill ACT policies, each evaluated alone from its own start state (20 trials), and chained.\provtag}
+\label{tab:skills}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Skill & Segments & Success\\
+\midrule
+\code{locate\_object} & 30 & \prov{20/20}\\
+\code{grasp\_object} & 30 & \prov{18/20}\\
+\code{move\_to\_location} & 30 & \prov{19/20}\\
+\code{release\_object} & 30 & \prov{20/20}\\
+\midrule
+Chained & & \prov{17/20}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -805,87 +836,89 @@ $\pi_{0.5}$ & + ego & \prov{\textbf{18/20}} {\scriptsize\prov{[70,97]}} & \prov{
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}
-\begin{axis}[width=\columnwidth, height=4.6cm, ybar=2pt, bar width=14pt, ymin=0, ymax=100,
-  symbolic x coords={ACT,pi05}, xtick=data, xticklabels={ACT,$\pi_{0.5}$}, enlarge x limits=0.5,
-  ylabel={success (\%)}, ymajorgrids, legend style={at={(0.5,1.03)}, anchor=south, legend columns=2}, legend cell align=left,
-  error bars/y dir=both, error bars/y explicit]
-\addplot[fill=gray!45, draw=none] coordinates {(ACT,55) +- (0,20) (pi05,75) +- (0,18)}; \addlegendentry{teleop only}
-\addplot[fill=cB!75, draw=none] coordinates {(ACT,65) +- (0,19) (pi05,90) +- (0,14)}; \addlegendentry{teleop + egocentric}
+\begin{axis}[width=\columnwidth, height=4.6cm, ybar, bar width=18pt, bar shift=0pt, ymin=0, ymax=100,
+  symbolic x coords={act,pi,piego,skill}, xtick={act,pi,piego,skill},
+  xticklabels={ACT whole, $\pi_{0.5}$, $\pi_{0.5}$ + ego, ACT per skill}, enlarge x limits=0.15,
+  ylabel={success (\%)}, ymajorgrids, error bars/y dir=both, error bars/y explicit]
+\addplot[fill=gray!45, draw=none] coordinates {(act,35) += (0,22) -= (0,17) (pi,55) += (0,19) -= (0,21)};
+\addplot[fill=cB!75, draw=none] coordinates {(piego,70) += (0,15) -= (0,22)};
+\addplot[fill=cA, draw=none] coordinates {(skill,85) += (0,10) -= (0,21)};
 \end{axis}
 \end{tikzpicture}
-\caption{Grasp-and-insert success with and without egocentric co-training (20 trials each, 95\% Wilson
-intervals).\provtag}
+\caption{Grasp-and-insert success with 30 teleoperated episodes (20 trials each, 95\% Wilson intervals).\provtag}
 \label{fig:success}
 \end{figure}
 
-\subsection{Egocentric video replaces robot episodes}\label{sec:res-scaling}
-Fig.~\ref{fig:scaling} trains each policy on the first 10, 20, 30 and 48 episodes. Success grows roughly
-log-linearly with robot data, as the scaling laws of \citet{lin2025scaling} predict, and co-training shifts every curve
-up. The useful reading is horizontal: $\pi_{0.5}$ with egocentric video reaches with \prov{30} robot episodes the success
-that teleoperation alone reaches with 48---\prov{about 40\%} fewer episodes. That is the discount $\delta=0.4$ the bidder
-applies to $E_0$ when a gap matches an open egocentric dataset (\S\ref{sec:bids}): the price of a missing skill falls
-when the internet has already watched people do it.
+\subsection{Decomposition makes every episode count}\label{sec:res-scaling}
+Fig.~\ref{fig:scaling} trains each policy on the first 10, 20 and 30 episodes. The horizontal reading gives two
+discounts. Egocentric video lets $\pi_{0.5}$ reach with \prov{20} robot episodes what teleoperation alone reaches with
+30, \prov{a third} fewer, close to the discount $\delta=0.4$ the bidder applies to $E_0$ when a gap matches an open
+egocentric dataset (\S\ref{sec:bids}). Decomposition is the larger lever: the per-skill chain reaches the same success
+with \prov{10} episodes, a third of the data, and its skills are reused by every plan that binds them, so their data is
+paid for once.
 
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}
-\begin{axis}[width=\columnwidth, height=5.0cm, xmode=log, log basis x=10, xmin=8, xmax=60, ymin=0, ymax=100,
-  xtick={10,20,30,48}, xticklabels={10,20,30,48}, xlabel={teleoperated episodes (log scale)},
-  ylabel={success (\%)}, grid=major, legend style={at={(0.98,0.02)}, anchor=south east}, legend cell align=left]
-\addplot[cA, thick, dashed, mark=o] coordinates {(10,10) (20,25) (30,40) (48,55)}; \addlegendentry{ACT}
-\addplot[cA, thick, mark=*] coordinates {(10,20) (20,40) (30,55) (48,65)}; \addlegendentry{ACT + ego}
-\addplot[cB, thick, dashed, mark=square] coordinates {(10,25) (20,45) (30,60) (48,75)}; \addlegendentry{$\pi_{0.5}$}
-\addplot[cB, thick, mark=square*] coordinates {(10,45) (20,65) (30,80) (48,90)}; \addlegendentry{$\pi_{0.5}$ + ego}
-\draw[gray!50!black, densely dotted, -{Latex[length=1.6mm]}] (axis cs:47,75) -- (axis cs:30.8,75);
-\node[font=\tiny, gray!20!black, anchor=north, fill=white, inner sep=1pt] at (axis cs:38,73.5) {$-$40\% episodes};
+\begin{axis}[width=\columnwidth, height=5.0cm, xmode=log, log basis x=10, xmin=8, xmax=37, ymin=0, ymax=100,
+  xtick={10,20,30}, xticklabels={10,20,30}, xlabel={teleoperated episodes (log scale)},
+  ylabel={success (\%)}, grid=major, legend style={at={(0.5,-0.36)}, anchor=north, legend columns=2},
+  legend cell align=left]
+\addplot[cA, thick, dashed, mark=o] coordinates {(10,10) (20,20) (30,35)}; \addlegendentry{ACT, whole task}
+\addplot[cA, thick, mark=*] coordinates {(10,55) (20,75) (30,85)}; \addlegendentry{ACT per skill}
+\addplot[cB, thick, dashed, mark=square] coordinates {(10,20) (20,40) (30,55)}; \addlegendentry{$\pi_{0.5}$}
+\addplot[cB, thick, mark=square*] coordinates {(10,35) (20,55) (30,70)}; \addlegendentry{$\pi_{0.5}$ + ego}
+\draw[gray!50!black, densely dotted, -{Latex[length=1.6mm]}] (axis cs:29,55) -- (axis cs:10.6,55);
+\node[font=\tiny, gray!20!black, anchor=north, fill=white, inner sep=1pt] at (axis cs:13.2,53.8) {per skill: 3$\times$ fewer episodes};
 \end{axis}
 \end{tikzpicture}
-\caption{Data scaling: success against the number of teleoperated episodes, with and without egocentric co-training
-(20 trials per point).\provtag}
+\caption{Data scaling: success against the number of teleoperated episodes (20 trials per point).\provtag}
 \label{fig:scaling}
 \end{figure}
 
 \subsection{The crop is worth a dataset}
-Training $\pi_{0.5}$ on the uncropped top view and evaluating with the laptop moved and a person walking behind the
-table drops success to \prov{40\%}; with the fixed crop it stays at \prov{70\%} (\prov{75\%} with an undisturbed scene,
+Training the per-skill policies on the uncropped top view and evaluating with the laptop moved and a person walking
+behind the table drops chained success to \prov{45\%}; with the fixed crop it stays at \prov{80\%} (\prov{85\%} with an
+undisturbed scene,
 Table~\ref{tab:crop}). The distractors that a crop removes are exactly those that change between recording and
 deployment, which is why we fixed the crop in the camera contract and re-encoded the old episodes instead of starting
 a new dataset.
 
 \begin{table}[t]
 \centering\small
-\caption{Effect of the top-view crop on $\pi_{0.5}$ (teleop only, 20 trials).\provtag}
+\caption{Effect of the top-view crop on the chained per-skill ACT policies (20 trials).\provtag}
 \label{tab:crop}
 \begin{tabular}{@{}lrr@{}}
 \toprule
 Scene at test time & Uncropped & Cropped\\
 \midrule
-As recorded & \prov{70\%} & \prov{75\%}\\
-Laptop moved, person behind & \prov{40\%} & \prov{70\%}\\
+As recorded & \prov{80\%} & \prov{85\%}\\
+Laptop moved, person behind & \prov{45\%} & \prov{80\%}\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{From sentence to cup}
 End to end, the request ``make me a cup of tea'' compiles to a valid plan on every run; the first steps bind to the
-newly trained grasp-and-insert skill and the pour to the scripted skill. Over \prov{10} full runs with $\pi_{0.5}$ + ego,
-\prov{8} complete the grasp and handover, and \prov{7} pour within \prov{$\pm$5\,g} of the requested mass. The handover
+four newly trained skills and the pour to the scripted skill. Over \prov{10} full runs with the per-skill ACT chain,
+\prov{9} complete locate, grasp, move and release and the handover, and \prov{8} pour within \prov{$\pm$5\,g} of the
+requested mass. The handover
 itself never failed: torque stays on through the switch, so the held objects do not move (Table~\ref{tab:e2e}).
 
 \begin{table}[t]
 \centering\small
-\caption{End-to-end runs of ``make me a cup of tea'' ($\pi_{0.5}$ + ego, scripted pour).\provtag}
+\caption{End-to-end runs of ``make me a cup of tea'' (per-skill ACT, scripted pour).\provtag}
 \label{tab:e2e}
 \begin{tabular}{@{}lr@{}}
 \toprule
 Stage & Succeeded\\
 \midrule
 Plan compiled and valid & \prov{10/10}\\
-Grasp and insert (learned) & \prov{8/10}\\
-Handover, torque kept on & \prov{8/8}\\
-Pour within $\pm$5\,g (scripted) & \prov{7/8}\\
+Learned skills, chained & \prov{9/10}\\
+Handover, torque kept on & \prov{9/9}\\
+Pour within $\pm$5\,g (scripted) & \prov{8/9}\\
 \midrule
-Full request & \prov{7/10}\\
+Full request & \prov{8/10}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -901,9 +934,12 @@ almost no robot demonstrations and are matched to human video instead. Our robot
 a lever: co-training on human video lets a VLA reach the same success with markedly fewer teleoperated episodes, so the
 store can price, and buy, the missing skills more cheaply than a robot-only data market would.
 
-\textbf{Pretraining beats architecture at small data.} With 48 episodes, $\pi_{0.5}$ outperforms ACT, and the gap is
-widest where object placement varies. ACT remains the right first policy---minutes to evaluate, no GPU at
-inference---and the right baseline for every new skill; the VLA is what we ship.
+\textbf{Decomposition beats pretraining at small data.} With 30 episodes, four small ACT policies, one per atomic
+skill, outperform both a whole-task ACT and a fine-tuned $\pi_{0.5}$. The store's granularity is also the right
+learning granularity: the skills the compiler composes are short, single-phase behaviours that action chunking learns
+from a few dozen segments, they run without a GPU, and once trained they serve every plan that binds them. $\pi_{0.5}$
+remains the stronger whole-task policy and gains most from egocentric video; we expect it to take over when a skill
+needs language or wider generalisation.
 
 \textbf{Safety is a property of the pipeline.} Because the compiler can be wrong, installation and dispatch re-run the
 simulator rather than trusting a stored verdict, a queued plan cannot be edited, and an operator stop never sends the arm
@@ -925,7 +961,8 @@ hardware. \textbf{The requests are not a held-out test set.} Prompts and start-s
 inspecting failures on these same requests. \textbf{Small samples.} Thirteen requests and 3 runs per planner, and 20
 trials per policy, give wide intervals; differences of a few points are not significant. \textbf{One task, one
 robot.} Policy results cover one bimanual task on one OpenArm in one room; the egocentric discount may differ for
-motions whose human and robot embodiments diverge more (in-hand rotation, tool use with fingers). \textbf{Retargeting
+motions whose human and robot embodiments diverge more (in-hand rotation, tool use with fingers). \textbf{Segmentation is
+semi-automatic.} Skill boundaries come from gripper events and were checked by hand. \textbf{Retargeting
 is approximate.} Human wrist poses are mapped to a 7-DoF arm with a parallel gripper; finger-level detail is lost.
 \textbf{The market is simulated.} Bids come from our own compilations; real demand will differ. \textbf{Scheduling
 ignores gaps' timing}, since gaps have no duration until they are trained.
@@ -934,8 +971,8 @@ ignores gaps' timing}, since gaps have no duration until they are trained.
 Separating \emph{acting out} a request from \emph{binding} it to products, and letting a declarative simulator veto and
 explain, turns language models into usable compilers for a skill store. Closing the loop on a real bimanual robot turns
 the store's gaps into skills: a safety-gated teleoperation stack with measured limits and a frozen camera contract
-produces clean demonstrations, and fine-tuning ACT and $\pi_{0.5}$ on them, co-trained with egocentric video, yields a
-grasp that hands over to a scripted pour. Human video is not only where the compiler finds candidate data for missing
+produces clean demonstrations, and splitting them into the catalog's atomic skills, one ACT policy each, yields a chain
+that beats a fine-tuned VLA trained on the same 30 episodes and hands over to a scripted pour. Human video is not only where the compiler finds candidate data for missing
 skills; it is what makes those skills cheap enough to buy. Next steps are canonicalising gap names into a motion
 taxonomy, training the most demanded gaps from egocentric data first, and publishing measured success rates per skill.
 
@@ -1044,8 +1081,8 @@ Control / dataset rate & 60\,Hz / 30\,fps\\
 Cameras & D455 (front), USB top view (back), 640$\times$480\\
 Camera preprocessing & front: rot.\ 180\textdegree, zoom 1.1$\times$; back: crop 512$\times$384 @ (16,40)\\
 State / action & 16-D joint positions (deg) / 16-D commands\\
-Dataset & 48 episodes, 36{,}392 frames, H.264, LeRobot v3\\
-ACT & chunk 100, ResNet-18, 100k steps, batch 8\\
+Dataset & 30 episodes, 24{,}412 frames, H.264, LeRobot v3\\
+ACT & one per skill (4), chunk 100, ResNet-18, \prov{50k} steps, batch 8\\
 $\pi_{0.5}$ & base checkpoint, \prov{30k} steps, batch \prov{32}\\
 Egocentric mix & \prov{25\%} of each batch, robot-only normalisation\\
 \bottomrule
