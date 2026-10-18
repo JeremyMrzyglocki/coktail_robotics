@@ -146,6 +146,14 @@ a USB drop). With CAN timeout 0 they hold forever. The preflight now flags "alre
 - Cameras: `front` = D455 by serial, `rotate=180`, 640x480 RGB at 30 fps over USB 2;
   `back` = HBV HD CAMERA (0ac8:0346) by `/dev/v4l/by-id`, only ~11 fps in the VM whatever the
   format or exposure.
+- Camera preprocessing (`rig.preprocess`, specs in `CAMERAS` of `ports.sh`, applied by
+  `record.py` and `run_policy.py` alike): capture 640x480 at 30 fps, rotate (in the camera
+  reader), crop, zoom, every output resized back to 640x480 RGB uint8.
+  `front`: rotate 180, zoom x1.1 (centre 582x436 box). `back` (top view): crop 512x384 from
+  x=16, y=40 (mat and grippers, laptop on the right left out). Episodes 0-47 of
+  `antonin-leroy/cocktail-grasp` were recorded uncropped on `back` and cropped afterwards with
+  `scripts/crop_dataset_camera.py` (2026-10-18; backup in `~/datasets_backup/` on the VM).
+  Changing a camera's spec, placement or name invalidates the dataset and the trained policies.
 - Home pose: `calibration/home_pose.json` (team's start pose, leaders held with the upper arm
   turned half a turn). `./scripts/home.sh` shows every joint's delta to it (live, read-only):
   bring leaders and followers back until all read ~0 (`--once`: exit 0 when within 15 deg).

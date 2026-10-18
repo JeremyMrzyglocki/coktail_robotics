@@ -10,13 +10,17 @@ RIGHT_LEADER=/dev/serial/by-id/usb-1a86_USB_Single_Serial_58FA101582-if00
 RIGHT_CAN=can1
 LEFT_LEADER=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5876042927-if00
 LEFT_CAN=can0
-# Cameras for record.sh / grasp.sh, NAME=SOURCE[,rotate=DEG][,depth] (see rig.py; find them with
+# Cameras for record.sh / grasp.sh, NAME=SOURCE[,rotate=DEG][,crop=X:Y:W:H][,zoom=X][,depth] (see rig.py; find them with
 # `uv run lerobot-find-cameras realsense|opencv` or scripts/usb_camera_preview.py --list).
 # Use the same list for recording and for running the policy: NAME is the dataset key.
 # front = RealSense D455 (serial 151422253450), mounted upside down, digital zoom x1.1, RGB only
 # (PI0.5 ignores depth).
-# back = HBV HD CAMERA (USB, by-id path survives replugs); ~11 fps measured in the VM.
-CAMERAS=(front=realsense:151422253450,rotate=180,zoom=1.1 back=/dev/v4l/by-id/usb-HBV_HD_CAMERA_HBV_HD_CAMERA-video-index0)
+# back = HBV HD CAMERA (USB, by-id path survives replugs), top view; ~11 fps measured in the VM.
+# crop keeps the mat and the grippers (512x384 box from x=16, y=40 of the 640x480 frame, i.e. x1.25)
+# and leaves out the laptop on the right; episodes 0-47 were cropped afterwards the same way
+# (scripts/crop_dataset_camera.py).
+CAMERAS=(front=realsense:151422253450,rotate=180,zoom=1.1
+         back=/dev/v4l/by-id/usb-HBV_HD_CAMERA_HBV_HD_CAMERA-video-index0,crop=16:40:512:384)
 
 # Task text of the dataset (record.sh --task): keep it identical for every episode, PI0.5 reads it.
 TASK="Pick up the tea bag with the right arm, pick up the cup with the left arm, and put the tea bag in the cup"

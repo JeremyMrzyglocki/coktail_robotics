@@ -55,8 +55,10 @@ uv run scripts/usb_camera_preview.py /dev/video4,rotate=180  # check the image a
   scene, Enter.
 - End every episode in the handoff pose and hold it ~2 s: the policy learns to stop there, which is
   how `grasp.sh` knows the grasp is done.
-- More episodes later: `./scripts/record.sh --resume --push`. Keep cameras (names, placement) and
-  `--task` identical for the whole dataset.
+- More episodes later: `./scripts/record.sh --resume --push`. Keep cameras (names, placement,
+  rotate / crop / zoom of `CAMERAS`) and `--task` identical for the whole dataset. `grasp.sh` reads
+  the same `CAMERAS`, so the policy sees the frames preprocessed as in training. A crop added
+  later can be applied to the episodes already recorded: `scripts/crop_dataset_camera.py`.
 - The follower is controlled at `--control-hz` (default 60, a multiple of `--fps`) and one frame
   is recorded every control_hz / fps cycles, so the teleop is smoother than the 30 fps dataset.
 - Each episode prints its slowest control cycle; it should stay under the 17 ms budget at 60 Hz.
