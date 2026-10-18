@@ -1,10 +1,13 @@
 """Run the policy on a Hugging Face GPU (a private Docker Space) instead of the VM's CPU.
 
-  .venv/bin/python scripts/remote_policy.py deploy antonin-leroy/pi05-cocktail-grasp   # create / update
+  .venv/bin/python scripts/remote_policy.py deploy lleeoogg/pi0-5-cocktail-grasp-20261018-042906   # create / update
   .venv/bin/python scripts/remote_policy.py status          # build stage, GPU, policy loaded?
   .venv/bin/python scripts/remote_policy.py test            # latency of /act from here (no robot)
   .venv/bin/python scripts/remote_policy.py pause           # stop the GPU (billing stops)
   ./scripts/grasp.sh antonin-leroy/pi05-cocktail-grasp --remote NAMESPACE/cocktail-policy
+
+POLICY: OWNER/REPO, OWNER/REPO/checkpoints/003000/pretrained_model, or the repo of a training pushed
+with --save_checkpoint_to_hub (its last checkpoint at the Space's start: restart for a newer one).
 
 deploy uploads remote/policy_space/ (Dockerfile + server.py, built by Hugging Face), sets the POLICY
 variable and the HF_TOKEN secret (gated PaliGemma tokenizer of pi0.5) and requests --hardware. The
@@ -138,12 +141,11 @@ def status(api: HfApi, args) -> None:
 def test(api: HfApi, args) -> None:
     client = RemotePolicy(space_id(api, args.space), api.token)
     info = client.wait_ready()
-    print(f"policy {info['policy']} ({info['type']}) on {info['gpu'] or info['device']}, "
-          f"{info['n_action_steps']} actions per chunk")
+    print(f"policy {info['checkpoint']} ({info['type']}) on {info['gpu'] or info['device']}, "
+          f"{info['n_action_steps']} actions per chunk, cameras {sorted(info['cameras'])}")
     state = np.zeros(info["input_features"]["observation.state"], dtype=np.float32)
     rng = np.random.default_rng(0)
-    images = {k.removeprefix("observation.images."): rng.integers(0, 255, (s[1], s[2], 3), dtype=np.uint8)
-              for k, s in info["input_features"].items() if k.startswith("observation.images.")}
+    images = {k: rng.integers(0, 255, (s[1], s[2], 3), dtype=np.uint8) for k, s in info["cameras"].items()}
     rtt, infer = [], []
     for _ in range(args.n):
         t0 = time.perf_counter()

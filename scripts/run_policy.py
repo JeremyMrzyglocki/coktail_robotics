@@ -15,7 +15,7 @@ Usage:
   uv run python scripts/run_policy.py --left can0 --right can1 --camera top=0 \
       --policy antonin-leroy/act-cocktail-grasp --then "uv run python pour.py"
   uv run python scripts/run_policy.py --sim --camera top=0 --policy outputs/train/<job>/checkpoints/last/pretrained_model
-  ./scripts/grasp.sh antonin-leroy/pi05-cocktail-grasp --remote NAMESPACE/cocktail-policy   # GPU Space
+  ./scripts/grasp.sh lleeoogg/pi0-5-cocktail-grasp-20261018-042906 --remote NAMESPACE/cocktail-policy   # GPU Space
 
 --remote runs the policy on a Hugging Face GPU (scripts/remote_policy.py deploys it): the robot
 executes each chunk while the next one is computed from a fresh observation, sent --refill s before
@@ -24,11 +24,13 @@ its last target, and after --remote-timeout s the run stops as on Enter (pose he
 """
 
 import argparse
+import json
 import shlex
 import subprocess
 import time
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -45,6 +47,8 @@ from rig import (
 )
 from teleop_safe import NAMES, Teleop, confirm_start, stop_on_signals
 
+from huggingface_hub import HfApi, snapshot_download
+
 from lerobot.configs.policies import PreTrainedConfig
 from lerobot.policies import prepare_observation_for_inference
 from lerobot.policies.factory import get_policy_class, make_pre_post_processors
@@ -58,10 +62,49 @@ def pick_device(name: str) -> str:
     return "mps" if torch.backends.mps.is_available() else "cpu"
 
 
+def resolve_policy(spec: str, weights: bool = True) -> str:
+    """Local dir, or Hub OWNER/REPO[/SUBFOLDER] -> local pretrained_model dir. A repo without a
+    config.json at its root (training pushed with --save_checkpoint_to_hub) gives its last
+    checkpoints/N/pretrained_model. weights=False downloads only the config files."""
+    if Path(spec).is_dir():
+        return spec
+    parts = spec.strip("/").split("/")
+    repo, sub = "/".join(parts[:2]), "/".join(parts[2:])
+    if not sub:
+        files = HfApi().list_repo_files(repo)
+        if "config.json" not in files:
+            steps = sorted({f.split("/")[1] for f in files if f.startswith("checkpoints/")
+                            and f.endswith("/pretrained_model/config.json")}, key=lambda x: (x.isdigit(), x))
+            if not steps:
+                raise SystemExit(f"{repo}: no config.json and no checkpoints/*/pretrained_model")
+            sub = f"checkpoints/{steps[-1]}/pretrained_model"
+            print(f"  {repo}: last checkpoint {sub}")
+    prefix = f"{sub}/" if sub else ""
+    patterns = [f"{prefix}*"] if weights else [f"{prefix}config.json", f"{prefix}policy_preprocessor.json"]
+    if weights and not sub:
+        patterns = ["*.json", "*.safetensors", "tokenizer/*"]
+    return str(Path(snapshot_download(repo, allow_patterns=patterns)) / sub)
+
+
+def robot_cameras(cfg, path: str) -> set[str]:
+    """Camera names the robot must send: the policy's images before its rename step (e.g. pi0.5's
+    base_0_rgb <- back), without its empty cameras (the policy pads those itself)."""
+    rename = {}
+    pre = Path(path) / "policy_preprocessor.json"
+    if pre.exists():
+        for step in json.loads(pre.read_text())["steps"]:
+            if step.get("registry_name") == "rename_observations_processor":
+                rename = step["config"]["rename_map"]
+    inverse = {v: k for k, v in rename.items()}
+    return {inverse.get(k, k).removeprefix("observation.images.") for k in cfg.input_features
+            if k.startswith("observation.images.") and ".empty_camera_" not in k}
+
+
 class PolicyDriver:
     """Observation (follower degrees + camera frames) -> policy -> {side: {joint: deg}}."""
 
     def __init__(self, path: str, device: str, arms, cameras, specs, task: str):
+        path = self.path = resolve_policy(path)
         self.cfg = PreTrainedConfig.from_pretrained(path)
         self.cfg.device = device
         self.device = torch.device(device)
@@ -75,8 +118,7 @@ class PolicyDriver:
 
     def _check_features(self):
         """Fail before any motion if the policy was trained on other arms or cameras."""
-        want_images = {k.removeprefix("observation.images.") for k in self.cfg.input_features
-                       if k.startswith("observation.images.")}
+        want_images = robot_cameras(self.cfg, self.path)
         state = self.cfg.input_features.get("observation.state")
         action = self.cfg.output_features.get("action")
         problems = []
@@ -125,7 +167,8 @@ class RemoteDriver(PolicyDriver):
     def __init__(self, space: str, path: str, arms, cameras, specs, task: str, fps: float, refill_s: float):
         from remote_policy import RemotePolicy
 
-        self.cfg = PreTrainedConfig.from_pretrained(path)  # config.json only: the feature check
+        self.path = resolve_policy(path, weights=False)  # config files only: the feature check
+        self.cfg = PreTrainedConfig.from_pretrained(self.path)
         self.arms, self.cameras, self.specs, self.task = arms, cameras, specs, task
         self.keys = joint_keys(arms)
         self._check_features()
@@ -134,7 +177,10 @@ class RemoteDriver(PolicyDriver):
         if info["policy"] != path:
             raise SystemExit(f"the Space serves {info['policy']}, not {path}: "
                              f"scripts/remote_policy.py deploy {path}")
-        print(f"Remote policy {info['type']} on {info['gpu'] or info['device']} ({self.client.url})")
+        print(f"Remote policy {info['checkpoint']} ({info['type']}) on {info['gpu'] or info['device']}")
+        served = info["checkpoint"].split("/", 2)[2] if info["checkpoint"].count("/") > 1 else ""
+        if served and not self.path.endswith(served):
+            print(f"  note: features checked on {self.path}, the Space serves {served} (pushed since?)")
         self.refill = max(1, round(refill_s * fps))
         self.pool = ThreadPoolExecutor(max_workers=1)
         self.round_trips: list[float] = []

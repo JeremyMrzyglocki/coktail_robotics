@@ -128,13 +128,17 @@ On the VM CPU, ACT replans every 100 steps and that cycle takes ~0.2 s: the arm 
 pi0.5 (3B) is too slow for the VM CPU: it runs in a private Docker Space with a GPU
 (`remote/policy_space/`: Dockerfile + FastAPI `server.py`, built by Hugging Face), driven by
 `scripts/remote_policy.py`. The paying account's token goes in `~/.hf_compute_token` on the VM
-(chmod 600, never in the repo); it must have accepted the license of the gated
-`google/paligemma-3b-pt-224` (pi0.5's tokenizer).
+(chmod 600, never in the repo). A LeRobot checkpoint carries its tokenizer, so the gated
+`google/paligemma-3b-pt-224` is not needed. The policy is `OWNER/REPO`, `OWNER/REPO/SUBFOLDER`, or
+the repo of a training pushed with `--save_checkpoint_to_hub` (its last
+`checkpoints/N/pretrained_model`; `remote_policy.py restart` picks up a newer one). Camera names
+are checked through the policy's rename step (pi0.5: `back` -> `base_0_rgb`, `front` ->
+`left_wrist_0_rgb`, one empty camera padded by the policy): the robot keeps sending `front`/`back`.
 ```bash
-.venv/bin/python scripts/remote_policy.py deploy antonin-leroy/pi05-cocktail-grasp   # build ~10 min
+.venv/bin/python scripts/remote_policy.py deploy lleeoogg/pi0-5-cocktail-grasp-20261018-042906   # build ~10 min
 .venv/bin/python scripts/remote_policy.py status    # BUILDING / RUNNING, then state "ready"
 .venv/bin/python scripts/remote_policy.py test      # round trip vs chunk length, no robot
-./scripts/grasp.sh antonin-leroy/pi05-cocktail-grasp --remote cocktail-policy
+./scripts/grasp.sh lleeoogg/pi0-5-cocktail-grasp-20261018-042906 --remote cocktail-policy
 .venv/bin/python scripts/remote_policy.py pause     # GPU off: billing stops
 ```
 - Same pipeline as on the VM (`prepare_observation_for_inference`, the policy's processors, same
