@@ -754,13 +754,27 @@
       var gp = holdAt(P, st.pos, st.quat, a.hand);
       var open = withCurl(gp, 0.15);
       var pre = withCurl({ pos: gp.pos.clone().add(new V3(0, 0.05, 0.05)), quat: gp.quat }, 0.15);
+      var rel = relOf(st, gp);
+      // A grasp includes the lift. Usually the next move shows it; a thing this
+      // hand keeps to the end (held out while the other hand works on it, or
+      // handed over) is lifted here and held up.
+      var keep = !nextOf(a), from = clone(st), up = clone(st);
+      if (keep) up.pos.y += 0.08;
+      var grip = keep ? 0.7 : 1;
       a.play = function (u, T, snap) {
-        if (u < 0.55) T[a.hand] = K.lerpPose(start, pre, ease(seg(u, 0, 0.55)));
-        else if (u < 0.8) T[a.hand] = K.lerpPose(pre, open, ease(seg(u, 0.55, 0.8)));
-        else { T[a.hand] = withCurl(gp, M.lerp(0.15, gp.curl, ease(seg(u, 0.8, 1)))); snap[a.hand] = true; }
+        var g = u / grip;
+        if (g < 0.55) T[a.hand] = K.lerpPose(start, pre, ease(seg(g, 0, 0.55)));
+        else if (g < 0.8) T[a.hand] = K.lerpPose(pre, open, ease(seg(g, 0.55, 0.8)));
+        else if (g <= 1) { T[a.hand] = withCurl(gp, M.lerp(0.15, gp.curl, ease(seg(g, 0.8, 1)))); snap[a.hand] = true; }
+        else {
+          var w = W[P.id];
+          w.pos.lerpVectors(from.pos, up.pos, ease(seg(u, grip, 1)));
+          T[a.hand] = carried(w, rel); snap[a.hand] = true;
+        }
       };
-      h.hold = P; h.rel = relOf(st, gp); h.over = null; detach(P);
-      a.handEnd = gp;
+      h.hold = P; h.rel = rel; h.over = null; detach(P);
+      if (keep) { cp(sim[P.id], up); a.touch = [P]; }
+      a.handEnd = keep ? carried(up, rel) : gp;
     };
 
     DO.move = function (a, h) {

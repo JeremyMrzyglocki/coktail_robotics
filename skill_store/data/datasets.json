@@ -752,7 +752,12 @@
       "detect_fill_level",
       "top_up"
     ],
-    "covers": "Pick up the mineral water bottle on the table and pour water into the mug until it's full."
+    "covers": "Pick up the mineral water bottle on the table and pour water into the mug until it's full.",
+    "clip_window": {
+      "video": "videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+      "start": 7.0,
+      "why": "the bottle is lifted and poured at 8-12s, filling the mug"
+    }
   },
   {
     "id": "villekuosmanen-agilex-pour-water-cup-half",
@@ -821,7 +826,12 @@
       "detect_spill",
       "wipe_spill"
     ],
-    "covers": "Aloha mobile wipe wine"
+    "covers": "Aloha mobile wipe wine",
+    "clip_window": {
+      "video": "videos/observation.images.cam_high/chunk-000/file-000.mp4",
+      "start": 16.0,
+      "why": "the cloth wipes the spill beside the wine glass at 17-21s"
+    }
   },
   {
     "id": "villekuosmanen-agilex-messy-pour-water",
@@ -934,7 +944,12 @@
     "good_for": [
       "fold_towel"
     ],
-    "covers": "Fold the bottom of the cloth upward, then fold it vertically to form a square shape."
+    "covers": "Fold the bottom of the cloth upward, then fold it vertically to form a square shape.",
+    "clip_window": {
+      "video": "videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+      "start": 9.0,
+      "why": "the grippers lift the towel and fold it over at 9-15s"
+    }
   },
   {
     "id": "lerobot-aloha-static-towel",
@@ -1342,7 +1357,12 @@
     "good_for": [
       "hang_cloth"
     ],
-    "covers": "Hang Up Clothes"
+    "covers": "Hang Up Clothes",
+    "clip_window": {
+      "video": "videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+      "start": 24.0,
+      "why": "the cloth is draped over the coat stand at 26-28s"
+    }
   },
   {
     "id": "unitreerobotics-g1-dex1-hang-pants",
@@ -1475,7 +1495,12 @@
     "good_for": [
       "load_tray"
     ],
-    "covers": "fold one of the towels by two grippers and place it on the tray,then fold another towel by two grippers and place it on the folded towel."
+    "covers": "fold one of the towels by two grippers and place it on the tray,then fold another towel by two grippers and place it on the folded towel.",
+    "clip_window": {
+      "video": "videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
+      "start": 12.0,
+      "why": "the first folded towel is placed on the tray at 14-17s"
+    }
   },
   {
     "id": "villekuosmanen-agilex-pour-water-cup2jigger2glass",
@@ -1585,7 +1610,12 @@
     "good_for": [
       "open_drawer"
     ],
-    "covers": "open the bottom drawer."
+    "covers": "open the bottom drawer.",
+    "clip_window": {
+      "video": "videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
+      "start": 7.0,
+      "why": "the gripper reaches the bottom drawer and pulls it open at 9-12s"
+    }
   },
   {
     "id": "villekuosmanen-agilex-put-object-into-drawer",
@@ -1717,7 +1747,12 @@
     "good_for": [
       "pick_up_floor"
     ],
-    "covers": "Galbot_G1_Pick_up_trash_new"
+    "covers": "Galbot_G1_Pick_up_trash_new",
+    "clip_window": {
+      "video": "videos/chunk-000/observation.images.cam_left_head_rgb/episode_000000.mp4",
+      "start": 8.0,
+      "why": "the arms pick litter off the floor into the bin at 8-15s"
+    }
   },
   {
     "id": "villekuosmanen-agilex-collect-litter",
@@ -2138,7 +2173,12 @@
       "read_label",
       "return_to_shelf"
     ],
-    "covers": "Supermarket Shelf Organizing"
+    "covers": "Supermarket Shelf Organizing",
+    "clip_window": {
+      "video": "videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
+      "start": 18.0,
+      "why": "the arm sets a can back on the shelf at 19-23s"
+    }
   },
   {
     "id": "nmotion-initiative-unitzero-sort-household-objects-into-labeled-bins-yam-lerobot",
@@ -2755,7 +2795,12 @@
     "good_for": [
       "sweep_crumbs"
     ],
-    "covers": "Sweep Coffee Bean."
+    "covers": "Sweep Coffee Bean.",
+    "clip_window": {
+      "video": "videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
+      "start": 15.0,
+      "why": "the broom sweeps the beans into the dustpan at 16-21s"
+    }
   },
   {
     "id": "robocoin-ai2-alphabot-2-shake-beaker",
@@ -2799,7 +2844,12 @@
     "good_for": [
       "twist_cap"
     ],
-    "covers": "Unscrew the cap from the plastic bottle on the table."
+    "covers": "Unscrew the cap from the plastic bottle on the table.",
+    "clip_window": {
+      "video": "videos/chunk-000/observation.images.cam_right_wrist/episode_000000.mp4",
+      "start": 10.0,
+      "why": "the overhead camera cuts off the gripper on the cap; the wrist camera shows it twisting"
+    }
   },
   {
     "id": "robocoin-airbot-mmk2-unscrew-bottle-cap",
@@ -2910,7 +2960,12 @@
     "good_for": [
       "water_plant"
     ],
-    "covers": "Pick up the watering can from the table, water the potted plant, and put the can back."
+    "covers": "Pick up the watering can from the table, water the potted plant, and put the can back.",
+    "clip_window": {
+      "video": "videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
+      "start": 12.0,
+      "why": "the can is lifted and tipped over the plant at 13-18s"
+    }
   },
   {
     "id": "villekuosmanen-agilex-water-plant-4",
@@ -2999,7 +3054,12 @@
       "wipe_handle",
       "wipe_window"
     ],
-    "covers": "Galbot_G1_wipe_mirror_bathroom_sink_1"
+    "covers": "Galbot_G1_wipe_mirror_bathroom_sink_1",
+    "clip_window": {
+      "video": "videos/chunk-000/observation.images.cam_left_head_rgb/episode_000000.mp4",
+      "start": 12.0,
+      "why": "the arm wipes the mirror with the cloth at 13-21s"
+    }
   },
   {
     "id": "villekuosmanen-agilex-wipe-laptop-water",

@@ -326,6 +326,9 @@ function renderMeta() {
     : runnable ? "Install & run"
     : plan && !plan.valid ? "Blocked by validator"
     : "Not runnable: " + ((plan && plan.install_blockers) || []).join(" · ");
+  $("#runrobot").classList.toggle("hidden", !plan || steps.length === 0);
+  const note = $("#robotnote");             // says which plan it was about
+  if (note.dataset.plan !== String(plan && plan.plan_id)) note.classList.add("hidden");
 }
 
 /* ---------------- keeping step indices straight ---------------- */
@@ -1416,6 +1419,47 @@ async function insertSkill(skillId) {
     draw();
   }
 }
+
+/* ---------------- run robot (placeholder) ---------------- */
+/* Not connected to hardware yet: the button only calls runRobot, so hooking up
+   a robot means replacing this one function. It reports progress (0..1) through
+   onProgress, which fills the button like a loading bar, and resolves to
+   { ok, detail }. The placeholder just fills it over RUN_ROBOT_MS. */
+const RUN_ROBOT_MS = 5000;
+function runRobot(p, onProgress) {
+  return new Promise((done) => {
+    const t0 = performance.now();
+    const tick = (now) => {
+      const u = Math.min((now - t0) / RUN_ROBOT_MS, 1);
+      onProgress(u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2);   // ease in-out
+      if (u < 1) { requestAnimationFrame(tick); return; }
+      done({ ok: false, detail: `No robot connected yet. Plan ${p.plan_id || "(unsaved)"} ` +
+        `(${p.steps.length} steps) would run on ${robot()}.` });
+    };
+    requestAnimationFrame(tick);
+  });
+}
+let robotRunning = false;
+$("#runrobot").addEventListener("click", async () => {
+  if (robotRunning || !plan || !(plan.steps || []).length) return;
+  const btn = $("#runrobot"), label = btn.firstElementChild, note = $("#robotnote");
+  const id = plan.plan_id;
+  robotRunning = true;
+  btn.classList.add("loading");
+  note.classList.add("hidden");
+  const r = await runRobot(plan, (f) => {
+    btn.style.setProperty("--p", f.toFixed(4));
+    label.textContent = `Running\u2026 ${Math.round(f * 100)}%`;
+  });
+  robotRunning = false;
+  btn.classList.remove("loading");
+  btn.style.removeProperty("--p");
+  label.textContent = "Run robot";
+  note.dataset.plan = String(id);
+  note.textContent = "";
+  note.appendChild(el("div", r.ok ? "ok" : "no", r.detail));
+  if (plan && plan.plan_id === id) note.classList.remove("hidden");
+});
 
 /* ---------------- install + run ---------------- */
 $("#install").addEventListener("click", async () => {

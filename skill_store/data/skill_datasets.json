@@ -1,5 +1,5 @@
 {
-  "_about": "Extra open datasets per skill, beyond the skill's primary `dataset`. Merged into each manifest as `datasets` when the catalog is seeded (app/db.py). Curated from Hugging Face; every repo was checked for licence, access, episode count and task text.",
+  "_about": "Extra open datasets per skill, beyond the skill's primary `dataset`. Merged into each manifest as `datasets` when the catalog is seeded (app/db.py). Curated from Hugging Face; every repo was checked for licence, access, episode count and task text. `\"preview\": true` marks the reference whose clip the skill popup shows first, for skills whose primary dataset does not show the motion.",
   "add_straw": [
     {
       "id": "robocoin-ai2-alphabot-2-insert-straw",
@@ -70,7 +70,8 @@
     {
       "id": "unitreerobotics-g1-wbt-brainco-clean-tea-table-garbage",
       "episodes": 74,
-      "match": "Clean Tea Table Garbage"
+      "match": "Clean Tea Table Garbage",
+      "preview": true
     }
   ],
   "close_drawer": [
@@ -87,7 +88,8 @@
     {
       "id": "robocoin-agilex-cobot-magic-close-drawer-bottom",
       "episodes": 50,
-      "match": "close the bottom drawer."
+      "match": "close the bottom drawer.",
+      "preview": true
     }
   ],
   "close_fridge": [
@@ -111,7 +113,8 @@
     {
       "id": "unitreerobotics-g1-wbt-inspire-pick-up-drinks-v0",
       "episodes": 300,
-      "match": "Pick Up Drinks"
+      "match": "Pick Up Drinks",
+      "preview": true
     },
     {
       "id": "unitreerobotics-g1-dex3-pickbottle-dataset",
@@ -123,7 +126,8 @@
     {
       "id": "villekuosmanen-agilex-pour-water-cup-full",
       "episodes": 19,
-      "match": "Pick up the mineral water bottle on the table and pour water into the mug until it's full."
+      "match": "Pick up the mineral water bottle on the table and pour water into the mug until it's full.",
+      "preview": true
     },
     {
       "id": "villekuosmanen-agilex-pour-water-cup-half",
@@ -140,7 +144,8 @@
     {
       "id": "lerobot-aloha-mobile-wipe-wine",
       "episodes": 50,
-      "match": "Aloha mobile wipe wine"
+      "match": "Aloha mobile wipe wine",
+      "preview": true
     },
     {
       "id": "villekuosmanen-agilex-messy-pour-water",
@@ -167,7 +172,8 @@
     {
       "id": "villekuosmanen-agilex-fold-towel",
       "episodes": 20,
-      "match": "Fold the bottom of the cloth upward, then fold it vertically to form a square shape."
+      "match": "Fold the bottom of the cloth upward, then fold it vertically to form a square shape.",
+      "preview": true
     },
     {
       "id": "lerobot-aloha-static-towel",
@@ -264,14 +270,16 @@
     {
       "id": "droid",
       "episodes": 95658,
-      "match": "Droid 1.0.1"
+      "match": "Droid 1.0.1",
+      "preview": true
     }
   ],
   "grasp_scoop": [
     {
       "id": "villekuosmanen-agilex-put-ice-scoop-in-box-tidy-table",
       "episodes": 20,
-      "match": "Pick up the metal ice scoop from the table and place it inside the transparent plastic box."
+      "match": "Pick up the metal ice scoop from the table and place it inside the transparent plastic box.",
+      "preview": true
     },
     {
       "id": "villekuosmanen-agilex-shovel-ice-into-cup",
@@ -293,7 +301,8 @@
     {
       "id": "robocoin-ai2-alphabot-2-shake-bottle",
       "episodes": 394,
-      "match": "Grasp the erlenmeyer flask with one hand, shake it three times, then place it back."
+      "match": "Grasp the erlenmeyer flask with one hand, shake it three times, then place it back.",
+      "preview": true
     },
     {
       "id": "unitreerobotics-g1-dex3-pickbottle-dataset",
@@ -322,7 +331,8 @@
     {
       "id": "unitreerobotics-g1-wbt-inspire-hang-up-clothes",
       "episodes": 200,
-      "match": "Hang Up Clothes"
+      "match": "Hang Up Clothes",
+      "preview": true
     },
     {
       "id": "unitreerobotics-g1-dex1-hang-pants",
@@ -356,7 +366,8 @@
     {
       "id": "robocoin-agilex-cobot-magic-fold-towel-tray-twice",
       "episodes": 195,
-      "match": "fold one of the towels by two grippers and place it on the tray,then fold another towel by two grippers and place it on the folded towel."
+      "match": "fold one of the towels by two grippers and place it on the tray,then fold another towel by two grippers and place it on the folded towel.",
+      "preview": true
     },
     {
       "id": "lerobot-svla-so100-pickplace",
@@ -414,7 +425,8 @@
     {
       "id": "robocoin-agilex-cobot-magic-open-drawer-bottom",
       "episodes": 50,
-      "match": "open the bottom drawer."
+      "match": "open the bottom drawer.",
+      "preview": true
     },
     {
       "id": "villekuosmanen-agilex-put-object-into-drawer",
@@ -453,7 +465,8 @@
     {
       "id": "robocoin-galbot-g1-load-floor-trash-3",
       "episodes": 588,
-      "match": "Galbot_G1_Pick_up_trash_new"
+      "match": "Galbot_G1_Pick_up_trash_new",
+      "preview": true
     },
     {
       "id": "villekuosmanen-agilex-collect-litter",
@@ -523,7 +536,8 @@
     {
       "id": "robocoin-galaxea-r1-lite-pour-solid-marble-bar-counter",
       "episodes": 85,
-      "match": "use a gripper to pick up the cup and pour the solid into a bowl or tray."
+      "match": "use a gripper to pick up the cup and pour the solid into a bowl or tray.",
+      "preview": true
     },
     {
       "id": "unitreerobotics-r1-dex1-pour-popcorn-between-bowls",
@@ -598,7 +612,8 @@
     {
       "id": "unitreerobotics-g1-wbt-inspire-supermarket-shelf-organizing",
       "episodes": 200,
-      "match": "Supermarket Shelf Organizing"
+      "match": "Supermarket Shelf Organizing",
+      "preview": true
     },
     {
       "id": "villekuosmanen-agilex-insert-book-shelf",
@@ -802,7 +817,8 @@
     {
       "id": "robocoin-agilex-cobot-magic-sweep-coffee-beans",
       "episodes": 359,
-      "match": "Sweep Coffee Bean."
+      "match": "Sweep Coffee Bean.",
+      "preview": true
     }
   ],
   "swirl_glass": [
@@ -838,7 +854,8 @@
     {
       "id": "villekuosmanen-agilex-unscrew-cap",
       "episodes": 20,
-      "match": "Unscrew the cap from the plastic bottle on the table."
+      "match": "Unscrew the cap from the plastic bottle on the table.",
+      "preview": true
     },
     {
       "id": "robocoin-airbot-mmk2-unscrew-bottle-cap",
@@ -865,14 +882,16 @@
     {
       "id": "villekuosmanen-agilex-wipe-desk",
       "episodes": 20,
-      "match": "Wipe the tabletop with a clean cloth to remove dust and stains."
+      "match": "Wipe the tabletop with a clean cloth to remove dust and stains.",
+      "preview": true
     }
   ],
   "water_plant": [
     {
       "id": "villekuosmanen-agilex-water-plant-1",
       "episodes": 18,
-      "match": "Pick up the watering can from the table, water the potted plant, and put the can back."
+      "match": "Pick up the watering can from the table, water the potted plant, and put the can back.",
+      "preview": true
     },
     {
       "id": "villekuosmanen-agilex-water-plant-4",
@@ -889,7 +908,8 @@
     {
       "id": "unitreerobotics-g1-dex1-wipe-board",
       "episodes": 1180,
-      "match": "Wipe Board"
+      "match": "Wipe Board",
+      "preview": true
     },
     {
       "id": "robocoin-galbot-g1-wipe-mirror",
@@ -935,7 +955,8 @@
     {
       "id": "robocoin-galbot-g1-wipe-mirror",
       "episodes": 30,
-      "match": "Galbot_G1_wipe_mirror_bathroom_sink_1"
+      "match": "Galbot_G1_wipe_mirror_bathroom_sink_1",
+      "preview": true
     },
     {
       "id": "villekuosmanen-agilex-wipe-whiteboard",

@@ -260,7 +260,7 @@
     "path": "clips/villekuosmanen-agilex-pour-water-cup-full.mp4",
     "repo_id": "villekuosmanen/agilex_pour_water_cup_full",
     "source": "https://huggingface.co/datasets/villekuosmanen/agilex_pour_water_cup_full/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
-    "start": 3.0,
+    "start": 7.0,
     "length": 6.0
   },
   "villekuosmanen-agilex-pour-water-cup-half": {
@@ -284,7 +284,7 @@
     "path": "clips/lerobot-aloha-mobile-wipe-wine.mp4",
     "repo_id": "lerobot/aloha_mobile_wipe_wine",
     "source": "https://huggingface.co/datasets/lerobot/aloha_mobile_wipe_wine/resolve/main/videos/observation.images.cam_high/chunk-000/file-000.mp4",
-    "start": 3.0,
+    "start": 16.0,
     "length": 6.0
   },
   "villekuosmanen-agilex-messy-pour-water": {
@@ -324,7 +324,7 @@
     "path": "clips/villekuosmanen-agilex-fold-towel.mp4",
     "repo_id": "villekuosmanen/agilex_fold_towel",
     "source": "https://huggingface.co/datasets/villekuosmanen/agilex_fold_towel/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
-    "start": 3.0,
+    "start": 9.0,
     "length": 6.0
   },
   "lerobot-aloha-static-towel": {
@@ -460,7 +460,7 @@
     "path": "clips/unitreerobotics-g1-wbt-inspire-hang-up-clothes.mp4",
     "repo_id": "unitreerobotics/G1_WBT_Inspire_Hang_Up_Clothes",
     "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Inspire_Hang_Up_Clothes/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
-    "start": 3.0,
+    "start": 24.0,
     "length": 6.0
   },
   "unitreerobotics-g1-dex1-hang-pants": {
@@ -508,7 +508,7 @@
     "path": "clips/robocoin-agilex-cobot-magic-fold-towel-tray-twice.mp4",
     "repo_id": "RoboCOIN/Agilex_Cobot_Magic_fold_towel_tray_twice",
     "source": "https://huggingface.co/datasets/RoboCOIN/Agilex_Cobot_Magic_fold_towel_tray_twice/resolve/main/videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
-    "start": 3.0,
+    "start": 12.0,
     "length": 6.0
   },
   "villekuosmanen-agilex-pour-water-cup2jigger2glass": {
@@ -548,7 +548,7 @@
     "path": "clips/robocoin-agilex-cobot-magic-open-drawer-bottom.mp4",
     "repo_id": "RoboCOIN/Agilex_Cobot_Magic_open_drawer_bottom",
     "source": "https://huggingface.co/datasets/RoboCOIN/Agilex_Cobot_Magic_open_drawer_bottom/resolve/main/videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
-    "start": 3.0,
+    "start": 7.0,
     "length": 6.0
   },
   "villekuosmanen-agilex-put-object-into-drawer": {
@@ -596,7 +596,7 @@
     "path": "clips/robocoin-galbot-g1-load-floor-trash-3.mp4",
     "repo_id": "RoboCOIN/Galbot_G1_load_floor_trash_3",
     "source": "https://huggingface.co/datasets/RoboCOIN/Galbot_G1_load_floor_trash_3/resolve/main/videos/chunk-000/observation.images.cam_left_head_rgb/episode_000000.mp4",
-    "start": 3.0,
+    "start": 8.0,
     "length": 6.0
   },
   "villekuosmanen-agilex-collect-litter": {
@@ -748,7 +748,7 @@
     "path": "clips/unitreerobotics-g1-wbt-inspire-supermarket-shelf-organizing.mp4",
     "repo_id": "unitreerobotics/G1_WBT_Inspire_Supermarket_Shelf_Organizing",
     "source": "https://huggingface.co/datasets/unitreerobotics/G1_WBT_Inspire_Supermarket_Shelf_Organizing/resolve/main/videos/observation.images.head_stereo_left/chunk-000/file-000.mp4",
-    "start": 3.0,
+    "start": 18.0,
     "length": 6.0
   },
   "nmotion-initiative-unitzero-sort-household-objects-into-labeled-bins-yam-lerobot": {
@@ -968,7 +968,7 @@
     "path": "clips/robocoin-agilex-cobot-magic-sweep-coffee-beans.mp4",
     "repo_id": "RoboCOIN/Agilex_Cobot_Magic_sweep_coffee_beans",
     "source": "https://huggingface.co/datasets/RoboCOIN/Agilex_Cobot_Magic_sweep_coffee_beans/resolve/main/videos/chunk-000/observation.images.cam_head_rgb/episode_000000.mp4",
-    "start": 3.0,
+    "start": 15.0,
     "length": 6.0
   },
   "robocoin-ai2-alphabot-2-shake-beaker": {
@@ -983,8 +983,8 @@
     "kind": "local",
     "path": "clips/villekuosmanen-agilex-unscrew-cap.mp4",
     "repo_id": "villekuosmanen/agilex_unscrew_cap",
-    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_unscrew_cap/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
-    "start": 3.0,
+    "source": "https://huggingface.co/datasets/villekuosmanen/agilex_unscrew_cap/resolve/main/videos/chunk-000/observation.images.cam_right_wrist/episode_000000.mp4",
+    "start": 10.0,
     "length": 6.0
   },
   "robocoin-airbot-mmk2-unscrew-bottle-cap": {
@@ -1024,7 +1024,7 @@
     "path": "clips/villekuosmanen-agilex-water-plant-1.mp4",
     "repo_id": "villekuosmanen/agilex_water_plant_1",
     "source": "https://huggingface.co/datasets/villekuosmanen/agilex_water_plant_1/resolve/main/videos/chunk-000/observation.images.cam_high/episode_000000.mp4",
-    "start": 3.0,
+    "start": 12.0,
     "length": 6.0
   },
   "villekuosmanen-agilex-water-plant-4": {
@@ -1056,7 +1056,7 @@
     "path": "clips/robocoin-galbot-g1-wipe-mirror.mp4",
     "repo_id": "RoboCOIN/Galbot_G1_wipe_mirror",
     "source": "https://huggingface.co/datasets/RoboCOIN/Galbot_G1_wipe_mirror/resolve/main/videos/chunk-000/observation.images.cam_left_head_rgb/episode_000000.mp4",
-    "start": 3.0,
+    "start": 12.0,
     "length": 6.0
   },
   "villekuosmanen-agilex-wipe-laptop-water": {

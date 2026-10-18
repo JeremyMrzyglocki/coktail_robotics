@@ -51,6 +51,9 @@ class CompiledPlan(BaseModel):
     missing: list[MissingSkill] = Field(default_factory=list)
     objects: list[PlanObject] = Field(default_factory=list)
     goal: str = ""
+    end_holding: list[str] = Field(default_factory=list)
+    """Objects the request wants still in hand when the plan ends (held out to
+    the customer, handed over). The simulator does not call those a loose end."""
 
     def kinds(self) -> dict[str, str]:
         return {o.name: o.kind for o in self.objects}

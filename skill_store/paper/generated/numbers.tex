@@ -1,0 +1,173 @@
+\newcommand{\NGPTmini}{39}
+\newcommand{\FailGPTmini}{0}
+\newcommand{\ValidZeroGPTmini}{56}
+\newcommand{\ValidFinalGPTmini}{87}
+\newcommand{\ValidOneGPTmini}{85}
+\newcommand{\SecsGPTmini}{7}
+\newcommand{\BlockedGPTmini}{5}
+\newcommand{\NGPT}{38}
+\newcommand{\FailGPT}{1}
+\newcommand{\ValidZeroGPT}{89}
+\newcommand{\ValidFinalGPT}{100}
+\newcommand{\ValidOneGPT}{97}
+\newcommand{\SecsGPT}{6}
+\newcommand{\BlockedGPT}{0}
+\newcommand{\NSonnet}{39}
+\newcommand{\FailSonnet}{0}
+\newcommand{\ValidZeroSonnet}{87}
+\newcommand{\ValidFinalSonnet}{100}
+\newcommand{\ValidOneSonnet}{100}
+\newcommand{\SecsSonnet}{9}
+\newcommand{\BlockedSonnet}{0}
+\newcommand{\NOpus}{39}
+\newcommand{\FailOpus}{0}
+\newcommand{\ValidZeroOpus}{95}
+\newcommand{\ValidFinalOpus}{100}
+\newcommand{\ValidOneOpus}{100}
+\newcommand{\SecsOpus}{24}
+\newcommand{\BlockedOpus}{0}
+\newcommand{\NAll}{155}
+\newcommand{\BlockedFirstAll}{18}
+\newcommand{\BlockedFinalAll}{3}
+\newcommand{\BlockedFirstN}{28}
+\newcommand{\BlockedFinalN}{5}
+\newcommand{\UnmetFirst}{25}
+\newcommand{\FlowFirst}{3}
+\newcommand{\ObjectFirst}{1}
+\newcommand{\IssuesFirst}{29}
+\newcommand{\PointlessFirst}{12}
+\newcommand{\PointlessFinal}{6}
+\newcommand{\StepsTotal}{2010}
+\newcommand{\ShareTrained}{87}
+\newcommand{\ShareUntrained}{2}
+\newcommand{\ShareGap}{11}
+\newcommand{\GapTotal}{218}
+\newcommand{\GapWithData}{99}
+\newcommand{\DistinctGaps}{91}
+\newcommand{\ApiFailures}{1}
+\newcommand{\GapEgoShare}{75}
+\newcommand{\NSkills}{59}
+\newcommand{\NTrained}{11}
+\newcommand{\NBeta}{5}
+\newcommand{\NCatalogOnly}{43}
+\newcommand{\NDatasets}{138}
+\newcommand{\NOpenDatasets}{137}
+\newcommand{\NLinks}{165}
+\newcommand{\MedianEpisodes}{443}
+\newcommand{\MinEpisodes}{50}
+\newcommand{\TotalEpisodes}{317{,}112}
+\newcommand{\NPredicates}{48}
+\newcommand{\NKinds}{8}
+\newcommand{\NActsOn}{8}
+\newcommand{\Runs}{3}
+\newcommand{\StabGPTmini}{0.86}
+\newcommand{\SameGPTmini}{23}
+\newcommand{\StabGPT}{0.93}
+\newcommand{\SameGPT}{38}
+\newcommand{\StabSonnet}{0.85}
+\newcommand{\SameSonnet}{28}
+\newcommand{\StabOpus}{0.90}
+\newcommand{\SameOpus}{31}
+\newcommand{\BalGPTmini}{1.45}
+\newcommand{\SpeedGPTmini}{1.00}
+\newcommand{\BothGPTmini}{18}
+\newcommand{\BalGPT}{1.28}
+\newcommand{\SpeedGPT}{1.00}
+\newcommand{\BothGPT}{26}
+\newcommand{\BalSonnet}{1.38}
+\newcommand{\SpeedSonnet}{1.00}
+\newcommand{\BothSonnet}{18}
+\newcommand{\BalOpus}{1.38}
+\newcommand{\SpeedOpus}{1.00}
+\newcommand{\BothOpus}{36}
+\newcommand{\SpeedAll}{1.00}
+\newcommand{\SpeedMax}{2.0}
+\newcommand{\BothAll}{25}
+\newcommand{\SavedAll}{0}
+\newcommand{\NScheduled}{150}
+\newcommand{\ParShare}{25}
+\newcommand{\ParShareBal}{62}
+\newcommand{\SpeedMeanDefault}{1.13}
+\newcommand{\SpeedMeanBal}{1.37}
+\newcommand{\SpeedMaxBal}{2.0}
+\newcommand{\TimeSavedBal}{29}
+\newcommand{\DistinctVerbs}{27}
+\newcommand{\MarketSkillsRaw}{99}
+\newcommand{\MarketSkillsCanon}{35}
+\newcommand{\MarketRequests}{99}
+\newcommand{\MarketPacingRaw}{33}
+\newcommand{\MarketPacingCanon}{45}
+\newcommand{\TopBidRaw}{10.41}
+\newcommand{\TopBidCanon}{20.21}
+\newcommand{\NTeleop}{129}
+\newcommand{\NEgo}{6}
+\newcommand{\NSim}{3}
+\def\TabModels{GPT-4.1 mini & 56 & 85 & \textbf{87} \scriptsize{[73,94]} & 95 & 11.5 & 0.8 & 7 \\
+GPT-4.1 & 89 & 97 & \textbf{100} \scriptsize{[91,100]} & 100 & 10.8 & 1.7 & 6 \\
+Claude Sonnet 5.5 & 87 & 100 & \textbf{100} \scriptsize{[91,100]} & 100 & 10.5 & 1.3 & 9 \\
+Claude Opus 5.5 & 95 & 100 & \textbf{100} \scriptsize{[91,100]} & 100 & 13.4 & 1.8 & 24 \\}
+\def\TabFailures{Unmet precondition & 25 & 16 & 3 & 2 \\
+Wrong object kind & 1 & 1 & 0 & 0 \\
+Wrong pour direction & 3 & 2 & 2 & 1 \\
+Ends holding (advisory) & 5 & 3 & 2 & 1 \\
+Pointless move (advisory) & 12 & 8 & 6 & 4 \\}
+\def\TabSplit{GPT-4.1 mini & 93 & 83 \\
+GPT-4.1 & 100 & 100 \\
+Claude Sonnet 5.5 & 100 & 100 \\
+Claude Opus 5.5 & 100 & 100 \\}
+\def\TabGapData{EPIC-KITCHENS-100 & 84 \\
+EgoDex & 55 \\
+Egocentric-10K & 12 \\
+Ego-Exo4D & 11 \\
+Wipe whiteboard (villekuosmanen) & 10 \\}
+\def\PlotRepairs{\addplot coordinates {(0,56.4) (1,84.6) (2,87.2)};
+\addlegendentry{GPT-4.1 mini}
+\addplot coordinates {(0,89.5) (1,97.4) (2,100.0)};
+\addlegendentry{GPT-4.1}
+\addplot coordinates {(0,87.2) (1,100.0) (2,100.0)};
+\addlegendentry{Claude Sonnet 5.5}
+\addplot coordinates {(0,94.9) (1,100.0) (2,100.0)};
+\addlegendentry{Claude Opus 5.5}}
+\def\TabRequests{Paint an image & N & \cellcolor{green!22}2/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 \\
+Sandcastle & N & \cellcolor{green!4}0/3$^\dagger$ & \cellcolor{green!22}2/3 & \cellcolor{green!22}2/3 & \cellcolor{green!22}2/3 \\
+Card trick & N & \cellcolor{green!4}0/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 \\
+Water plants & N & \cellcolor{green!11}1/3$^\dagger$ & \cellcolor{green!4}0/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 \\
+Write on whiteboard & N & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 \\
+Jam sandwich & N & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 \\
+Flowers in vase & N & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 \\
+Feed the cat & N & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!22}2/3 & \cellcolor{green!33}3/3 \\
+Pi\~na colada & D & \cellcolor{green!4}0/3 & \cellcolor{green!33}3/3 & \cellcolor{green!22}2/3 & \cellcolor{green!33}3/3 \\
+Glass of juice & D & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 \\
+Smoothie & D & \cellcolor{green!11}1/3$^\dagger$ & \cellcolor{green!33}3/3 & \cellcolor{green!11}1/3 & \cellcolor{green!22}2/3 \\
+Wipe table & D & \cellcolor{green!4}0/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 \\
+Clear table & D & \cellcolor{green!33}3/3 & \cellcolor{green!33}2/2 & \cellcolor{green!33}3/3 & \cellcolor{green!33}3/3 \\}
+\def\TabStability{GPT-4.1 mini & 0.86 & 0.74 & 23 & 0.84 \\
+GPT-4.1 & 0.93 & 0.84 & 38 & 0.87 \\
+Claude Sonnet 5.5 & 0.85 & 0.70 & 28 & 0.68 \\
+Claude Opus 5.5 & 0.90 & 0.84 & 31 & 0.82 \\}
+\def\TabVerbs{\code{drag} & 31 & 9 & \code{drag\_on\_surface}, \code{drag\_along\_surface} \\
+\code{press} & 31 & 7 & \code{press\_into}, \code{press\_button} \\
+\code{tilt} & 16 & 3 & \code{tilt\_out}, \code{tilt\_out\_food} \\
+\code{dip} & 15 & 8 & \code{dip\_into}, \code{dip\_into\_vessel} \\
+\code{scoop} & 15 & 7 & \code{scoop\_item}, \code{scoop\_material} \\
+\code{peel} & 15 & 3 & \code{peel\_off}, \code{peel\_item} \\
+\code{flip} & 15 & 3 & \code{flip\_item}, \code{flip\_over} \\
+\code{twist} & 13 & 5 & \code{twist\_item}, \code{twist\_open} \\}
+\def\TabBids{1 & \code{press\_to\_surface} & 10.41 & \code{press} & 20.21 \\
+2 & \code{tilt\_out} & 7.39 & \code{drag} & 14.45 \\
+3 & \code{run\_blender} & 6.54 & \code{tilt} & 10.74 \\
+4 & \code{drag\_along\_surface} & 6.28 & \code{twist} & 10.40 \\
+5 & \code{peel\_item} & 4.96 & \code{peel} & 9.94 \\
+6 & \code{twist\_item} & 3.86 & \code{run\_blender} & 8.79 \\}
+\def\TabCategories{Cleaning & 6 & 1 & 480 \\
+Finishing & 5 & 0 & 398 \\
+Household & 16 & 0 & 428 \\
+Manipulation & 13 & 4 & 444 \\
+Mixing & 5 & 1 & 309 \\
+Perception & 5 & 2 & 950 \\
+Pouring & 4 & 1 & 618 \\
+Transport & 5 & 2 & 1{,}141 \\}
+\def\PlotSpeedup{\addplot[only marks, mark=*, mark size=1.2pt, gray, fill opacity=0.3, draw opacity=0.4] coordinates {(10,5) (9,5) (10,5) (9,8) (8,8) (12,12) (12,12) (16,16) (5,5) (5,5) (4,4) (14,14) (11,7) (14,14) (10,10) (10,10) (10,10) (6,6) (6,6) (6,6) (26,26) (33,27) (26,26) (6,6) (6,6) (6,6) (24,24) (21,21) (5,5) (5,5) (5,5) (8,8) (8,8) (8,8) (6,6) (6,6) (6,6) (11,8) (11,7) (17,12) (4,4) (4,4) (4,4) (7,7) (9,9) (7,7) (5,5) (5,5) (5,5) (14,9) (14,10) (14,10) (10,10) (10,10) (10,10) (9,5) (9,5) (8,4) (24,24) (25,25) (24,24) (6,6) (6,6) (6,6) (17,17) (17,17) (21,15) (6,6) (6,6) (6,6) (20,20) (20,20) (5,5) (5,5) (7,7) (14,12) (11,11) (10,6) (7,5) (8,5) (6,4) (8,8) (6,6) (8,8) (5,5) (5,5) (5,5) (14,14) (17,12) (12,12) (10,10) (10,10) (10,10) (13,13) (11,7) (12,12) (26,26) (26,26) (26,26) (6,6) (6,6) (6,6) (21,21) (17,17) (17,17) (5,5) (5,5) (5,5) (8,8) (8,8) (8,8) (7,7) (7,7) (7,7) (11,7) (12,8) (13,9) (16,12) (8,5) (16,12) (8,8) (8,8) (8,8) (13,8) (13,9) (12,8) (18,12) (17,13) (19,19) (10,10) (10,10) (10,10) (14,10) (13,10) (14,10) (26,26) (26,26) (26,26) (6,6) (6,6) (6,6) (25,25) (25,25) (25,25) (5,5) (7,7) (5,5) (16,16) (20,20) (16,16)};
+\addlegendentry{default hands}
+\addplot[only marks, mark=triangle*, mark size=1.5pt, red!70!black, fill opacity=0.5, draw opacity=0.6] coordinates {(10,5) (9,5) (10,5) (9,5) (8,4) (12,8) (12,8) (16,10) (5,5) (5,5) (4,4) (14,8) (11,7) (14,9) (10,8) (10,8) (10,8) (6,6) (6,6) (6,6) (26,17) (33,18) (26,17) (6,6) (6,6) (6,6) (24,14) (21,12) (5,5) (5,5) (5,5) (8,4) (8,4) (8,4) (6,6) (6,6) (6,6) (11,8) (11,7) (17,12) (4,4) (4,4) (4,4) (7,7) (9,9) (7,7) (5,5) (5,5) (5,5) (14,9) (14,10) (14,10) (10,8) (10,8) (10,8) (9,5) (9,5) (8,4) (24,15) (25,16) (24,14) (6,6) (6,6) (6,6) (17,12) (17,12) (21,13) (6,6) (6,6) (6,6) (20,12) (20,12) (5,5) (5,5) (7,7) (14,8) (11,6) (10,6) (7,5) (8,5) (6,4) (8,8) (6,6) (8,8) (5,5) (5,5) (5,5) (14,8) (17,10) (12,8) (10,7) (10,8) (10,7) (13,9) (11,7) (12,6) (26,17) (26,17) (26,17) (6,6) (6,6) (6,6) (21,12) (17,12) (17,12) (5,5) (5,5) (5,5) (8,4) (8,4) (8,4) (7,7) (7,7) (7,7) (11,7) (12,8) (13,9) (16,12) (8,5) (16,12) (8,8) (8,8) (8,8) (13,8) (13,9) (12,8) (18,11) (17,10) (19,11) (10,8) (10,8) (10,8) (14,10) (13,9) (14,10) (26,17) (26,17) (26,17) (6,6) (6,6) (6,6) (25,15) (25,15) (25,15) (5,5) (7,7) (5,5) (16,8) (20,12) (16,8)};
+\addlegendentry{balanced}}
