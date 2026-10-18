@@ -10,4 +10,4 @@ shift
 CAMS=()
 for c in "${CAMERAS[@]}"; do CAMS+=(--camera "$c"); done
 exec .venv/bin/python scripts/run_policy.py --left "$LEFT_CAN" --right "$RIGHT_CAN" "${CAMS[@]}" \
-    --policy "$POLICY" --max-speed "$MAX_SPEED" --gain-scale "$GAIN_SCALE" "$@" 2> >(grep -v '^INFO' >&2)
+    --policy "$POLICY" --task "$TASK" --max-speed "$MAX_SPEED" --gain-scale "$GAIN_SCALE" "$@" 2> >(grep -v '^INFO' >&2)
