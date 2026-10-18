@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Robot side of the skill store web app (skill_store/): every plan deployed from the web page runs
-# our policy end to end with grasp.sh, in this terminal (GO, Enter and Ctrl+C work as usual).
+# our policy end to end with grasp.sh in this terminal. The deploy button is the go: no typed GO
+# (--auto-start), but the preflight still has to pass. Enter stops / releases torque at the end,
+# Ctrl+C stops at once.
 #   ./scripts/skillstore_runner.sh lleeoogg/act-cocktail-grasp-20261018-0415
 #   ./scripts/skillstore_runner.sh lleeoogg/pi0-5-cocktail-grasp-20261018-042906 --remote cocktail-policy
 #   ./scripts/skillstore_runner.sh MODEL --grasp-args=--sim            # no robot
@@ -14,4 +16,5 @@ if [ -z "${ROBOT_SHARED_SECRET:-}" ] && [ -f ~/.skillstore_secret ]; then
     ROBOT_SHARED_SECRET="$(cat ~/.skillstore_secret)"
     export ROBOT_SHARED_SECRET
 fi
-exec python3 skill_store/runner/runner.py --openarm --model "$MODEL" --retries 0 "$@"
+# A later --grasp-args (e.g. --grasp-args=--sim) replaces this default.
+exec python3 skill_store/runner/runner.py --openarm --model "$MODEL" --retries 0 --grasp-args=--auto-start "$@"
