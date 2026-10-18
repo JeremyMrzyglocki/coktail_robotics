@@ -123,6 +123,31 @@ motors, SDK) and gives you that command.
 On the VM CPU, ACT replans every 100 steps and that cycle takes ~0.2 s: the arm pauses briefly
 (it holds its last command, no jump). A faster machine or GPU removes the pause.
 
+### Policy on a Hugging Face GPU (pi0.5)
+
+pi0.5 (3B) is too slow for the VM CPU: it runs in a private Docker Space with a GPU
+(`remote/policy_space/`: Dockerfile + FastAPI `server.py`, built by Hugging Face), driven by
+`scripts/remote_policy.py`. The paying account's token goes in `~/.hf_compute_token` on the VM
+(chmod 600, never in the repo); it must have accepted the license of the gated
+`google/paligemma-3b-pt-224` (pi0.5's tokenizer).
+```bash
+.venv/bin/python scripts/remote_policy.py deploy antonin-leroy/pi05-cocktail-grasp   # build ~10 min
+.venv/bin/python scripts/remote_policy.py status    # BUILDING / RUNNING, then state "ready"
+.venv/bin/python scripts/remote_policy.py test      # round trip vs chunk length, no robot
+./scripts/grasp.sh antonin-leroy/pi05-cocktail-grasp --remote cocktail-policy
+.venv/bin/python scripts/remote_policy.py pause     # GPU off: billing stops
+```
+- Same pipeline as on the VM (`prepare_observation_for_inference`, the policy's processors, same
+  LeRobot 0.6.2), the cameras' rotate/crop/zoom applied on the robot side; frames travel as JPEG q95.
+- The server returns the whole chunk (50 actions = 1.7 s for pi0.5). The robot asks for the next
+  one 0.6 s before the end (`--refill`) from a fresh observation and skips the steps that went by
+  during the round trip: no pause at the chunk boundary.
+- No chunk (network, server down): the arm holds its last target; after `--remote-timeout` (3 s)
+  the run stops as on Enter, pose held with torque on. Tested in `--sim` by killing the server
+  during the approach and during the policy.
+- The Space sleeps after `--sleep` (1 h) without requests; waking it up takes a few minutes
+  (`grasp.sh --remote` waits). Works with any LeRobot policy that has `predict_action_chunk` (ACT too).
+
 Handover to `skills/pour` (read from openarm-driver 0.5.1, not tried on the robot yet):
 - Its `Robot.enable()` calls `SingleArmDriver.start()`, which enables the motors and holds the
   measured pose (no disable first); `robot_io` skips the start trajectory. Only the pouring arm

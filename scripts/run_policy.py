@@ -15,12 +15,20 @@ Usage:
   uv run python scripts/run_policy.py --left can0 --right can1 --camera top=0 \
       --policy antonin-leroy/act-cocktail-grasp --then "uv run python pour.py"
   uv run python scripts/run_policy.py --sim --camera top=0 --policy outputs/train/<job>/checkpoints/last/pretrained_model
+  ./scripts/grasp.sh antonin-leroy/pi05-cocktail-grasp --remote NAMESPACE/cocktail-policy   # GPU Space
+
+--remote runs the policy on a Hugging Face GPU (scripts/remote_policy.py deploys it): the robot
+executes each chunk while the next one is computed from a fresh observation, sent --refill s before
+the end; the steps that went by during the round trip are skipped. If no chunk arrives the arm holds
+its last target, and after --remote-timeout s the run stops as on Enter (pose held, torque on).
 """
 
 import argparse
 import shlex
 import subprocess
 import time
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 import torch
@@ -86,20 +94,97 @@ class PolicyDriver:
     def reset(self):
         self.policy.reset()
 
-    def act(self, follower_deg: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
-        obs = {"observation.state": np.array(
-            [follower_deg[a.side][n] for a in self.arms for n in NAMES], dtype=np.float32)}
-        for name, img in read_images(self.cameras, self.specs).items():
-            obs[f"observation.images.{name}"] = img
-        obs = prepare_observation_for_inference(obs, self.device, self.task, ROBOT_TYPE)
-        with torch.inference_mode():
-            action = self.post(self.policy.select_action(self.pre(obs)))
-        vec = action.squeeze(0).cpu().numpy()
+    def observe(self, follower_deg: dict[str, dict[str, float]]) -> tuple[np.ndarray, dict]:
+        state = np.array([follower_deg[a.side][n] for a in self.arms for n in NAMES], dtype=np.float32)
+        return state, read_images(self.cameras, self.specs)
+
+    def to_sides(self, vec) -> dict[str, dict[str, float]]:
         out = {a.side: {} for a in self.arms}
         for key, value in zip(self.keys, vec):
             side, joint = key.removesuffix(".pos").split("_", 1)
             out[side][joint] = float(value)
         return out
+
+    def act(self, follower_deg: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
+        state, images = self.observe(follower_deg)
+        obs = {"observation.state": state, **{f"observation.images.{k}": v for k, v in images.items()}}
+        obs = prepare_observation_for_inference(obs, self.device, self.task, ROBOT_TYPE)
+        with torch.inference_mode():
+            action = self.post(self.policy.select_action(self.pre(obs)))
+        return self.to_sides(action.squeeze(0).cpu().numpy())
+
+
+class RemoteDriver(PolicyDriver):
+    """Same interface as PolicyDriver, the policy runs on a GPU Space (scripts/remote_policy.py).
+
+    act() is called at the control rate and never waits once the first chunk is in: it pops the
+    next action and, when --refill s are left, sends the current observation in a background
+    thread. A chunk computed from the observation of tick k is applied from the current tick on.
+    """
+
+    def __init__(self, space: str, path: str, arms, cameras, specs, task: str, fps: float, refill_s: float):
+        from remote_policy import RemotePolicy
+
+        self.cfg = PreTrainedConfig.from_pretrained(path)  # config.json only: the feature check
+        self.arms, self.cameras, self.specs, self.task = arms, cameras, specs, task
+        self.keys = joint_keys(arms)
+        self._check_features()
+        self.client = RemotePolicy(space)
+        info = self.client.wait_ready()
+        if info["policy"] != path:
+            raise SystemExit(f"the Space serves {info['policy']}, not {path}: "
+                             f"scripts/remote_policy.py deploy {path}")
+        print(f"Remote policy {info['type']} on {info['gpu'] or info['device']} ({self.client.url})")
+        self.refill = max(1, round(refill_s * fps))
+        self.pool = ThreadPoolExecutor(max_workers=1)
+        self.round_trips: list[float] = []
+        self.last = None  # only the very first chunk is waited for: later on, a missing one holds this
+        self.reset()
+
+    def reset(self):
+        self.queue, self.pending, self.tick, self.starved_since = deque(), None, 0, None
+
+    def _send(self, follower_deg):
+        state, images = self.observe(follower_deg)
+        t0 = time.monotonic()
+        self.pending = (self.tick, t0, self.pool.submit(self.client.act, state, images, self.task, ROBOT_TYPE))
+
+    def _receive(self, wait: bool):
+        sent_tick, t0, future = self.pending
+        if not wait and not future.done():
+            return
+        self.pending = None
+        try:
+            actions, _ = future.result()
+        except Exception as e:  # noqa: BLE001  network / server error: hold, retry on the next tick
+            print(f"\n  remote policy: {type(e).__name__}: {e}")
+            if wait:
+                raise
+            return
+        self.round_trips.append(time.monotonic() - t0)
+        self.queue = deque(actions[self.tick - sent_tick:])  # the steps that went by are skipped
+
+    @property
+    def starved_s(self) -> float:
+        return 0.0 if self.starved_since is None else time.monotonic() - self.starved_since
+
+    def act(self, follower_deg: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
+        if self.pending is None and len(self.queue) <= self.refill:
+            self._send(follower_deg)
+        if self.pending is not None:
+            self._receive(wait=self.last is None)  # the very first chunk: wait for it
+        if self.queue:
+            self.last, self.starved_since = self.queue.popleft(), None
+        elif self.starved_since is None:
+            self.starved_since = time.monotonic()
+        self.tick += 1
+        return self.to_sides(self.last)
+
+    def summary(self) -> str:
+        if not self.round_trips:
+            return "no remote chunk received"
+        rt = np.array(self.round_trips) * 1000
+        return f"{len(rt)} remote chunks, round trip p50 {np.median(rt):.0f} ms, max {rt.max():.0f} ms"
 
 
 def main():
@@ -114,13 +199,24 @@ def main():
                    help="done when the policy's targets move less than --settle-deg for this long, s")
     p.add_argument("--settle-deg", type=float, default=1.0)
     p.add_argument("--then", help="command to run after the grasp, torque kept on (e.g. the pour script)")
+    p.add_argument("--remote", metavar="SPACE",
+                   help="run the policy on this GPU Space (NAMESPACE/NAME or URL, scripts/remote_policy.py)")
+    p.add_argument("--refill", type=float, default=0.6,
+                   help="--remote: ask for the next chunk when this many s of actions are left")
+    p.add_argument("--remote-timeout", type=float, default=3.0,
+                   help="--remote: stop (holding the pose) after this many s without actions")
     args = p.parse_args()
     stop_on_signals()
 
     arms, cameras = build_rig(p, args)
-    device = pick_device(args.device)
-    print(f"Loading policy {args.policy} on {device}...")
-    driver = PolicyDriver(args.policy, device, arms, cameras, args.camera, args.task)
+    if args.remote:
+        print(f"Connecting to the remote policy {args.policy} on {args.remote}...")
+        driver = RemoteDriver(args.remote, args.policy, arms, cameras, args.camera, args.task,
+                              args.fps, args.refill)
+    else:
+        device = pick_device(args.device)
+        print(f"Loading policy {args.policy} on {device}...")
+        driver = PolicyDriver(args.policy, device, arms, cameras, args.camera, args.task)
 
     started, handed_over = False, False
     try:
@@ -173,9 +269,14 @@ def main():
             if next_key(keys) is not None:
                 reason = "Enter"
                 break
+            if getattr(driver, "starved_s", 0.0) > args.remote_timeout:
+                reason = f"no remote action for {args.remote_timeout:.0f} s"
+                break
             time.sleep(max(0.0, teleop.dt - (time.monotonic() - start)))
         print(f"Grasp done ({reason}) after {time.monotonic() - t0:.1f} s; "
               f"slowest cycle {worst_tick * 1000:.0f} ms (budget {teleop.dt * 1000:.0f} ms).")
+        if args.remote:
+            print(driver.summary())
 
         # Let the follower finish reaching the last target, then hold it.
         for _ in range(int(2.0 / teleop.dt)):
