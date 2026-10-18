@@ -43,6 +43,13 @@ and stops in a fixed handoff pose; then `skills/pour` pours (closed loop on visi
 - Follower zeros were rewritten on 2026-10-17 (previous values in `calibration/backups/`):
   joint_5 on both arms (zero moved to the middle of its 180 deg travel) and joint_3 on both arms
   (about 8-10 deg). All 16 motors read within ~5 deg of 0 in the reference pose.
+- Our zero is the motors' zero of 2026-10-18 03:43 (dataset, policies, home pose, limits). When
+  another team calibrates the robot (LeRobot `openarm_follower` re-zeros every motor), do not
+  re-zero by hand: `./scripts/zero_check.sh` (torque off; each joint to both stops, then the
+  reference pose with the marks aligned, Enter) measures the shift against
+  `calibration/zero_reference.json` and writes `calibration/zero_offsets.json` (read by `Arm` in
+  `teleop_safe.py`: our angle = motor angle - offset) and the `joint_offsets` of the pour config.
+  `zero_check.sh save` records the reference: only while the zeros are ours.
 - `skills/pour` uses `openarm_driver`, whose default config `openarm_cell.yaml` subtracts Enactic
   jig offsets (J3 +90 deg, J4 -100 deg, ...). They do not match this robot (offsets are 0 here):
   or the poses and its limit checks are wrong. `skills/pour/config/openarm_cocktail.yaml` is this
@@ -146,6 +153,14 @@ a USB drop). With CAN timeout 0 they hold forever. The preflight now flags "alre
 - Cameras: `front` = D455 by serial, `rotate=180`, 640x480 RGB at 30 fps over USB 2;
   `back` = HBV HD CAMERA (0ac8:0346) by `/dev/v4l/by-id`, only ~11 fps in the VM whatever the
   format or exposure.
+- Camera preprocessing (`rig.preprocess`, specs in `CAMERAS` of `ports.sh`, applied by
+  `record.py` and `run_policy.py` alike): capture 640x480 at 30 fps, rotate (in the camera
+  reader), crop, zoom, every output resized back to 640x480 RGB uint8.
+  `front`: rotate 180, zoom x1.1 (centre 582x436 box). `back` (top view): crop 512x384 from
+  x=16, y=40 (mat and grippers, laptop on the right left out). Episodes 0-47 of
+  `antonin-leroy/cocktail-grasp` were recorded uncropped on `back` and cropped afterwards with
+  `scripts/crop_dataset_camera.py` (2026-10-18; backup in `~/datasets_backup/` on the VM).
+  Changing a camera's spec, placement or name invalidates the dataset and the trained policies.
 - Home pose: `calibration/home_pose.json` (team's start pose, leaders held with the upper arm
   turned half a turn). `./scripts/home.sh` shows every joint's delta to it (live, read-only):
   bring leaders and followers back until all read ~0 (`--once`: exit 0 when within 15 deg).

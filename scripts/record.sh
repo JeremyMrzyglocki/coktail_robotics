@@ -8,4 +8,4 @@ reset_leaders "$LEFT_LEADER" "$RIGHT_LEADER"
 CAMS=()
 for c in "${CAMERAS[@]}"; do CAMS+=(--camera "$c"); done
 exec .venv/bin/python scripts/record.py --left "$LEFT_LEADER:$LEFT_CAN" --right "$RIGHT_LEADER:$RIGHT_CAN" \
-    "${CAMS[@]}" --max-speed "$MAX_SPEED" --gain-scale "$GAIN_SCALE" "$@" 2> >(grep -v '^INFO' >&2)
+    "${CAMS[@]}" --task "$TASK" --max-speed "$MAX_SPEED" --gain-scale "$GAIN_SCALE" "$@" 2> >(grep -v '^INFO' >&2)

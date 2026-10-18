@@ -12,12 +12,14 @@ NAT, a captive portal, or a phone hotspot.
     python runner/runner.py --mock                 # no hardware
     python runner/runner.py --mock --speed 8       # fast rehearsal
     python runner/runner.py --robot --structure dualarm
+    python runner/runner.py --openarm --model lleeoogg/act-cocktail-grasp-20261018-0415   # our OpenArm
 """
 from __future__ import annotations
 
 import argparse
 import json
 import os
+import shlex
 import signal
 import socket
 import sys
@@ -88,6 +90,13 @@ class Api:
 def build_executor(args) -> object:
     if args.mock:
         return MockExecutor(seed=args.seed, speed=args.speed)
+    if args.openarm:
+        from runner.openarm import OpenArmExecutor  # noqa: PLC0415
+
+        ex = OpenArmExecutor(args.model, remote=args.remote, max_time=args.max_time,
+                             extra=shlex.split(args.grasp_args))
+        ex.connect()
+        return ex
     from runner.moz1 import Moz1Executor  # noqa: PLC0415
 
     ex = Moz1Executor(structure=args.structure)
@@ -136,7 +145,37 @@ def run_step(api: Api, ex, step: dict, args, plan_id: int, robot_model: str,
     return False
 
 
+def run_end_to_end(api: Api, ex, job: dict, args) -> bool:
+    """One policy run for the whole plan (OpenArm: our policy does the task end to end). The
+    attempt is reported on every step, so each skill's rating is that run's outcome."""
+    plan_id = job["plan_id"]
+    robot_model = job.get("robot_model") or args.robot_model
+    print(f"\n=== plan {plan_id}: {job.get('task','')}")
+    print(f"    {len(job['steps'])} steps: " + ", ".join(s["skill_id"] for s in job["steps"]))
+    try:
+        outcome: Outcome = ex.run_plan(job)
+    except Exception as exc:  # noqa: BLE001
+        outcome = Outcome(False, 0.0, f"{type(exc).__name__}: {exc}")
+    print(f"=== plan {plan_id}: {'PASS' if outcome.success else 'FAIL'} {outcome.duration_s:.1f}s {outcome.notes}")
+    if STOP.is_set():
+        return False
+    for step in job["steps"]:
+        try:
+            _retry(api.report, idempotent=False, plan_id=plan_id, step_index=step["step_index"],
+                   skill_id=step["skill_id"], robot_model=robot_model, success=outcome.success,
+                   duration_s=outcome.duration_s, notes=outcome.notes)
+        except Exception as exc:  # noqa: BLE001
+            print(f"    WARNING: could not report step {step['step_index'] + 1} ({exc})")
+    try:
+        _retry(api.complete, plan_id, "done" if outcome.success else "failed")
+    except Exception as exc:  # noqa: BLE001
+        print(f"    WARNING: could not mark plan {plan_id} finished ({exc})")
+    return outcome.success
+
+
 def run_job(api: Api, ex, job: dict, args) -> bool:
+    if getattr(ex, "end_to_end", False):
+        return run_end_to_end(api, ex, job, args)
     plan_id = job["plan_id"]
     robot_model = job.get("robot_model", args.robot_model)
     waves = job.get("waves") or [[s] for s in job["steps"]]
@@ -231,7 +270,13 @@ def main() -> int:
     mode = ap.add_mutually_exclusive_group()
     mode.add_argument("--mock", action="store_true", help="no hardware (default)")
     mode.add_argument("--robot", action="store_true", help="drive a real Moz1")
-    ap.add_argument("--robot-model", default="Spirit AI Moz1")
+    mode.add_argument("--openarm", action="store_true",
+                      help="our OpenArm: every plan runs --model end to end with scripts/grasp.sh")
+    ap.add_argument("--model", help="--openarm: policy (Hub repo id, OWNER/REPO/SUBFOLDER or local dir)")
+    ap.add_argument("--remote", help="--openarm: run the policy on this GPU Space (scripts/remote_policy.py)")
+    ap.add_argument("--max-time", type=float, default=60.0, help="--openarm: policy time limit, s")
+    ap.add_argument("--grasp-args", default="", help='--openarm: more grasp.sh options, e.g. --grasp-args=--sim')
+    ap.add_argument("--robot-model", default=None, help="default: Spirit AI Moz1, or OpenArm v10 with --openarm")
     ap.add_argument("--structure", default="dualarm")
     ap.add_argument("--retries", type=int, default=1,
                     help="extra attempts per step before the plan aborts")
@@ -243,8 +288,11 @@ def main() -> int:
     ap.add_argument("--serial", action="store_true",
                     help="force one step at a time, to measure against parallel")
     args = ap.parse_args()
-    if not args.robot:
+    if not args.robot and not args.openarm:
         args.mock = True
+    if args.openarm and not args.model:
+        ap.error("--openarm needs --model")
+    args.robot_model = args.robot_model or ("OpenArm v10" if args.openarm else "Spirit AI Moz1")
 
     if not args.token:
         print("ROBOT_SHARED_SECRET is not set -- the API will reject this runner.")
@@ -261,7 +309,8 @@ def main() -> int:
         ex.stop()
     signal.signal(signal.SIGINT, handle_sigint)
 
-    mode_label = "MOCK" if args.mock else f"MOZ1 ({args.structure})"
+    mode_label = ("MOCK" if args.mock else f"OPENARM ({args.model})" if args.openarm
+                  else f"MOZ1 ({args.structure})")
     print(f"runner up [{mode_label}] -> {args.api}, polling every {args.poll}s")
     try:
         while not STOP.is_set():

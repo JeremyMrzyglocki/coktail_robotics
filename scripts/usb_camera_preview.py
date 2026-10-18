@@ -8,6 +8,7 @@ Usage:
   uv run scripts/usb_camera_preview.py --list                        # cameras OpenCV can open
   uv run scripts/usb_camera_preview.py 0                             # index or /dev/videoN
   uv run scripts/usb_camera_preview.py /dev/video4,rotate=180        # same options as --camera
+  uv run scripts/usb_camera_preview.py back=/dev/video4,crop=16:40:512:384   # crop / zoom as recorded
   uv run scripts/usb_camera_preview.py top=/dev/video4 --cam-width 1280 --cam-height 720
 
 Run it in the VM's own terminal (needs a display). Prefer the /dev/v4l/by-id/... path printed by
@@ -20,7 +21,7 @@ from collections import deque
 from pathlib import Path
 
 import cv2
-from rig import make_camera, parse_camera
+from rig import make_camera, parse_camera, preprocess
 
 from lerobot.cameras.opencv import OpenCVCamera
 
@@ -51,7 +52,7 @@ def list_cameras() -> None:
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("camera", nargs="?", default="0",
-                   help="[NAME=]SOURCE[,rotate=0|90|180|270], SOURCE = OpenCV index or /dev/video* path")
+                   help="[NAME=]SOURCE[,rotate=0|90|180|270][,crop=X:Y:W:H][,zoom=X], SOURCE = OpenCV index or /dev/video* path")
     p.add_argument("--list", action="store_true", help="list the cameras OpenCV can open, then quit")
     p.add_argument("--cam-width", type=int, default=640)
     p.add_argument("--cam-height", type=int, default=480)
@@ -79,14 +80,14 @@ def main() -> int:
         print("check the source with --list, or try another --cam-width/--cam-height/--fps")
         return 1
 
-    title = f"{spec.name}: {spec.source} rotate={spec.rotate}"
+    title = f"{spec.name}: {spec.source} rotate={spec.rotate} crop={spec.crop} zoom={spec.zoom}"
     stamps: deque[float] = deque(maxlen=30)
     try:
         while True:
             rgb = cam.async_read(timeout_ms=1000)  # waits for a new frame: the measured rate is real
             stamps.append(time.monotonic())
             fps = (len(stamps) - 1) / (stamps[-1] - stamps[0]) if len(stamps) > 1 else 0.0
-            img = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+            img = cv2.cvtColor(preprocess(rgb, spec), cv2.COLOR_RGB2BGR)
             h, w = img.shape[:2]
             cv2.putText(img, f"{w}x{h}  {fps:4.1f} fps (asked {args.fps})", (10, 25),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)

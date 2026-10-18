@@ -27,6 +27,9 @@ from .validator import (assign_hands, balance_hands, dependency_graph,
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_ROBOT = "Spirit AI Moz1"
+# Robots whose runner executes one end-to-end policy for the whole request (runner.py --openarm):
+# gaps and untrained catalog skills do not stop them, the policy does the task itself.
+END_TO_END_ROBOTS = {r.strip() for r in os.environ.get("END_TO_END_ROBOTS", "OpenArm v10").split(",") if r.strip()}
 
 
 def _skill_clip(skill: dict[str, Any]) -> dict[str, Any]:
@@ -173,7 +176,7 @@ def expand_composites(plan: CompiledPlan, catalog: dict[str, Any]) -> CompiledPl
     return plan.model_copy(update={"steps": steps, "missing": missing})
 
 
-def install_blockers(plan: CompiledPlan, catalog: dict[str, Any]) -> list[str]:
+def install_blockers(plan: CompiledPlan, catalog: dict[str, Any], robot_model: str = "") -> list[str]:
     """Why this plan cannot be queued even though its steps chain.
 
     A gap is work no skill does; an untrained step is a skill with no policy
@@ -181,6 +184,8 @@ def install_blockers(plan: CompiledPlan, catalog: dict[str, Any]) -> list[str]:
     would log successes for motions that were never performed -- which is how
     an untrained skill gets a rating.
     """
+    if robot_model in END_TO_END_ROBOTS:
+        return []
     plan = expand_composites(plan, catalog)
     out: list[str] = []
     if plan.missing:
@@ -200,13 +205,15 @@ def install_blockers(plan: CompiledPlan, catalog: dict[str, Any]) -> list[str]:
 
 
 def run_blockers(plan: CompiledPlan, catalog: dict[str, Any],
-                 structure: str = "dualarm") -> list[str]:
+                 structure: str = "dualarm", robot_model: str = "") -> list[str]:
     """Everything that stops this plan from going to the robot, checked now.
 
     The stored `valid` column says what the validator thought when the plan was
     last saved; the catalog and the validator have both changed since. Install
     and dispatch ask this instead.
     """
+    if robot_model in END_TO_END_ROBOTS:
+        return []
     plan = expand_composites(plan, catalog)
     issues, _ = validate(plan.steps, catalog, structure,
                          kinds=plan.kinds(), gaps=plan.missing)
@@ -236,8 +243,8 @@ def _assemble(plan: CompiledPlan, prompt: str, robot_model: str, structure: str,
         issues=issues,
         valid=not any(is_blocking(i) for i in issues),
         # The same check install makes, so the button never promises more.
-        installable=not run_blockers(plan, catalog, structure),
-        install_blockers=install_blockers(plan, catalog),
+        installable=not run_blockers(plan, catalog, structure, robot_model),
+        install_blockers=install_blockers(plan, catalog, robot_model),
         total_price_eur=round(sum(p.price_eur for p in priced), 2),
         executable_steps=sum(1 for p in priced if p.executable),
         cached=cached,
@@ -326,7 +333,7 @@ def install(payload: dict[str, Any]) -> dict[str, Any]:
         raise HTTPException(409, f"plan is already {rows[0]['status']}")
     try:
         plan = CompiledPlan.model_validate_json(rows[0]["plan_json"])
-        blockers = run_blockers(plan, cat.load_catalog())
+        blockers = run_blockers(plan, cat.load_catalog(), robot_model=rows[0]["robot_model"])
     except Exception as exc:  # noqa: BLE001
         blockers = [f"plan could not be read: {type(exc).__name__}"]
     if blockers:
@@ -430,10 +437,10 @@ def validate_endpoint(req: ValidateRequest) -> dict[str, Any]:
             raise HTTPException(409, "plan was queued while you edited it: it cannot be "
                                      "changed until the robot is done with it")
     checked = CompiledPlan(summary="", steps=steps, missing=ctx.missing, objects=ctx.objects)
-    blockers = install_blockers(checked, catalog)
+    blockers = install_blockers(checked, catalog, req.robot_model)
     return {
         "valid": valid,
-        "installable": not run_blockers(checked, catalog, req.structure),
+        "installable": not run_blockers(checked, catalog, req.structure, req.robot_model),
         "install_blockers": blockers,
         "graph": graph,
         "hands": hands,
@@ -727,7 +734,7 @@ def _claim_next(catalog: dict[str, Any]) -> tuple[Any, CompiledPlan | None]:
             # not jam the queue for every plan behind it.
             try:
                 plan = CompiledPlan.model_validate_json(row["plan_json"])
-                blocked = bool(run_blockers(plan, catalog))
+                blocked = bool(run_blockers(plan, catalog, robot_model=row["robot_model"]))
             except Exception:  # noqa: BLE001
                 blocked = True
             if blocked:

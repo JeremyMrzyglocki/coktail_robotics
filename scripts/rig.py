@@ -97,17 +97,22 @@ class SimCamera:
 
 @dataclass
 class CameraSpec:
-    """NAME=SOURCE[,rotate=DEG][,depth] from the command line.
+    """NAME=SOURCE[,rotate=DEG][,crop=X:Y:W:H][,zoom=X][,depth] from the command line.
 
     SOURCE: an OpenCV index or /dev/video* path, or realsense[:SERIAL] (librealsense; the only
     way to get depth). The D455 colour stream also works as a plain OpenCV/UVC device, which needs
     no librealsense (its aarch64 wheels need glibc 2.38, i.e. Ubuntu 24.04).
+    Preprocessing, in this order: rotate (by the camera), crop, zoom. crop and zoom resize back to
+    the capture size, so the dataset shape does not change. Recording and inference must use the
+    same spec (CAMERAS in scripts/ports.sh).
     """
 
     name: str
     source: str
     rotate: int = 0
     depth: bool = False
+    zoom: float = 1.0  # centre crop of 1/zoom of the image, resized back: same frame size
+    crop: tuple[int, int, int, int] | None = None  # X, Y, W, H in pixels of the rotated frame, resized back
 
     @property
     def realsense(self) -> bool:
@@ -122,7 +127,7 @@ def parse_camera(value: str) -> CameraSpec:
     name, sep, rest = value.partition("=")
     if not sep or not rest:
         raise argparse.ArgumentTypeError(
-            "expected NAME=SOURCE[,rotate=180][,depth], e.g. top=0, top=/dev/video4,rotate=180 "
+            "expected NAME=SOURCE[,rotate=180][,crop=X:Y:W:H][,zoom=1.1][,depth], e.g. top=0, top=/dev/video4,rotate=180 "
             "or top=realsense,rotate=180,depth")
     source, *opts = rest.split(",")
     spec = CameraSpec(name, source)
@@ -132,8 +137,14 @@ def parse_camera(value: str) -> CameraSpec:
             spec.rotate = int(val)
         elif key == "depth" and not val:
             spec.depth = True
+        elif key == "zoom" and val.replace(".", "", 1).isdigit() and float(val) >= 1.0:
+            spec.zoom = float(val)
+        elif key == "crop" and re.fullmatch(r"\d+:\d+:\d+:\d+", val) and all(int(v) for v in val.split(":")[2:]):
+            spec.crop = tuple(int(v) for v in val.split(":"))
         else:
-            raise argparse.ArgumentTypeError(f"camera {name}: unknown option '{opt}' (rotate=0|90|180|270, depth)")
+            raise argparse.ArgumentTypeError(
+                f"camera {name}: unknown option '{opt}' (rotate=0|90|180|270, crop=X:Y:W:H in pixels, "
+                "zoom=X with X >= 1, depth)")
     if spec.depth and not spec.realsense:
         raise argparse.ArgumentTypeError(f"camera {name}: depth needs a realsense source")
     return spec
@@ -171,14 +182,46 @@ def image_features(specs: list[CameraSpec], width: int, height: int) -> dict[str
     return out
 
 
+def zoom_center(img: np.ndarray, factor: float, nearest: bool = False) -> np.ndarray:
+    """Digital zoom: keep the central 1/factor of the image and resize it back to the same size."""
+    if factor <= 1.0:
+        return img
+    import cv2
+
+    h, w = img.shape[:2]
+    ch, cw = round(h / factor), round(w / factor)
+    y, x = (h - ch) // 2, (w - cw) // 2
+    out = cv2.resize(img[y:y + ch, x:x + cw], (w, h), interpolation=cv2.INTER_NEAREST if nearest else cv2.INTER_LINEAR)
+    return out.reshape(img.shape)
+
+
+def crop_box(img: np.ndarray, box: tuple[int, int, int, int] | None, nearest: bool = False) -> np.ndarray:
+    """Keep the X, Y, W, H box of the image and resize it back to the same size."""
+    if box is None:
+        return img
+    import cv2
+
+    h, w = img.shape[:2]
+    x, y, cw, ch = box
+    if x + cw > w or y + ch > h:
+        raise ValueError(f"crop {x}:{y}:{cw}:{ch} goes past the {w}x{h} frame")
+    out = cv2.resize(img[y:y + ch, x:x + cw], (w, h), interpolation=cv2.INTER_NEAREST if nearest else cv2.INTER_LINEAR)
+    return out.reshape(img.shape)
+
+
+def preprocess(img: np.ndarray, spec: CameraSpec, nearest: bool = False) -> np.ndarray:
+    """crop then zoom of the spec, on a frame already rotated by the camera (nearest for depth)."""
+    return zoom_center(crop_box(img, spec.crop, nearest), spec.zoom, nearest)
+
+
 def read_images(cameras: dict, specs: list[CameraSpec]) -> dict:
-    """{feature name: frame}: RGB for every camera, plus NAME_depth for depth cameras."""
+    """{feature name: frame}: RGB for every camera, plus NAME_depth for depth cameras (crop and zoom applied)."""
     out = {}
     for spec in specs:
         cam = cameras[spec.name]
-        out[spec.name] = cam.read_latest()
+        out[spec.name] = preprocess(cam.read_latest(), spec)
         if spec.depth:
-            out[f"{spec.name}_depth"] = cam.read_latest_depth()
+            out[f"{spec.name}_depth"] = preprocess(cam.read_latest_depth(), spec, nearest=True)
     return out
 
 
@@ -195,7 +238,7 @@ def add_rig_args(p: argparse.ArgumentParser, with_leader: bool = True):
         p.add_argument("--right", type=parse_can, help="CAN channel of the right arm, e.g. can1")
     p.add_argument("--sim", action="store_true", help="fake arms and cameras (no hardware)")
     p.add_argument("--camera", type=parse_camera, action="append", default=[],
-                   help="NAME=SOURCE[,rotate=180][,depth], repeatable; SOURCE = OpenCV index or /dev/video*, or "
+                   help="NAME=SOURCE[,rotate=180][,crop=X:Y:W:H][,zoom=1.1][,depth], repeatable; SOURCE = OpenCV index or /dev/video*, or "
                         "realsense[:SERIAL] (see `uv run lerobot-find-cameras opencv`)")
     p.add_argument("--cam-width", type=int, default=640)
     p.add_argument("--cam-height", type=int, default=480)

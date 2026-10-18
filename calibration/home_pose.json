@@ -1,48 +1,48 @@
 {
-  "saved": "2026-10-18T00:02:29",
-  "note": "position de d\u00e9part adapt\u00e9e aux skills (remplace celle du 17/10 23:45)",
+  "saved": "2026-10-18T03:46:30",
+  "note": "pose de d\u00e9part apr\u00e8s re-z\u00e9ro des 16 moteurs (photo), 18/10 03:43",
   "left": {
     "follower": {
-      "joint_1": 5.1,
-      "joint_2": 2.2,
-      "joint_3": -85.7,
-      "joint_4": 2.5,
-      "joint_5": 81.0,
-      "joint_6": -6.1,
-      "joint_7": -54.0,
-      "gripper": -1.3
+      "joint_1": -0.0,
+      "joint_2": -0.0,
+      "joint_3": -0.0,
+      "joint_4": -0.0,
+      "joint_5": -0.0,
+      "joint_6": -0.0,
+      "joint_7": -0.0,
+      "gripper": -0.0
     },
     "leader": {
-      "joint_1": -1.1,
-      "joint_2": 5.1,
-      "joint_3": 175.4,
-      "joint_4": -5.2,
-      "joint_5": -82.6,
-      "joint_6": 34.7,
-      "joint_7": 0.6,
-      "gripper": -7.2
+      "joint_1": -6.5,
+      "joint_2": 2.5,
+      "joint_3": -175.8,
+      "joint_4": -1.5,
+      "joint_5": -90.4,
+      "joint_6": -6.2,
+      "joint_7": -0.2,
+      "gripper": 0.0
     }
   },
   "right": {
     "follower": {
-      "joint_1": 0.1,
-      "joint_2": 1.2,
-      "joint_3": -85.1,
-      "joint_4": 1.5,
-      "joint_5": 84.1,
-      "joint_6": 0.9,
-      "joint_7": 47.6,
-      "gripper": -0.2
+      "joint_1": -0.0,
+      "joint_2": -0.0,
+      "joint_3": -0.0,
+      "joint_4": -0.0,
+      "joint_5": -0.0,
+      "joint_6": -0.0,
+      "joint_7": -0.0,
+      "gripper": -0.0
     },
     "leader": {
-      "joint_1": -2.8,
-      "joint_2": -1.4,
-      "joint_3": 3.5,
+      "joint_1": -3.5,
+      "joint_2": 0.2,
+      "joint_3": 4.4,
       "joint_4": -5.8,
-      "joint_5": -96.4,
-      "joint_6": 50.9,
-      "joint_7": 1.9,
-      "gripper": -0.1
+      "joint_5": -97.0,
+      "joint_6": 3.9,
+      "joint_7": 8.0,
+      "gripper": 0.0
     }
   }
 }

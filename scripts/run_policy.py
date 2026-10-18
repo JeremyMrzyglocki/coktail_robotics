@@ -15,12 +15,24 @@ Usage:
   uv run python scripts/run_policy.py --left can0 --right can1 --camera top=0 \
       --policy antonin-leroy/act-cocktail-grasp --then "uv run python pour.py"
   uv run python scripts/run_policy.py --sim --camera top=0 --policy outputs/train/<job>/checkpoints/last/pretrained_model
+  ./scripts/grasp.sh lleeoogg/pi0-5-cocktail-grasp-20261018-042906 --remote NAMESPACE/cocktail-policy   # GPU Space
+
+--remote runs the policy on a Hugging Face GPU (scripts/remote_policy.py deploys it): the robot
+executes each chunk while the next one is computed from a fresh observation, sent --refill s before
+the end; the steps that went by during the round trip are skipped, and the new chunk takes over
+from the old one with a linear cross-fade over --blend s (two chunks can disagree by tens of degrees
+at the same instant, which a plain swap turns into a one-step jump). If no chunk arrives the arm holds
+its last target, and after --remote-timeout s the run stops as on Enter (pose held, torque on).
 """
 
 import argparse
+import json
 import shlex
 import subprocess
 import time
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -37,6 +49,8 @@ from rig import (
 )
 from teleop_safe import NAMES, Teleop, confirm_start, stop_on_signals
 
+from huggingface_hub import HfApi, snapshot_download
+
 from lerobot.configs.policies import PreTrainedConfig
 from lerobot.policies import prepare_observation_for_inference
 from lerobot.policies.factory import get_policy_class, make_pre_post_processors
@@ -50,10 +64,51 @@ def pick_device(name: str) -> str:
     return "mps" if torch.backends.mps.is_available() else "cpu"
 
 
+def resolve_policy(spec: str, weights: bool = True) -> str:
+    """Local dir, or Hub OWNER/REPO[/SUBFOLDER] -> local pretrained_model dir. A repo without a
+    config.json at its root (training pushed with --save_checkpoint_to_hub) gives its last
+    checkpoints/N/pretrained_model. weights=False downloads only the config files."""
+    if Path(spec).is_dir():
+        return spec
+    parts = spec.strip("/").split("/")
+    repo, sub = "/".join(parts[:2]), "/".join(parts[2:])
+    if not sub:
+        files = HfApi().list_repo_files(repo)
+        if "config.json" not in files:
+            steps = sorted({f.split("/")[1] for f in files if f.startswith("checkpoints/")
+                            and f.endswith("/pretrained_model/config.json")}, key=lambda x: (x.isdigit(), x))
+            if not steps:
+                raise SystemExit(f"{repo}: no config.json and no checkpoints/*/pretrained_model")
+            sub = f"checkpoints/{steps[-1]}/pretrained_model"
+            print(f"  {repo}: last checkpoint {sub}")
+    prefix = f"{sub}/" if sub else ""
+    patterns = [f"{prefix}*"] if weights else [f"{prefix}config.json", f"{prefix}policy_preprocessor.json"]
+    if weights and not sub:
+        patterns = ["*.json", "*.safetensors", "tokenizer/*"]
+    # Root model: skip the checkpoints/ of the training (fnmatch's * also matches "/").
+    ignore = None if sub else ["checkpoints/*"]
+    return str(Path(snapshot_download(repo, allow_patterns=patterns, ignore_patterns=ignore)) / sub)
+
+
+def robot_cameras(cfg, path: str) -> set[str]:
+    """Camera names the robot must send: the policy's images before its rename step (e.g. pi0.5's
+    base_0_rgb <- back), without its empty cameras (the policy pads those itself)."""
+    rename = {}
+    pre = Path(path) / "policy_preprocessor.json"
+    if pre.exists():
+        for step in json.loads(pre.read_text())["steps"]:
+            if step.get("registry_name") == "rename_observations_processor":
+                rename = step["config"]["rename_map"]
+    inverse = {v: k for k, v in rename.items()}
+    return {inverse.get(k, k).removeprefix("observation.images.") for k in cfg.input_features
+            if k.startswith("observation.images.") and ".empty_camera_" not in k}
+
+
 class PolicyDriver:
     """Observation (follower degrees + camera frames) -> policy -> {side: {joint: deg}}."""
 
     def __init__(self, path: str, device: str, arms, cameras, specs, task: str):
+        path = self.path = resolve_policy(path)
         self.cfg = PreTrainedConfig.from_pretrained(path)
         self.cfg.device = device
         self.device = torch.device(device)
@@ -67,8 +122,7 @@ class PolicyDriver:
 
     def _check_features(self):
         """Fail before any motion if the policy was trained on other arms or cameras."""
-        want_images = {k.removeprefix("observation.images.") for k in self.cfg.input_features
-                       if k.startswith("observation.images.")}
+        want_images = robot_cameras(self.cfg, self.path)
         state = self.cfg.input_features.get("observation.state")
         action = self.cfg.output_features.get("action")
         problems = []
@@ -86,20 +140,113 @@ class PolicyDriver:
     def reset(self):
         self.policy.reset()
 
-    def act(self, follower_deg: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
-        obs = {"observation.state": np.array(
-            [follower_deg[a.side][n] for a in self.arms for n in NAMES], dtype=np.float32)}
-        for name, img in read_images(self.cameras, self.specs).items():
-            obs[f"observation.images.{name}"] = img
-        obs = prepare_observation_for_inference(obs, self.device, self.task, ROBOT_TYPE)
-        with torch.inference_mode():
-            action = self.post(self.policy.select_action(self.pre(obs)))
-        vec = action.squeeze(0).cpu().numpy()
+    def observe(self, follower_deg: dict[str, dict[str, float]]) -> tuple[np.ndarray, dict]:
+        state = np.array([follower_deg[a.side][n] for a in self.arms for n in NAMES], dtype=np.float32)
+        return state, read_images(self.cameras, self.specs)
+
+    def to_sides(self, vec) -> dict[str, dict[str, float]]:
         out = {a.side: {} for a in self.arms}
         for key, value in zip(self.keys, vec):
             side, joint = key.removesuffix(".pos").split("_", 1)
             out[side][joint] = float(value)
         return out
+
+    def act(self, follower_deg: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
+        state, images = self.observe(follower_deg)
+        obs = {"observation.state": state, **{f"observation.images.{k}": v for k, v in images.items()}}
+        obs = prepare_observation_for_inference(obs, self.device, self.task, ROBOT_TYPE)
+        with torch.inference_mode():
+            action = self.post(self.policy.select_action(self.pre(obs)))
+        return self.to_sides(action.squeeze(0).cpu().numpy())
+
+
+class RemoteDriver(PolicyDriver):
+    """Same interface as PolicyDriver, the policy runs on a GPU Space (scripts/remote_policy.py).
+
+    act() is called at the control rate and never waits once the first chunk is in: it pops the
+    next action and, when --refill s are left, sends the current observation in a background
+    thread. A chunk computed from the observation of tick k is applied from the current tick on.
+    """
+
+    def __init__(self, space: str, path: str, arms, cameras, specs, task: str, fps: float, refill_s: float,
+                 blend_s: float = 0.33):
+        from remote_policy import RemotePolicy
+
+        self.path = resolve_policy(path, weights=False)  # config files only: the feature check
+        self.cfg = PreTrainedConfig.from_pretrained(self.path)
+        self.arms, self.cameras, self.specs, self.task = arms, cameras, specs, task
+        self.keys = joint_keys(arms)
+        self._check_features()
+        self.client = RemotePolicy(space)
+        info = self.client.wait_ready()
+        if info["policy"] != path:
+            raise SystemExit(f"the Space serves {info['policy']}, not {path}: "
+                             f"scripts/remote_policy.py deploy {path}")
+        print(f"Remote policy {info['checkpoint']} ({info['type']}) on {info['gpu'] or info['device']}")
+        served = info["checkpoint"].split("/", 2)[2] if info["checkpoint"].count("/") > 1 else ""
+        if served and not self.path.endswith(served):
+            print(f"  note: features checked on {self.path}, the Space serves {served} (pushed since?)")
+        self.refill = max(1, round(refill_s * fps))
+        self.blend = max(0, round(blend_s * fps))
+        self.max_swap = 0.0  # biggest old-vs-new chunk disagreement at a swap, deg
+        self.pool = ThreadPoolExecutor(max_workers=1)
+        self.round_trips: list[float] = []
+        self.last = None  # only the very first chunk is waited for: later on, a missing one holds this
+        self.reset()
+
+    def reset(self):
+        self.queue, self.pending, self.tick, self.starved_since = deque(), None, 0, None
+
+    def _send(self, follower_deg):
+        state, images = self.observe(follower_deg)
+        t0 = time.monotonic()
+        self.pending = (self.tick, t0, self.pool.submit(self.client.act, state, images, self.task, ROBOT_TYPE))
+
+    def _receive(self, wait: bool):
+        sent_tick, t0, future = self.pending
+        if not wait and not future.done():
+            return
+        self.pending = None
+        try:
+            actions, _ = future.result()
+        except Exception as e:  # noqa: BLE001  network / server error: hold, retry on the next tick
+            print(f"\n  remote policy: {type(e).__name__}: {e}")
+            if wait:
+                raise
+            return
+        self.round_trips.append(time.monotonic() - t0)
+        new = list(actions[self.tick - sent_tick:])  # the steps that went by are skipped
+        old = list(self.queue) or ([self.last] if self.last is not None else [])
+        if old and new:
+            self.max_swap = max(self.max_swap, float(np.max(np.abs(new[0] - old[0]))))
+            n = min(self.blend, len(new))
+            for i in range(n):  # weight of the new chunk: 1/n ... 1
+                w = (i + 1) / n
+                new[i] = (1 - w) * old[min(i, len(old) - 1)] + w * new[i]
+        self.queue = deque(new)
+
+    @property
+    def starved_s(self) -> float:
+        return 0.0 if self.starved_since is None else time.monotonic() - self.starved_since
+
+    def act(self, follower_deg: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
+        if self.pending is None and len(self.queue) <= self.refill:
+            self._send(follower_deg)
+        if self.pending is not None:
+            self._receive(wait=self.last is None)  # the very first chunk: wait for it
+        if self.queue:
+            self.last, self.starved_since = self.queue.popleft(), None
+        elif self.starved_since is None:
+            self.starved_since = time.monotonic()
+        self.tick += 1
+        return self.to_sides(self.last)
+
+    def summary(self) -> str:
+        if not self.round_trips:
+            return "no remote chunk received"
+        rt = np.array(self.round_trips) * 1000
+        return (f"{len(rt)} remote chunks, round trip p50 {np.median(rt):.0f} ms, max {rt.max():.0f} ms; "
+                f"biggest chunk disagreement at a swap {self.max_swap:.1f} deg (cross-faded)")
 
 
 def main():
@@ -114,13 +261,28 @@ def main():
                    help="done when the policy's targets move less than --settle-deg for this long, s")
     p.add_argument("--settle-deg", type=float, default=1.0)
     p.add_argument("--then", help="command to run after the grasp, torque kept on (e.g. the pour script)")
+    p.add_argument("--auto-start", action="store_true",
+                   help="no typed GO (the preflight still has to pass): for skill_store's deploy button")
+    p.add_argument("--remote", metavar="SPACE",
+                   help="run the policy on this GPU Space (NAMESPACE/NAME or URL, scripts/remote_policy.py)")
+    p.add_argument("--refill", type=float, default=1.0,
+                   help="--remote: ask for the next chunk when this many s of actions are left")
+    p.add_argument("--blend", type=float, default=0.33,
+                   help="--remote: cross-fade from the old chunk to the new one over this many s")
+    p.add_argument("--remote-timeout", type=float, default=3.0,
+                   help="--remote: stop (holding the pose) after this many s without actions")
     args = p.parse_args()
     stop_on_signals()
 
     arms, cameras = build_rig(p, args)
-    device = pick_device(args.device)
-    print(f"Loading policy {args.policy} on {device}...")
-    driver = PolicyDriver(args.policy, device, arms, cameras, args.camera, args.task)
+    if args.remote:
+        print(f"Connecting to the remote policy {args.policy} on {args.remote}...")
+        driver = RemoteDriver(args.remote, args.policy, arms, cameras, args.camera, args.task,
+                              args.fps, args.refill, args.blend)
+    else:
+        device = pick_device(args.device)
+        print(f"Loading policy {args.policy} on {device}...")
+        driver = PolicyDriver(args.policy, device, arms, cameras, args.camera, args.task)
 
     started, handed_over = False, False
     try:
@@ -136,7 +298,8 @@ def main():
             raise RuntimeError(f"no answer from {missing}")
         driver.reset()
         first = driver.act({s: {n: float(np.degrees(st[n].q)) for n in NAMES} for s, st in states.items()})
-        if not args.sim and not confirm_start(arms, args.approach_speed, targets=lambda arm: first[arm.side]):
+        if not args.sim and not confirm_start(arms, args.approach_speed, targets=lambda arm: first[arm.side],
+                                              ask=not args.auto_start):
             return
         started = True
         keys = stdin_lines()
@@ -173,9 +336,14 @@ def main():
             if next_key(keys) is not None:
                 reason = "Enter"
                 break
+            if getattr(driver, "starved_s", 0.0) > args.remote_timeout:
+                reason = f"no remote action for {args.remote_timeout:.0f} s"
+                break
             time.sleep(max(0.0, teleop.dt - (time.monotonic() - start)))
         print(f"Grasp done ({reason}) after {time.monotonic() - t0:.1f} s; "
               f"slowest cycle {worst_tick * 1000:.0f} ms (budget {teleop.dt * 1000:.0f} ms).")
+        if args.remote:
+            print(driver.summary())
 
         # Let the follower finish reaching the last target, then hold it.
         for _ in range(int(2.0 / teleop.dt)):
