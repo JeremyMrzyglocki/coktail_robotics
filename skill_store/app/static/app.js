@@ -323,7 +323,7 @@ function renderMeta() {
   const runnable = !runActive && !!(plan && plan.installable && steps.length);
   btn.disabled = !runnable;
   btn.firstElementChild.textContent = runActive ? "Running on the robot…"
-    : runnable ? "Install & run"
+    : runnable ? (robot().startsWith("OpenArm") ? "Deploy on the robot" : "Install & run")
     : plan && !plan.valid ? "Blocked by validator"
     : "Not runnable: " + ((plan && plan.install_blockers) || []).join(" · ");
 }
