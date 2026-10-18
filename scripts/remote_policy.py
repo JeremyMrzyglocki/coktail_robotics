@@ -156,8 +156,8 @@ def logs(api: HfApi, args) -> None:
                         lines.append(raw[5:].decode(errors="replace"))
                 if time.monotonic() > deadline:  # the stream stays open while the Space runs
                     break
-    except requests.exceptions.ReadTimeout:
-        pass
+    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
+        pass  # no new line for 15 s: what came so far is the log
     print("\n".join(lines[-args.n:]) or f"no {kind} log yet")
 
 
