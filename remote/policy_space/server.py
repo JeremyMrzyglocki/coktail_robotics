@@ -69,7 +69,8 @@ def resolve(spec: str) -> tuple[str, str]:
             if not steps:
                 raise RuntimeError(f"{repo}: no config.json and no checkpoints/*/pretrained_model")
             sub = f"checkpoints/{steps[-1]}/pretrained_model"
-    local = snapshot_download(repo, allow_patterns=[f"{sub}/*"] if sub else ["*.json", "*.safetensors", "tokenizer/*"])
+    local = snapshot_download(repo, allow_patterns=[f"{sub}/*"] if sub else ["*.json", "*.safetensors", "tokenizer/*"],
+                              ignore_patterns=None if sub else ["checkpoints/*"])  # fnmatch's * matches "/"
     return os.path.join(local, sub), f"{repo}/{sub}" if sub else repo
 
 

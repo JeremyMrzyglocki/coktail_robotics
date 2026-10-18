@@ -85,7 +85,9 @@ def resolve_policy(spec: str, weights: bool = True) -> str:
     patterns = [f"{prefix}*"] if weights else [f"{prefix}config.json", f"{prefix}policy_preprocessor.json"]
     if weights and not sub:
         patterns = ["*.json", "*.safetensors", "tokenizer/*"]
-    return str(Path(snapshot_download(repo, allow_patterns=patterns)) / sub)
+    # Root model: skip the checkpoints/ of the training (fnmatch's * also matches "/").
+    ignore = None if sub else ["checkpoints/*"]
+    return str(Path(snapshot_download(repo, allow_patterns=patterns, ignore_patterns=ignore)) / sub)
 
 
 def robot_cameras(cfg, path: str) -> set[str]:
