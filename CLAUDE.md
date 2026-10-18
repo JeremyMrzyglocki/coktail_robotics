@@ -26,6 +26,8 @@ Bimanual OpenArm (Enactic, v10) that grasps a bottle and a glass, stops in a fix
   `scripts/record.py` (LeRobotDataset v3) and `scripts/run_policy.py` (ACT grasp, then `--then`
   hands over with torque kept on). `scripts/rig.py`: shared setup and `--sim` fakes.
 - `scripts/usb_camera_preview.py` / `scripts/realsense_preview.py`: camera previews (no robot).
+- `scripts/motion.sh record NAME [--waypoints]` (torque off, move the followers by hand) / `play NAME`
+  (teleop start and safety stops): hardcoded demos saved in `motions/NAME.json`.
 - Wrappers read `scripts/ports.sh` (leaders by USB serial, CAN channels, cameras):
   `setup_can.sh`, `teleop.sh`, `watch.sh`, `record.sh`, `grasp.sh`, `cocktail.sh MODEL_LINK` (grasp
   then pour; `/cocktail` skill in `.claude/skills/`); `train_act.sh` on a GPU box.
