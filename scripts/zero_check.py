@@ -12,8 +12,9 @@ Torque off only (Damiao refresh, refuses enabled motors). While the live view ru
   2. put the arms in the reference pose (hanging, gripper closed, the marks on each joint
      aligned), then press Enter.
 save writes calibration/zero_reference.json: that pose and the stops, in our frame (motor angle
-minus the current offsets). The default run compares with it and writes the per-joint offset to
-calibration/zero_offsets.json (read by every script that drives the arms, see teleop_safe.py) and
+minus the current offsets); save --stops-only adds the stops and keeps the pose (the committed
+reference pose is the home pose, all joints 0). The default run compares with it and writes the
+per-joint offset to calibration/zero_offsets.json (read by every script that drives the arms, see teleop_safe.py) and
 to the joint_offsets of skills/pour/config/openarm_cocktail.yaml. The motors are never written.
 
 Offset of a joint = the stops' shift when both stops were reached and agree (repeatable to a
@@ -99,6 +100,7 @@ def main() -> int:
     p.add_argument("action", nargs="?", choices=["check", "save"], default="check")
     p.add_argument("--left", help="CAN channel of the left arm, e.g. can0")
     p.add_argument("--right", help="CAN channel of the right arm, e.g. can1")
+    p.add_argument("--stops-only", action="store_true", help="save: add the stops, keep the reference pose")
     args = p.parse_args()
     channels = {s: c for s, c in (("left", args.left), ("right", args.right)) if c}
     if not channels:
@@ -119,9 +121,12 @@ def main() -> int:
         ref["saved"] = datetime.now().isoformat(timespec="seconds")
         for side, m in seen.items():
             off = current.get(side, {})
-            ref[side] = {k: {n: round(v[n] - off.get(n, 0.0), 2) for n in NAMES} for k, v in m.items()}
+            keys = ["min", "max"] if args.stops_only else ["pose", "min", "max"]
+            ref.setdefault(side, {}).update({k: {n: round(m[k][n] - off.get(n, 0.0), 2) for n in NAMES}
+                                             for k in keys})
         REF_FILE.write_text(json.dumps(ref, indent=1) + "\n")
-        print(f"\nReference saved to {REF_FILE.relative_to(ROOT)} (pose + stops, our frame).")
+        print(f"\nReference saved to {REF_FILE.relative_to(ROOT)} ({'stops' if args.stops_only else 'pose + stops'}, "
+              "our frame).")
         return 0
 
     ref = json.loads(REF_FILE.read_text())
@@ -134,7 +139,10 @@ def main() -> int:
         offsets[side] = {}
         for n in NAMES:
             d_pose = m["pose"][n] - r["pose"][n]
-            d_lo, d_hi = m["min"][n] - r["min"][n], m["max"][n] - r["max"][n]
+            if "min" in r:
+                d_lo, d_hi = m["min"][n] - r["min"][n], m["max"][n] - r["max"][n]
+            else:  # reference pose only (no stops saved yet)
+                d_lo = d_hi = math.nan
             stops = abs(d_lo - d_hi) <= STOPS_AGREE_DEG
             used = (d_lo + d_hi) / 2 if stops else d_pose
             if stops and abs(used - d_pose) > POSE_VS_STOPS_DEG:
