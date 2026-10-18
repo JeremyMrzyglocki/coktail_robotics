@@ -24,6 +24,7 @@ import math
 import signal
 import sys
 import time
+from dataclasses import replace
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -60,6 +61,10 @@ DIRECTION_MIN_DEG = 5.0  # a joint must move at least this much on both arms to 
 # replace LeRobot's generic limits joint by joint: a command past a real mechanical stop makes the
 # motor push into it at full torque and overheat (right joint_3 reached 81 C that way).
 LIMITS_FILE = ROOT / "calibration" / "joint_limits.json"
+# Per side, degrees between the motors' stored zero and ours (the zero of the dataset): our angle =
+# motor angle - offset. The motors' zero gets rewritten when another team calibrates the robot with
+# LeRobot; scripts/zero_check.py measures the new offsets instead of writing the motors. Absent = 0.
+ZERO_FILE = ROOT / "calibration" / "zero_offsets.json"
 
 
 def load_joint_limits() -> dict[str, dict[str, tuple[float, float]]]:
@@ -109,6 +114,10 @@ def load_swaps() -> dict[str, list[list[str]]]:
     return json.loads(SWAPS_FILE.read_text()) if SWAPS_FILE.exists() else {}
 
 
+def load_zero_offsets() -> dict[str, dict[str, float]]:
+    return json.loads(ZERO_FILE.read_text()) if ZERO_FILE.exists() else {}
+
+
 class Arm:
     """One follower arm on a CAN channel, with its leader unless leader_port is None (policy runs)."""
 
@@ -123,6 +132,7 @@ class Arm:
         self.flips = set(load_flips().get(side, []))
         self.offsets = load_offsets().get(side, {})
         self.swaps = load_swaps().get(side, [])
+        self.zero = load_zero_offsets().get(side, {})
 
     def connect(self):
         # Ping + reads only: no configure(), no calibration write, the leader stays as it is.
@@ -161,25 +171,33 @@ class Arm:
         lo, hi = self.limits[name]
         return min(max(deg, lo), hi)
 
+    def to_ours(self, states):
+        """Motor feedback in our zero (see ZERO_FILE)."""
+        return {n: replace(s, q=s.q - math.radians(self.zero.get(n, 0.0))) for n, s in states.items()}
+
+    def to_motor(self, name: str, deg: float) -> float:
+        """Our angle in deg -> the motor's angle in rad."""
+        return math.radians(deg + self.zero.get(name, 0.0))
+
     def follower_states(self):
-        return read_states(self.bus, timeout=0.2)
+        return self.to_ours(read_states(self.bus, timeout=0.2))
 
     def enable_and_hold(self, hold_deg: dict[str, float], scale: float):
         self.enabled = True
         for name, send_id, mtype in ARM_MOTORS:
             send_enable(self.bus, send_id)
-            send_mit(self.bus, send_id, mtype, math.radians(hold_deg[name]),
+            send_mit(self.bus, send_id, mtype, self.to_motor(name, hold_deg[name]),
                      kp=KP[name] * scale, kd=KD[name] * max(scale, 0.2))
-        return collect_states(self.bus, ARM_MOTORS, timeout=0.05)
+        return self.to_ours(collect_states(self.bus, ARM_MOTORS, timeout=0.05))
 
     def command(self, cmd_deg: dict[str, float], scale: float, vel_dps: dict[str, float] | None = None):
         """MIT command; vel_dps (deg/s) is the commanded velocity, so kd damps the error to the
         intended motion instead of braking every move (0 when holding)."""
         for name, send_id, mtype in ARM_MOTORS:
-            send_mit(self.bus, send_id, mtype, math.radians(cmd_deg[name]),
+            send_mit(self.bus, send_id, mtype, self.to_motor(name, cmd_deg[name]),
                      dq=math.radians(vel_dps[name]) if vel_dps else 0.0,
                      kp=KP[name] * scale, kd=KD[name] * max(scale, 0.2))
-        return collect_states(self.bus, ARM_MOTORS, timeout=0.01)
+        return self.to_ours(collect_states(self.bus, ARM_MOTORS, timeout=0.01))
 
     def disable(self):
         for _, send_id, _ in ARM_MOTORS:
@@ -459,6 +477,11 @@ def confirm_start(arms: list[Arm], approach_speed: float, targets=None) -> bool:
     for arm, (_, (name, gap)) in zip(arms, checks):
         print(f"[{arm.side}] biggest startup move: {name} {gap:+.1f} deg, "
               f"~{abs(gap) / approach_speed:.1f} s at {approach_speed:.0f} deg/s")
+    zero = load_zero_offsets()
+    biggest = max((abs(v) for side in zero.values() if isinstance(side, dict) for v in side.values()), default=0.0)
+    print(f"Zero offsets: {ZERO_FILE.name} of {zero['saved']}, up to {biggest:.1f} deg (re-run "
+          "./scripts/zero_check.sh if another team calibrated the robot since)" if zero else
+          "Zero offsets: none (motor zero = ours). After another team's calibration: ./scripts/zero_check.sh")
     # Prompt on stdout ourselves: input() may write it to stderr, which watch/teleop.sh filter.
     print("\nTorque will be enabled on the follower. Type GO and press Enter to start: ", end="", flush=True)
     if input().strip() != "GO":

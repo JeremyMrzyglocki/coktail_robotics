@@ -20,6 +20,9 @@ Bimanual OpenArm (Enactic, v10) that grasps a bottle and a glass, stops in a fix
 - `hardware/damiao.py`: minimal Damiao protocol (ported from enactic/openarm_can) over python-can.
 - `scripts/calibrate_zero.py --can canX [--joints ...]`: socketcan zero calibration of selected
   motors, live view, typed ZERO, backup in `calibration/backups/`.
+- `scripts/zero_check.sh [save]`: our zero kept in `calibration/zero_offsets.json` (motor angle -
+  ours) instead of in the motors, which other teams re-zero; measured against the stops and
+  the reference pose of `calibration/zero_reference.json`. Never writes the motors.
 - `scripts/read_joints.py`: macOS PCAN read-only dump (on Linux use `./scripts/teleop.sh both`).
 - `scripts/teleop_safe.py`: socketcan teleop with read-only check/watch/direction test; `--run`
   ramps gains, approaches slowly, caps speed. Its `Teleop` loop is shared by:

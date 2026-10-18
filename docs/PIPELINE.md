@@ -23,6 +23,11 @@ opposite of the OpenArm SDK default; `skills/pour` gets it from
 calibration (closed reads 0 only with the leader's own file). The side picks the joint limits and
 the leader's joint flips: a wrong side shows up as joints moving the mirrored way.
 
+If another team used the robot since (their LeRobot calibration re-zeros every motor), run
+`./scripts/zero_check.sh` before anything else: torque off, push each joint to both stops, put the
+arms in the reference pose (marks aligned, grippers closed), Enter. It writes the offsets that
+bring the motors back to the zero of our dataset and policies, without writing the motors.
+
 ## 2. Joint directions (read-only)
 
 ```bash

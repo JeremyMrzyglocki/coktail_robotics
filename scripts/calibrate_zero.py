@@ -95,6 +95,9 @@ def main():
             print(f"\nCheck needed: not at zero={off} missing={missing}")
             return 1
         print(f"\nDone. Previous positions saved to {backup.relative_to(ROOT)}")
+        zero_file = ROOT / "calibration" / "zero_offsets.json"
+        if zero_file.exists():
+            print(f"{zero_file.relative_to(ROOT)} no longer matches these motors: re-run ./scripts/zero_check.sh")
         return 0
     finally:
         bus.shutdown()
